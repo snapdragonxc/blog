@@ -1,0 +1,27 @@
+.article-title {
+	margin: 0;
+    line-height: 1;
+    letter-spacing: 4px;
+    text-transform:  uppercase;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+.article-abstract {
+	padding: 15px;
+    background-color: rgba(221, 221, 221, 0.2);
+}
+.article-title a {
+	color: #777;
+	text-decoration: none;
+}
+/* <--- ANIMATION ON ARTICLE ---> */
+.article {
+    position: relative;
+}
+.article-abstract {
+    position: relative;
+    max-height: 100px; /* to cover title */
+    -webkit-transition: max-height 3s; /* Safari */
+    transition: max-height 3s;
+    overflow: hidden   
+}

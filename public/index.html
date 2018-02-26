@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+	<title>SnapdragonXC</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Required for responsive display ... when implemented -->
+  <meta name="description" content="Javascript, ReactJS, AngularJS, Angular, VueJS: Front End Development">
+    <!-- AngularJS -->
+    <!-- angularjs must come before jQuery to prevent flicker of menu items -->
+    <script src="js/angular.js"></script>
+    <script src="js/angular-sanitize.js"></script>
+    <script src="js/ui/angular-ui-router.js"></script>
+    <script src="js/angular-animate.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">       
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Ellipsis library formatting over-flow of text -->
+    <script src="js/ellipsis.js"></script>
+    <!-- Font for site title -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <!-- Font for displaying code -->
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <!-- For icons -->
+    <script src="https://use.fontawesome.com/cd1327587b.js"></script>
+    <!-- Msonary library for stacking images -->
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+    <!-- Components -->
+    <script src="components/blog/blog-module.js"></script>
+    <script src="components/blog/blog-component.js"></script>
+    <script src="components/blog/abstracts/abstracts-module.js"></script>
+    <script src="components/blog/abstracts/abstracts-component.js"></script>
+    <script src="components/blog/article/article-module.js"></script>
+    <script src="components/blog/article/article-component.js"></script>
+    <script src="components/list/list-module.js"></script>
+    <script src="components/list/list-component.js"></script>
+    <script src="components/edit/edit-module.js"></script>
+    <script src="components/edit/edit-component.js"></script>
+    <script src="components/add/add-module.js"></script>
+    <script src="components/add/add-component.js"></script>
+    <script src="components/home/home-module.js"></script>
+    <script src="components/home/home-component.js"></script>
+    <script src="components/about/about-module.js"></script>
+    <script src="components/about/about-component.js"></script>
+    <script src="components/contact/contact-module.js"></script>
+    <script src="components/contact/contact-component.js"></script>
+    <script src="components/login/login-module.js"></script>
+    <script src="components/login/login-component.js"></script>
+    <!-- Services -->
+    <script src="services/auth.js"></script>
+    <script src="services/calendar.js"></script>
+    <script src="services/monthsFullName.js"></script>
+    <script src="services/monthsToNumber.js"></script>
+    <script src="services/highlight.js"></script>
+    <script src="services/clientApi.js"></script>
+    <script src="services/mailApi.js"></script>
+    <!-- Filters -->
+    <script src="filters/filter.js"></script>
+    <script src="controllers/controllers.js"></script>
+    <!--- App -->
+    <script src="app-module.js"></script>
+    <script src="app-config.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="stylesheets/highlight.css">
+    <link rel="stylesheet" href="stylesheets/site.css">
+    <link rel="stylesheet" href="stylesheets/abstracts.css">
+    <link rel="stylesheet" href="stylesheets/blog.css">
+    <link rel="stylesheet" href="stylesheets/article.css">
+    <link rel="stylesheet" href="stylesheets/about.css">
+    <link rel="stylesheet" href="stylesheets/home.css">
+    <link rel="stylesheet" href="stylesheets/login.css">
+    <link rel="stylesheet" href="stylesheets/contact.css">
+    <link rel="stylesheet" href="stylesheets/list.css">
+    <!-- Global style -->
+    <style>
+      html {
+        overflow-y: scroll; /* To correct horizonatal jumping */
+      }
+    </style>
+</head>
+<body ng-app="app">   
+    <div class="container" ng-controller="SiteCtrl as $site" >
+      <!-- SITE HEADER -->
+      <div class="site-header">
+          <h1 ng-click="$site.home()">FRONT END ENGINEER</h1>
+          <h2><small>Javascript - AngularJS - ReactJS</small></h2>
+      </div>
+      <div class="row">
+          <div class="col-md-12">
+              <hr>
+          </div> 
+      </div>
+      <!-- PAGES -ie COMPONENTS -->
+		  <ui-view callback="$site.showLogOut(value)" ></ui-view>
+      <!-- SITE MENU AT BOTTOM -->
+      <div id="menu" class="site-footer">
+          <nav class="navbar navbar-inverse">   
+              <ul class="nav navbar-nav">
+                  <li ng-class="{active:$site.isActive('home')}"><a ui-sref="home">HOME</a></li>
+                  <li ng-class="{active:$site.isActive('blog')}"><a ui-sref="blog">BLOG</a></li>
+                  <li ng-class="{active:$site.isActive('about')}"><a ui-sref="about">ABOUT</a></li>
+                  <li ng-class="{active:$site.isActive('contact')}"><a ui-sref="contact">CONTACT</a></li>
+                  <li ng-class="{active:$site.isActive('list')}" ng-hide="!$site.hide"><a ui-sref="list({page: '1'})">ADMIN</a></li> 
+                  <li ng-class="{active:$site.isActive('login')}" ng-hide="$site.hide"><a  ui-sref="login">LOGIN</a></li>
+                  <li><a href="#" ng-click="$site.logOut()" ng-hide="!$site.hide">LOGOUT</a></li>  
+              </ul>
+          </nav> 
+          <footer>
+              <p class="text-center"><span>© 2018 Snapdragon-XC - Front End Engineer</span></p>
+          </footer>
+      </div>
+    </div>
+</body>
+</html>

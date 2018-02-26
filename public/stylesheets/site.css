@@ -1,0 +1,62 @@
+/* app wide styling */
+.container {
+ 	max-width: 980px;
+    position: relative;
+ }
+/* <--- HEADER ---> */
+.site-header {
+	text-align: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+.site-header h1 {
+	font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: 2px;
+}
+.site-header h1:hover {
+    cursor: pointer;
+}
+.site-header h2 {
+	font-size: 30px;
+	margin-top: 0;
+}
+/* <--- FOOTER NAV ---> */
+#menu {
+    position: absolute; 
+    top: 770px; //750px; 
+}
+.site-footer .navbar {
+	border-radius: 0;  
+    max-width: 950px; 
+    margin: 0 auto; 
+    margin-bottom: 15px;
+    margin-top:// 5px;
+}
+.navbar-nav {
+	width: 100%;
+    text-align: center !important;
+}
+.navbar li {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    float: none;
+    display: inline-block;
+}
+/* <--- FOOTER  ---> */
+footer span {
+    letter-spacing: 2px;
+    font-size: 13px;
+}
+.site-footer {
+    margin-bottom: 0px; 
+    background-color: #fff; 
+    width: 950px;   
+}
+/* <--- GENERAL STYLING ---> */
+.btn, 
+.form-control {
+    border-radius: 0;  
+}

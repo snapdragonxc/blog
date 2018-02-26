@@ -1,0 +1,85 @@
+.blog-recent-posts ul > li >a,
+.blog-archive-posts ul > li >a {
+    text-transform: capitalize;
+    border-radius: 0px;
+    color: #777;
+}
+/* STYLE INACTIVE LINKS */
+/* unvisited link */
+.nav-pills > li > a:link {
+    /* Not used */
+}
+/* visited link */
+.nav-pills > li > a:visited {
+   /* Not used */
+}
+/* mouse over link */
+.nav-pills > li > a:hover {
+    /* Not used */
+}
+/* selected link */
+.nav-pills > li > a:active {
+	/* Not used */
+}
+/* has foucs */
+.nav-pills > li > a:focus { 
+   background-color: #fff;
+}
+/* STYLE CURRENTLY ACTIVE LINK */
+.nav-pills > li.active > a {
+	color: #111;
+	background-color: #fff;
+}
+.nav-pills > li.active > a:hover {
+	background-color: #eee;
+	color: #111;
+}
+.nav-pills > li.active > a:focus {
+	color: #111;
+	background-color: #fff;
+}
+/* open and closing buttons */
+.posts {
+	position: relative;
+}
+.openPosts {
+	position: absolute;
+	right: 0;
+	top: -10px;
+}
+.archives {
+	position: relative;
+}
+.openArchives {
+	position: absolute;
+	right: 0;
+	top: -10px;
+}
+.blog-recent-posts {
+	max-height: 200px;
+	-webkit-transition: max-height 0.5s; /* Safari */
+    transition: max-height 0.5s;
+    overflow: hidden;
+    background-color: #fff;
+    margin-left: -5px; 
+    margin-right: -5px; 
+    padding-left: 5px; 
+    padding-right: 5px; 		
+}
+.blog-archive-posts {
+	max-height: 200px;
+	-webkit-transition: max-height 0.5s; /* Safari */
+    transition: max-height 0.5s;
+    overflow: hidden;
+    background-color: #fff;
+    margin-left: -5px; 
+    margin-right: -5px; 
+    padding-left: 5px; 
+    padding-right: 5px; 	
+}
+.blog-aside {
+	position: relative;
+	background-color: #fff;
+	z-index: 100;
+	height: 583px; /* to prevent menu jumping when article is opened */
+}

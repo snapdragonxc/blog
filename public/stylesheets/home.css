@@ -1,0 +1,35 @@
+.home-hide-border {
+	width: 950px;
+	height: 15px; 
+	z-index:1000; 
+	position: relative; /* required for z-index to work */
+	background-color: white;
+	margin-top: -5px;
+}
+/*<--- FOR MASONARY PACKAGE --->*/
+.grid {
+	background: //#DDD;
+}
+/* clear fix */
+.grid:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+/* ---- .grid-item ---- */
+.grid-sizer,
+.grid-item {
+	width: 230px; 
+  	margin-bottom: 10px;
+}
+.grid-item {
+	float: left;
+}
+.grid-item img {
+	display: block;
+	max-width: 100%;
+} 
+/*<--- MASONARY END --->*/
+.grid-item a:hover img {
+	filter: brightness(90%);
+} 

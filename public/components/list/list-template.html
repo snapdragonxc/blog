@@ -1,0 +1,50 @@
+<div class="list">
+	<div class="row">
+		<div class="col-md-6">
+			<h2 style="margin-top: 0px; line-height: 1"><small>ADMIN</small></h2>
+		</div>
+		<div class="btn-toolbar col-md-6">
+			<a ng-click="$ctrl.addBlog()" class='btn btn-default pull-right'>Add Blog</a>
+		</div>
+	</div>
+	<br>
+	</div>
+	<div class="row">
+		<div class="col-md-12" >
+			<table  class="list-table">
+				<thead>
+					<th>Title</th>
+					<th>Abstract</th>
+					<th class="list-table-title-filter">Category</th>
+					<th class="list-table-title-edit">Edit</th>
+					<th class="list-table-title-delete">Delete</th>				
+				</thead>
+				<tbody>
+					<tr ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage -1) * $ctrl.pageSize | limitTo:$ctrl.pageSize">
+						<td class="list-table-title" ><div>{{abstract.title}}</div></td>
+						<td class="list-table-abstract" ><div ng-bind-html="abstract.subtxt"></div></td>
+						<td class="list-table-filter"><div>{{abstract.filter}}</div></td>
+						<td class="list-table-edit"><div><a ui-sref="edit({ id: abstract._id, page: $ctrl.currentPage })">Edit</a></div></td>
+						<td class="list-table-delete"><div><a href="#" ng-click="$ctrl.deleteBlog(abstract._id)">Delete</a></div></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row">
+		<div class="btn-toolbar col-md-6">
+			<button type="button" class="btn btn-default" style="width: 40px; border-radius: 0" ng-disabled="$ctrl.currentPage == 1" ng-click="$ctrl.prevPage()">
+			    &lt;
+			</button>
+			{{ max = $ctrl.abstracts.length / $ctrl.pageSize;"" }}
+			<div type="button" class="btn btn-default" style="text-transform: uppercase; border: 0; color: #777; letter-spacing: 1px;">
+			    PAGE {{ $ctrl.currentPage }} of {{ max | roundup }}
+			</div>		    
+			<button type="button" class="btn btn-default" style="width: 40px; border-radius: 0"
+			ng-disabled="$ctrl.currentPage >= $ctrl.abstracts.length / $ctrl.pageSize" ng-click="$ctrl.nextPage()">
+			    &gt;
+			</button>
+		</div>		
+	</div>
+</div>
+<!-- {{ $ctrl.callback(); '' }}  Not used -->
