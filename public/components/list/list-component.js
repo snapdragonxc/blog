@@ -17,9 +17,7 @@ angular.module('list').
 				$state.go('add', { page: this.currentPage } );
 			}
 			this.deleteBlog = function(id){				
-				// console.log(this.currentPage);
 				var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
-				// console.log(lastPage);
 				if(lastPage == 0 ){
 					nextPage = 1;				
 				} else {
@@ -27,7 +25,6 @@ angular.module('list').
 					if( parseInt(this.currentPage) == lastPage ){
 						idx = this.abstracts.length % 5
 					}
-				// 	console.log(idx)
 					if( (idx - 1) == 0 ){
 						nextPage = parseInt(this.currentPage) - 1;
 					} else {
@@ -36,14 +33,10 @@ angular.module('list').
 				}
 				if(nextPage == 0 ){
 					nextPage = 1;
-				}
-				// console.log(nextPage);		
+				}	
 				ClientApiService.deleteBlog(id).then(function(resp){
-					// 	console.log(resp)
-					//	console.log(nextPage);
 						$state.go('list', { page: nextPage }, {reload: true});
 					}, function(err){
-					//	console.log(err);
 						$state.go('login');
 					}
 				); 					
@@ -64,28 +57,5 @@ angular.module('list').
 	    			return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
 	    		}
 	    	}
-
-	    	/* not used
-	    	this.callback = function(){
-
-		        console.log('kk');
-
-		        Ellipsis({
-
-		          ellipsis: '…',
-
-		          debounce: 0,
-
-		          responsive: true,
-
-		          class: '.clamp',
-
-		          lines: 4,
-
-		          portrait: null,
-
-		          break_word: true
-		        });
-		    } */			
 		}
 });

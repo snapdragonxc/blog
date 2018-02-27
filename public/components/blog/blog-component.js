@@ -17,16 +17,12 @@ angular.module('blog').
 		        return category;
 			} 
 			this.onSearch = function(){
-				//console.log('on search');
 				this.pages.subTitle = "Search Results"
 				$state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
 				this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
-				//console.log(this.pages)
 			}	
 			this.onEnter = function(){
-				//console.log('enter')
 				$state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
-				//document.getElementById('search-box').focus();
 			}		
 			this.onClick = function(category ){
 				this.pages.filter = category.filter;

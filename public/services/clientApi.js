@@ -52,8 +52,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
           return $q(function(resolve, reject) {  
                if(reloadData){ // reload data only after an adminitration operation
                     $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
-                        //console.log('reload');
-                        //console.log(resp.data);
                         reloadData = false;
                         data = resp.data;
                         resolve(data);

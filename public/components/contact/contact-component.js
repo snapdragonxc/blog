@@ -19,15 +19,12 @@ component('contact', {
 			this.from = '';
 			this.subject = '';
 			this.msg = '';	
-			//console.log(payload);
 			MailApiService.sendMail(payload).then(function(resp){
-					//console.log(resp);
 					alertBox.style.backgroundColor = green;
 					alertLabel.innerHTML = "Message sent successfully.";					
 				}, function(err){
 					alertBox.style.backgroundColor = red;
 					alertLabel.innerHTML = "Message failed to send.";
-					//console.log(err);
 				}
 			) 
 		}		

@@ -9,7 +9,6 @@ angular.module('abstracts').
 		templateUrl: 'components/blog/abstracts/abstracts-template.html',
 		controller: function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams ) {
 			this.$onInit = function(){
-				// console.log($stateParams);
 				if($stateParams.active){
 					document.getElementById('search-box').focus();
 				}
@@ -29,25 +28,21 @@ angular.module('abstracts').
 				var mo = '' + /[a-zA-Z]+/.exec(x);
 				var yr = '' + /^[0-9]+/.exec(x);
 				return MonthsFullNameService[mo] + ' ' + yr;
-			}
-			this.clicked = function(){
-				// console.log('clicked', this.abstracts);
-			}		  
-      		this.callback = function(){
-	        	Ellipsis({	       
-	       	          ellipsis: '…',	       
-	       	          debounce: 0,	       
-	       	          responsive: true,	       
-	       	          class: '.clamp',	       
-	       	          lines: 12,	       
-	       	          portrait: null,	       
-	       	          break_word: true
-	       	        });
-	      	}
+			}  
+  		this.callback = function(){
+      	Ellipsis({	       
+          ellipsis: '…',	       
+          debounce: 0,	       
+          responsive: true,	       
+          class: '.clamp',	       
+          lines: 12,	       
+          portrait: null,	       
+          break_word: true
+        });
+    	}
 			this.readMore = function(abstract){
 				$state.go('blog.article', {id: abstract._id});
-			}
-			
+			}		
 		/*	angular.element(function(){   A delay in rendering when using
 	        	Ellipsis({	       
 	       	          ellipsis: '…',	       

@@ -27,7 +27,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                             pages.month = $stateParams.month;
                             pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
                             var filter = pages.year + '/' + pages.month;
-                            // console.log(filter);
                             if(filter !== 'posts/all'){
                                 pages.filteredAbstracts = $filter('filterByMonth')(pages.abstracts, filter);
                             } else {
@@ -53,7 +52,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
           },
           resolve: {
               currentPage: function($stateParams) { // not a promise. returned immediately
-                 // console.log($stateParams);
                   return $stateParams.page;
               }
           }
@@ -175,7 +173,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
   .run(function ($transitions, $state, $rootScope) {
       //<--- Prevent state from transtioning if unauthorized -->
       $transitions.onError({}, function(transition) {
-          //var name = transition.to().name;
           if(transition.error().detail == 'unauthorized'){
               $state.go('login');                       
           }

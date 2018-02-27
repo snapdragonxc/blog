@@ -16,7 +16,6 @@ angular.module('highlight-services', [] )
 			// get space, including tabs, up to start of the first character and remove
 			lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
 				leadingSpace = p1;
-				//console.log("J" + p1 +  "Y" + p2);
 				return p2;
 			});
 

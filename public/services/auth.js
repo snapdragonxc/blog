@@ -19,18 +19,15 @@ angular.module('auth-service', [] )
                         resolve('authorized');
                     } else {
                         status().then(function(res){ // handle page refresh
-                                //console.log(res);
                                 currentUser.authorized = true;  
                                 resolve('authorized');
                             }, function(err){
-                                //console.log(err);
                                 reject('unauthorized');
                             });                    
                     }
                 });
             },
             login: function(user) {
-               // console.log('cred', user);
                 return  $http.post('/api/login', user)
             },
             logout: function() {
