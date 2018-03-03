@@ -1,31 +1,31 @@
 <div class="abstracts">
-	<h2 class="abstracts-title"><small>BLOG</small></h2>
-	<br>
-	<div class="abstracts-abstract" ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage - 1)  * $ctrl.pageSize | limitTo:$ctrl.pageSize">
-    	<h2>{{abstract.title}}</h2>
-		<h5>Posted on {{abstract.day}} {{ $ctrl.getDate(abstract.filter) }}</h5>
-    	<br>
-    	<div class="clamp" ng-bind-html="abstract.subtxt"></div> 
-		<br>
-		<button ng-click="$ctrl.readMore(abstract)" class="btn btn-default">Read More</button> 
-		<br>
-		<br>
+    <h2 class="abstracts-title"><small>BLOG</small></h2>
+    <br>
+    <div class="abstracts-abstract" ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage - 1)  * $ctrl.pageSize | limitTo:$ctrl.pageSize">
+        <h2>{{abstract.title}}</h2>
+        <h5>Posted on {{abstract.day}} {{ $ctrl.getDate(abstract.filter) }}</h5>
+        <br>
+        <div class="clamp" ng-bind-html="abstract.subtxt"></div> 
+        <br>
+        <button ng-click="$ctrl.readMore(abstract)" class="btn btn-default">Read More</button> 
+        <br>
+        <br>
     </div>
-	<div class="row abstracts-pagination">
-		<div class="btn-toolbar col-md-6">
-			<button type="button" class="btn btn-default" ng-disabled="$ctrl.currentPage == 1" ng-click="$ctrl.prevPage()">
-			    &lt;
-			</button>
+    <div class="row abstracts-pagination">
+        <div class="btn-toolbar col-md-6">
+            <button type="button" class="btn btn-default" ng-disabled="$ctrl.currentPage == 1" ng-click="$ctrl.prevPage()">
+                &lt;
+            </button>
 
-			<button type="button" class="btn btn-default">
-			    {{$ctrl.currentPage}}
-			</button>
-			    
-			<button type="button" class="btn btn-default" ng-disabled="$ctrl.currentPage >= ($ctrl.abstracts | filter:$ctrl.query).length/$ctrl.pageSize" ng-click="$ctrl.nextPage()">
-			    &gt;
-			</button>
-		</div>		
-	</div> 
+            <button type="button" class="btn btn-default">
+                {{$ctrl.currentPage}}
+            </button>
+                
+            <button type="button" class="btn btn-default" ng-disabled="$ctrl.currentPage >= ($ctrl.abstracts | filter:$ctrl.query).length/$ctrl.pageSize" ng-click="$ctrl.nextPage()">
+                &gt;
+            </button>
+        </div>        
+    </div> 
 
 </div>
 {{$ctrl.callback();''}}  <!--alternative to timeout for calling after dom. angular.element had delay in rendering with ellipsis -->

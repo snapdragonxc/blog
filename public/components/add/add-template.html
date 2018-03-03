@@ -1,47 +1,47 @@
 <form role="form"  ng-submit="$ctrl.saveBlog()">
-	<div class="row">
-		<div class="col-md-4 col-md-offset-1">
-			<h2 style="margin: 0; padding: 0;"><small>ADD POST</small></h2>
-		</div>
-		<div class="col-md-6">
-				<style>
-					.date {
-						width: 80px; display: inline-block; margin-left: 0px; margin-right: 5px;
-					}
-				</style>
-				<select class="form-control pull-right date" name="year" ng-model="$ctrl.selectedYear" ng-change="$ctrl.changeDate()">
-					<option ng-repeat="y in $ctrl.years" value="{{y}}">{{y}}</option>				 
-				</select>
-				<select class="form-control pull-right date" name="month" ng-model="$ctrl.selectedMonth" ng-change="$ctrl.changeDate()">
-					<option ng-repeat="x in $ctrl.months" value="{{x}}">{{x}}</option>
-				</select>
-				<select class="form-control pull-right date" name="day" ng-model="$ctrl.selectedDay">
-					<option ng-repeat="day in $ctrl.days" value="{{day}}">{{day}}</option>
-				</select> 							
-		</div>		
-		<br><br><br>
-	</div>		
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<div class="form-group">
-				<label>Title</label>
-				<input class="form-control" type="text" ng-model="$ctrl.title">
-			</div>
-			<div class="form-group">
-				<label>Abstract</label>
-				<textarea rows="4" class="form-control" ng-model="$ctrl.subtxt" type="text"></textarea>
-			</div>
-			<div class="form-group">
-				<label>Content</label>
-				<textarea rows="10" class="form-control" ng-model="$ctrl.fulltxt" type="text"></textarea>
-			</div>			
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">			
-			<input type="submit" class="btn btn-basic pull-right" value="Save Post" style=" border: 1px solid #bbb">
-			<button type="button" class="btn btn-basic pull-right" ng-click="$ctrl.cancel()" style=" border: 1px solid #bbb; margin-right: 3px;">Cancel</button>						
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-1">
+            <h2 style="margin: 0; padding: 0;"><small>ADD POST</small></h2>
+        </div>
+        <div class="col-md-6">
+            <style>
+                .date {
+                    width: 80px; display: inline-block; margin-left: 0px; margin-right: 5px;
+                }
+            </style>
+            <select class="form-control pull-right date" name="year" ng-model="$ctrl.selectedYear" ng-change="$ctrl.changeDate()">
+                <option ng-repeat="y in $ctrl.years" value="{{y}}">{{y}}</option>                 
+            </select>
+            <select class="form-control pull-right date" name="month" ng-model="$ctrl.selectedMonth" ng-change="$ctrl.changeDate()">
+                <option ng-repeat="x in $ctrl.months" value="{{x}}">{{x}}</option>
+            </select>
+            <select class="form-control pull-right date" name="day" ng-model="$ctrl.selectedDay">
+                <option ng-repeat="day in $ctrl.days" value="{{day}}">{{day}}</option>
+            </select>                             
+        </div>        
+        <br><br><br>
+    </div>        
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="form-group">
+                <label>Title</label>
+                <input class="form-control" type="text" ng-model="$ctrl.title">
+            </div>
+            <div class="form-group">
+                <label>Abstract</label>
+                <textarea rows="4" class="form-control" ng-model="$ctrl.subtxt" type="text"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                <textarea rows="10" class="form-control" ng-model="$ctrl.fulltxt" type="text"></textarea>
+            </div>            
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">            
+            <input type="submit" class="btn btn-basic pull-right" value="Save Post" style=" border: 1px solid #bbb">
+            <button type="button" class="btn btn-basic pull-right" ng-click="$ctrl.cancel()" style=" border: 1px solid #bbb; margin-right: 3px;">Cancel</button>                        
+        </div>
+    </div>
 </form>
 <br>

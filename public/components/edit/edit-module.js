@@ -1,3 +1,1 @@
-angular.module('edit', [	
-	'ui.router'
-]);
+angular.module('edit', ['ui.router']);

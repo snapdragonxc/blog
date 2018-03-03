@@ -7,9 +7,9 @@ angular.module('custom-filters', [])
 })
 .filter('roundup', function () {
     return function (value) {
-    	if(value == 0){
-    		value = 1;
-    	}   	
+        if(value == 0){
+            value = 1;
+        }       
         return Math.ceil(value);
     };
 })

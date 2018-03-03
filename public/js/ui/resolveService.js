@@ -5,9 +5,9 @@
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@uirouter/core'), require('angular')) :
-	typeof define === 'function' && define.amd ? define(['exports', '@uirouter/core', 'angular'], factory) :
-	(factory((global['@uirouter/angularjs-resolve-service'] = {}),global['@uirouter/core'],global.angular));
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@uirouter/core'), require('angular')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@uirouter/core', 'angular'], factory) :
+    (factory((global['@uirouter/angularjs-resolve-service'] = {}),global['@uirouter/core'],global.angular));
 }(this, (function (exports,core,angular) { 'use strict';
 
 /** @module ng1 */ /** */

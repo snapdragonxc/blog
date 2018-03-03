@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <base href="/">
-	<title>SnapdragonXC</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Required for responsive display ... when implemented -->
-  <meta name="description" content="Javascript, ReactJS, AngularJS, Angular, VueJS: Front End Development">
+    <base href="/">
+    <title>SnapdragonXC</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Required for responsive display ... when implemented -->
+    <meta name="description" content="Javascript, ReactJS, AngularJS, Angular, VueJS: Front End Development">
     <!-- AngularJS -->
     <!-- angularjs must come before jQuery to prevent flicker of menu items -->
     <script src="js/angular.js"></script>
@@ -75,42 +75,42 @@
     <link rel="stylesheet" href="stylesheets/list.css">
     <!-- Global style -->
     <style>
-      html {
-        overflow-y: scroll; /* To correct horizonatal jumping */
-      }
+        html {
+            overflow-y: scroll; /* To correct horizonatal jumping */
+        }
     </style>
 </head>
 <body ng-app="app">   
     <div class="container" ng-controller="SiteCtrl as $site" >
-      <!-- SITE HEADER -->
-      <div class="site-header">
-          <h1 ng-click="$site.home()">FRONT END ENGINEER</h1>
-          <h2><small>Javascript - AngularJS - ReactJS</small></h2>
-      </div>
-      <div class="row">
-          <div class="col-md-12">
-              <hr>
-          </div> 
-      </div>
-      <!-- PAGES -ie COMPONENTS -->
-		  <ui-view callback="$site.showLogOut(value)" ></ui-view>
-      <!-- SITE MENU AT BOTTOM -->
-      <div id="menu" class="site-footer">
-          <nav class="navbar navbar-inverse">   
-              <ul class="nav navbar-nav">
-                  <li ng-class="{active:$site.isActive('home')}"><a ui-sref="home">HOME</a></li>
-                  <li ng-class="{active:$site.isActive('blog')}"><a ui-sref="blog">BLOG</a></li>
-                  <li ng-class="{active:$site.isActive('about')}"><a ui-sref="about">ABOUT</a></li>
-                  <li ng-class="{active:$site.isActive('contact')}"><a ui-sref="contact">CONTACT</a></li>
-                  <li ng-class="{active:$site.isActive('list')}" ng-hide="!$site.hide"><a ui-sref="list({page: '1'})">ADMIN</a></li> 
-                  <li ng-class="{active:$site.isActive('login')}" ng-hide="$site.hide"><a  ui-sref="login">LOGIN</a></li>
-                  <li><a href="#" ng-click="$site.logOut()" ng-hide="!$site.hide">LOGOUT</a></li>  
-              </ul>
-          </nav> 
-          <footer>
-              <p class="text-center"><span>© 2018 Snapdragon-XC - Front End Engineer</span></p>
-          </footer>
-      </div>
+    <!-- SITE HEADER -->
+        <div class="site-header">
+            <h1 ng-click="$site.home()">FRONT END ENGINEER</h1>
+            <h2><small>Javascript - AngularJS - ReactJS</small></h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <hr>
+            </div> 
+        </div>
+        <!-- PAGES -ie COMPONENTS -->
+        <ui-view callback="$site.showLogOut(value)" ></ui-view>
+        <!-- SITE MENU AT BOTTOM -->
+        <div id="menu" class="site-footer">
+            <nav class="navbar navbar-inverse">   
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active:$site.isActive('home')}"><a ui-sref="home">HOME</a></li>
+                    <li ng-class="{active:$site.isActive('blog')}"><a ui-sref="blog">BLOG</a></li>
+                    <li ng-class="{active:$site.isActive('about')}"><a ui-sref="about">ABOUT</a></li>
+                    <li ng-class="{active:$site.isActive('contact')}"><a ui-sref="contact">CONTACT</a></li>
+                    <li ng-class="{active:$site.isActive('list')}" ng-hide="!$site.hide"><a ui-sref="list({page: '1'})">ADMIN</a></li> 
+                    <li ng-class="{active:$site.isActive('login')}" ng-hide="$site.hide"><a  ui-sref="login">LOGIN</a></li>
+                    <li><a href="#" ng-click="$site.logOut()" ng-hide="!$site.hide">LOGOUT</a></li>  
+                </ul>
+            </nav> 
+            <footer>
+                <p class="text-center"><span>© 2018 Snapdragon-XC - Front End Engineer</span></p>
+            </footer>
+        </div>
     </div>
 </body>
 </html>

@@ -1,12 +1,12 @@
-angular.module('auth-service', [] )
-    .factory('AuthService', function ($q, $http) {
+angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
+    function($q, $http) {
         var currentUser = {
             username: '',
             authorized: false
         }
         var status = function(){
-                return $http.get('/api/status');
-            };
+            return $http.get('/api/status');
+        };
         var service = {
             userName: currentUser.username,
             setAuthorized:  function(authorized){           
@@ -37,4 +37,5 @@ angular.module('auth-service', [] )
             },           
         };
         return service;
-});
+    }]
+);

@@ -1,3 +1,1 @@
-angular.module('abstracts', [	
-	'ui.router'
-]);
+angular.module('abstracts', ['ui.router']);

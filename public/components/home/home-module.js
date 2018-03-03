@@ -1,3 +1,1 @@
-angular.module('home', [	
-	'ui.router'
-]);
+angular.module('home', ['ui.router']);

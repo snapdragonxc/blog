@@ -1,16 +1,16 @@
 .about-wrap {
-	padding-left: //50px;
-	padding-right:// 50px;
-	padding-top: 18px;
+    padding-left: //50px;
+    padding-right:// 50px;
+    padding-top: 18px;
 }
 h2.about-title  {
     letter-spacing: 4px;
-   	margin-bottom: 29px;
+       margin-bottom: 29px;
 }
 div .about-txt {
-	margin-top: 30px;
-	margin-bottom: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 a.btn.btn-default.about-contact {
-	margin-bottom: 70px;
+    margin-bottom: 70px;
 }

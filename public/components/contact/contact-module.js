@@ -1,3 +1,1 @@
-angular.module('contact', [	
-	'ui.router'
-]);
+angular.module('contact', ['ui.router']);

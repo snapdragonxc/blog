@@ -1,3 +1,1 @@
-angular.module('list', [	
-	'ui.router'
-]);
+angular.module('list', ['ui.router']);

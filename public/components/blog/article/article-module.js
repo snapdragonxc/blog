@@ -1,3 +1,1 @@
-angular.module('article', [	
-	'ui.router'
-]);
+angular.module('article', ['ui.router']);

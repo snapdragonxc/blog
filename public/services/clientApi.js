@@ -106,12 +106,12 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
             });
         },
         saveBlog: function(blog) {
-        	return $http.post('/api/blog', blog ).then(function (resp) {
-            	//console.log(resp.data);
+            return $http.post('/api/blog', blog ).then(function (resp) {
+                //console.log(resp.data);
               reloadData = true;
               reloadArticle = true;
-            	return resp;
-        	});
+                return resp;
+            });
         },
         updateBlog: function(id, blog) {
           return $http.put('/api/blog/' + id, blog ).then(function (resp) {
@@ -121,12 +121,12 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
               return resp;
           });
         },
-      	deleteBlog: function(id) { // payload is article object { content: txt }
-        	return $http.delete('/api/blog/' + id ).then(function(resp){
+          deleteBlog: function(id) { // payload is article object { content: txt }
+            return $http.delete('/api/blog/' + id ).then(function(resp){
               reloadData = true; // reload abstracts after save
-          		return resp;
-        	});
-      	}
+                  return resp;
+            });
+          }
     }
    return service
 }]);

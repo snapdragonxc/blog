@@ -1,17 +1,17 @@
 <div class="article">
-	<h2 class="article-title"><small><a href="#" ng-click="$ctrl.goBack()"><span class="glyphicon glyphicon-menu-left" style="top: 3px"></span> Go Back</a></small></h2>
-	<br>
-	<div class="article-abstract">
-    	<h2>{{$ctrl.abstract.title}}</h2>
-		<h5>Posted on {{ $ctrl.abstract.day }} {{ $ctrl.getDate($ctrl.abstract.filter) }}</h5>
-    	<br>
-		<div ng-bind-html="$ctrl.abstract.subtxt"></div>
-		<hr style="border-top: 1px solid #ddd;">				
-		<!-- use ng-bind-html & $sanitize to display html -->
-		<div id="bootstrap-overide-article" ng-bind-html="$ctrl.article.fulltxt" ></div>
-		<br>	    
-	</div>
-	<br>
+    <h2 class="article-title"><small><a href="#" ng-click="$ctrl.goBack()"><span class="glyphicon glyphicon-menu-left" style="top: 3px"></span> Go Back</a></small></h2>
+    <br>
+    <div class="article-abstract">
+        <h2>{{$ctrl.abstract.title}}</h2>
+        <h5>Posted on {{ $ctrl.abstract.day }} {{ $ctrl.getDate($ctrl.abstract.filter) }}</h5>
+        <br>
+        <div ng-bind-html="$ctrl.abstract.subtxt"></div>
+        <hr style="border-top: 1px solid #ddd;">                
+        <!-- use ng-bind-html & $sanitize to display html -->
+        <div id="bootstrap-overide-article" ng-bind-html="$ctrl.article.fulltxt" ></div>
+        <br>        
+    </div>
+    <br>
 </div>
 
 
