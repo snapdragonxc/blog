@@ -1,7 +1,7 @@
-angular.module('add').component('add', {
+angular.module('add', ['ui.router']).component('add', {
     bindings: { 
     },         
-    templateUrl: 'components/add/add-template.html',
+    templateUrl: '../partials/add-template.html',
     controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 
             'HighlightService', 'MonthsToNumberService', 
         function($state, $stateParams, CalendarService, ClientApiService, $window, 

@@ -1,7 +1,7 @@
-angular.module('contact').component('contact', {
+angular.module('contact', ['ui.router']).component('contact', {
     bindings: { 
     }, // one way binding
-    templateUrl: 'components/contact/contact-template.html',
+    templateUrl: '../partials/contact-template.html',
     controller: ['MailApiService', 'AuthService',
         function(MailApiService, AuthService) {
             var blue = '#2196F3', green = '#4CAF50', red = '#f44336';

@@ -1,10 +1,10 @@
-angular.module('list').component('list', {
+angular.module('list', ['ui.router']).component('list', {
     bindings: { 
         abstracts: '=',  // one way binding        
         currentPage: '=',
         callback: '&' // used to set logout button on main nav menu
     }, 
-    templateUrl: 'components/list/list-template.html',
+    templateUrl: '../partials/list-template.html',
     controller: ['$state', 'ClientApiService',
         function($state, ClientApiService) {
             this.currentPage = 1; 

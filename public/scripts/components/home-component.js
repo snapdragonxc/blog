@@ -1,7 +1,7 @@
-angular.module('home').component('home', {
+angular.module('home', ['ui.router']).component('home', {
     bindings: { 
     }, 
-    templateUrl: 'components/home/home-template.html',
+    templateUrl: '../partials/home-template.html',
     controller:['$stateParams',
         function($stateParams) {
             this.$onInit = function(){

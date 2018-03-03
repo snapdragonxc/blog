@@ -1,9 +1,9 @@
-angular.module('blog').component('blog', {
+angular.module('blog', ['ui.router']).component('blog', {
     bindings: { 
         pages: '<',
         query: '='
     }, 
-    templateUrl: 'components/blog/blog-template.html',
+    templateUrl: '../partials/blog-template.html',
     controller: [ '$state', '$location', '$filter', 'AuthService', 
         function($state, $location, $filter, AuthService){            
             this.decorateCategory = function(category) {  

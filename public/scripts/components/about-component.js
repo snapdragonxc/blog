@@ -1,7 +1,7 @@
-angular.module('about').component('about', {
+angular.module('about', ['ui.router']).component('about', {
     bindings: { 
     }, 
-    templateUrl: 'components/about/about-template.html',
+    templateUrl: '../partials/about-template.html',
     controller: function(){}
 }); 
 

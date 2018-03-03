@@ -1,11 +1,11 @@
-angular.module('abstracts').component('abstracts', {
+angular.module('abstracts', ['ui.router']).component('abstracts', {
     bindings: { 
         abstracts: '<', // one way binding
         currentPage: '<', 
         query: '=', // two way binding - query is used for filtering of abstracts with search etc
           init: '<'
     }, 
-    templateUrl: 'components/blog/abstracts/abstracts-template.html',
+    templateUrl: '../partials/abstracts-template.html',
     controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams', 
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams){
             this.$onInit = function(){

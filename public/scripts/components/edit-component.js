@@ -1,8 +1,8 @@
-angular.module('edit').component('edit', {
+angular.module('edit', ['ui.router']).component('edit', {
     bindings: { 
         pageData: '=',
     }, 
-    templateUrl: 'components/edit/edit-template.html',
+    templateUrl: '../partials/edit-template.html',
     controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 'HighlightService',
         function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService, HighlightService) {                
             this.cancel = function(){

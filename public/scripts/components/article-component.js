@@ -1,9 +1,9 @@
-angular.module('article').component('article', {
+angular.module('article', ['ui.router']).component('article', {
     bindings: { 
         article: '<',
         abstract: '<',
     }, // one way binding with resolve
-    templateUrl: 'components/blog/article/article-template.html',
+    templateUrl: '../partials/article/article-template.html',
     controller:[ '$window', 'MonthsFullNameService', '$timeout',
         function($window, MonthsFullNameService, $timeout){
             var that = this;

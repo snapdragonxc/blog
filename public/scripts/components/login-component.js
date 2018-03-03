@@ -1,7 +1,7 @@
-angular.module('login').component('login', {
+angular.module('login', ['ui.router']).component('login', {
     bindings: { 
     }, // one way binding
-    templateUrl: 'components/login/login-template.html',
+    templateUrl: '../partials/login-template.html',
     controller: ['AuthService', '$state',
         function(AuthService, $state) {
             var that = this;
