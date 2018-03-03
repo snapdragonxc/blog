@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var config = require('./config.js');
 var app = express();
 // <--- Passport --->
 var passport = require('passport')
@@ -38,7 +39,7 @@ passport.deserializeUser(function(id, done) {
 });
 // <--- MONGO CONNECTION --- >
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/sasha');
+mongoose.connect(config.dbLogin);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, '# MongoDB - connection error: '));
 // <--- MONGO STORE ---> // used by authentication 

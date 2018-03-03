@@ -1,6 +1,7 @@
 "use strict"
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
+var config = require('../config.js');
 // Define User Model
 var userSchema = mongoose.Schema({
   username: { type:String, index:{unique:true} },
@@ -17,8 +18,8 @@ var User = mongoose.model('User', userSchema);
 function AddUser(){ 
 	var salt, hash, password;
 	var saltRounds = 10;
-	var userName = "xxxxxx";
-	var myPlaintextPassword = "xxxxxx";
+	var userName = config.userName;
+	var myPlaintextPassword = config.password;
 	bcrypt.genSalt(saltRounds, function(err, salt) {
 	    bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
 	        // Store hash in your password DB.

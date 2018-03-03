@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var Article = require('../models/article.js');
 var Abstract = require('../models/abstract.js');
 var nodemailer = require("nodemailer");
+var config = require('../config.js');
 //
 // <--- PASSPORT SESSION MANAGEMENT LOGIN/LOGOUT ---> //
 function sessionCheck(req, res, next){
@@ -44,17 +45,17 @@ router.post('/contact', function (req, res) {
             pass: 'XXXXXXX'
         }
     }); */
-       var transporter = nodemailer.createTransport({ // use 0Auth2 to hide password
+       var transporter = nodemailer.createTransport({ // use 0Auth2 
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
             type: 'OAuth2',
             user: 'snapdragonxc@gmail.com',
-            clientId: 'XXXXXX',
-            clientSecret: 'XXXXXX',
-            refreshToken: 'XXXXXX',
-            accessToken: 'XXXXXX',
+            clientId: config.mail.clientId,
+            clientSecret: config.mail.clientSecret,
+            refreshToken: config.mail.refreshToken,
+            accessToken: config.mail.accessToken,
             expires: 1484314697598
         }
     }); 
