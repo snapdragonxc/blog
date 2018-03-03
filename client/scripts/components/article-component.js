@@ -3,7 +3,7 @@ angular.module('article', ['ui.router']).component('article', {
         article: '<',
         abstract: '<',
     }, // one way binding with resolve
-    templateUrl: '../partials/article/article-template.html',
+    templateUrl: '../partials/article-template.html',
     controller:[ '$window', 'MonthsFullNameService', '$timeout',
         function($window, MonthsFullNameService, $timeout){
             var that = this;

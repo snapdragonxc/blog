@@ -20,5 +20,5 @@ angular.module('app', [
     'list',
     'login',
     'site-ctrl',
-    'custom-filters'
+    'custom-filters',
 ]);

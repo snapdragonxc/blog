@@ -7,7 +7,7 @@ div.color-code {
 }
 #bootstrap-overide-article pre {
     font-family: 'Inconsolata', 'Source Code Pro';
-    font-size: 14px; //16px;
+    font-size: 14px; 
     font-weight: normal;
     line-height: 1;
     -moz-tab-size:    4; /* Firefox 4+ */

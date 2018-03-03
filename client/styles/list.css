@@ -21,17 +21,14 @@ table div {
     overflow: hidden;
 }
 .list-table-abstract {
-    border: // 1px solid green;
     width: 50%;
 }
 .list-table-title {
     width: 20%;
-    border: // 1px solid yellow;
 }
 .list-table-edit,
 .list-table-delete {
     width: 8%;
-    border: //1px solid blue;
 }
 .list-table-title-edit,
 .list-table-title-delete,

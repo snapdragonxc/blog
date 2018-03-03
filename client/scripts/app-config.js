@@ -1,5 +1,6 @@
-angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
-    function config( $stateProvider, $urlRouterProvider, $locationProvider, AuthFactory, $q) {
+
+angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 
+    function( $stateProvider, $urlRouterProvider, $locationProvider) {
         $locationProvider.html5Mode(true); // remove hash-bang.
         // <--- INITIAL ROUTES --->
         $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
@@ -18,29 +19,30 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             },
             resolve: {               
                 // resolve - open page after data loads if a promise
-                pages: function(ClientApiService, $stateParams, $filter, $location) {                                              
-                    return ClientApiService.getPages().then(function(pages){
-                        // set initial page values from url parameters
-                        var isArticle  = $location.path().search(/article/i);
-                        if(isArticle == -1){
-                            pages.year = $stateParams.year;
-                            pages.month = $stateParams.month;
-                            pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
-                            var filter = pages.year + '/' + pages.month;
-                            if(filter !== 'posts/all'){
-                                pages.filteredAbstracts = $filter('filterByMonth')(pages.abstracts, filter);
+                pages: ['ClientApiService', '$stateParams', '$filter', '$location', 
+                    function(ClientApiService, $stateParams, $filter, $location) {                                              
+                        return ClientApiService.getPages().then(function(pages){
+                            // set initial page values from url parameters
+                            var isArticle  = $location.path().search(/article/i);
+                            if(isArticle == -1){
+                                pages.year = $stateParams.year;
+                                pages.month = $stateParams.month;
+                                pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
+                                var filter = pages.year + '/' + pages.month;
+                                if(filter !== 'posts/all'){
+                                    pages.filteredAbstracts = $filter('filterByMonth')(pages.abstracts, filter);
+                                } else {
+                                    pages.filteredAbstracts = pages.abstracts;
+                                }
                             } else {
+                                pages.year = 'all';
+                                pages.month = 'posts';
+                                pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
                                 pages.filteredAbstracts = pages.abstracts;
                             }
-                        } else {
-                            pages.year = 'all';
-                            pages.month = 'posts';
-                            pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
-                            pages.filteredAbstracts = pages.abstracts;
-                        }
-                        return pages
+                            return pages
                     });
-                },            
+                }],            
             }
         });
         states.push(abstractsState = {  // all abstracts
@@ -51,9 +53,9 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 active: false
             },
             resolve: {
-                currentPage: function($stateParams) { // not a promise. returned immediately
+                currentPage: ['$stateParams', function($stateParams) { // not a promise. returned immediately
                     return $stateParams.page;
-                }
+                }]
             }
         });
         //
@@ -64,12 +66,14 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             component: 'article',
             resolve: {          
                 // resolve - open page after data loads         
-                abstract: function(ClientApiService, $stateParams) {
-                    return ClientApiService.getAbstract($stateParams.id)
-                },
-                article: function(ClientApiService, $stateParams) {
-                    return ClientApiService.getArticle($stateParams.id);
-                }         
+                abstract: ['ClientApiService', '$stateParams', 
+                    function(ClientApiService, $stateParams) {
+                        return ClientApiService.getAbstract($stateParams.id)
+                }],
+                article: ['ClientApiService', '$stateParams', 
+                    function(ClientApiService, $stateParams) {
+                        return ClientApiService.getArticle($stateParams.id);
+                }]        
             }
         });
         //<--- END OF BLOG STATE AND ITS CHILDREN
@@ -115,15 +119,17 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 },
                 resolve: {                     
                 // authorize goes at top so that it calls before the other resolve parameters
-                authorize: function(ClientApiService, AuthService, $state) {   
-                    return AuthService.isAuthorized()
-                },
-                abstracts: function(ClientApiService, $state) {               
-                    return ClientApiService.getAbstracts();           
-                },
-                currentPage: function($stateParams){
+                authorize: ['ClientApiService', 'AuthService', '$state', 
+                    function(ClientApiService, AuthService, $state) {   
+                        return AuthService.isAuthorized()
+                }],
+                abstracts: ['ClientApiService', '$state', 
+                    function(ClientApiService, $state) {               
+                        return ClientApiService.getAbstracts();           
+                }],
+                currentPage: ['$stateParams', function($stateParams){
                     return $stateParams.page;
-                },
+                }],
             } 
         });
         //
@@ -138,12 +144,12 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             },
             resolve: {          
                 // resolve - open page after data loads
-                authorize: function(AuthService) {   
+                authorize: ['AuthService', function(AuthService) {   
                   return AuthService.isAuthorized()
-                },
-                pageData: function(ClientApiService, $stateParams){
+                }],
+                pageData: ['ClientApiService', '$stateParams', function(ClientApiService, $stateParams){
                   return ClientApiService.getPageData($stateParams.id);
-                }
+                }]
             }
         });
         //
@@ -157,9 +163,9 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             },
             resolve: {          
               // resolve - open page after data loads
-              authorize: function(AuthService) {   
+              authorize: ['AuthService', function(AuthService) {   
                   return AuthService.isAuthorized()
-              },
+              }],
             }       
         }); 
         // <--- END PROTECTED ROUTES --->
@@ -170,7 +176,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             });
     }
 ])
-.run(function ($transitions, $state, $rootScope) {
+.run(['$transitions', '$state', '$rootScope', function ($transitions, $state, $rootScope) {
     //<--- Prevent state from transtioning if unauthorized -->
     $transitions.onError({}, function(transition) {
         if(transition.error().detail == 'unauthorized'){
@@ -187,4 +193,4 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
         var elem = document.getElementById("menu");
         elem.style.position = 'absolute';
     });
-});
+}]);

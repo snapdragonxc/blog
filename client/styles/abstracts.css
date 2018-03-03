@@ -24,8 +24,6 @@
 }
 /* hide text after */
 .abstracts-subtxt {
-    max-height: //300px;
-    overflow:// hidden;
     border: 1px solid black;
 }
 .abstracts-subtxt p {
