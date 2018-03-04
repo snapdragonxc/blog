@@ -49,7 +49,7 @@ angular.module('blog', ['ui.router']).component('blog', {
                     document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
                 } else {
                     this.postHide = true;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 500px';                    
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
                 }
             }
             // For open close archives
@@ -60,7 +60,7 @@ angular.module('blog', ['ui.router']).component('blog', {
                     document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
                 } else {
                     this.archiveHide = true;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 500px';
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
                 }
             }            
         }]

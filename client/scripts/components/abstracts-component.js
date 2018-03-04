@@ -29,17 +29,17 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 var yr = '' + /^[0-9]+/.exec(x);
                 return MonthsFullNameService[mo] + ' ' + yr;
             }  
-              this.callback = function(){
-              Ellipsis({           
-              ellipsis: '…',           
-              debounce: 0,           
-              responsive: true,           
-              class: '.clamp',           
-              lines: 12,           
-              portrait: null,           
-              break_word: true
-            });
-            }
+          /*  this.callback = function(){
+                Ellipsis({           
+                    ellipsis: '…',           
+                    debounce: 0,           
+                    responsive: true,           
+                    class: '.clamp',           
+                    lines: 12,           
+                    portrait: null,           
+                    break_word: true
+                });
+            }*/
             this.readMore = function(abstract){
                 $state.go('blog.article', {id: abstract._id});
             }        

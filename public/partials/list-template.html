@@ -22,7 +22,8 @@
                 <tbody>
                     <tr ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage -1) * $ctrl.pageSize | limitTo:$ctrl.pageSize">
                         <td class="list-table-title" ><div>{{abstract.title}}</div></td>
-                        <td class="list-table-abstract" ><div ng-bind-html="abstract.subtxt"></div></td>
+                       <!-- <td class="list-table-abstract" ><div ng-bind-html="abstract.subtxt"></div></td> -->
+                        <td class="list-table-abstract" ><div ng-bind="abstract.subtxt"></div></td>
                         <td class="list-table-filter"><div>{{abstract.filter}}</div></td>
                         <td class="list-table-edit"><div><a ui-sref="edit({ id: abstract._id, page: $ctrl.currentPage })">Edit</a></div></td>
                         <td class="list-table-delete"><div><a href="#" ng-click="$ctrl.deleteBlog(abstract._id)">Delete</a></div></td>

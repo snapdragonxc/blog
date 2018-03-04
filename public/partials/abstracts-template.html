@@ -1,11 +1,12 @@
 <div class="abstracts">
     <h2 class="abstracts-title"><small>BLOG</small></h2>
     <br>
-    <div class="abstracts-abstract" ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage - 1)  * $ctrl.pageSize | limitTo:$ctrl.pageSize">
+    <div id="bootstrap-overide-abstract" class="abstracts-abstract" ng-repeat="abstract in $ctrl.abstracts | startFrom:($ctrl.currentPage - 1)  * $ctrl.pageSize | limitTo:$ctrl.pageSize">
         <h2>{{abstract.title}}</h2>
         <h5>Posted on {{abstract.day}} {{ $ctrl.getDate(abstract.filter) }}</h5>
         <br>
-        <div class="clamp" ng-bind-html="abstract.subtxt"></div> 
+       <!-- <div class="clamp" ng-bind-html="abstract.subtxt"></div> remove ellipsis -->
+        <div class="abstracts-subtxt" ng-bind-html="abstract.subtxt"></div> 
         <br>
         <button ng-click="$ctrl.readMore(abstract)" class="btn btn-default">Read More</button> 
         <br>
@@ -28,5 +29,7 @@
     </div> 
 
 </div>
-{{$ctrl.callback();''}}  <!--alternative to timeout for calling after dom. angular.element had delay in rendering with ellipsis -->
+
+<!-- Remove Ellipsis as it doesn't work with code 
+{{$ctrl.callback();''}} --> <!--alternative to timeout for calling after dom. angular.element had delay in rendering with ellipsis -->
 
