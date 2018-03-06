@@ -19,8 +19,6 @@ angular.module('add', ['ui.router']).component('add', {
                     year: this.selectedYear,
                     sortIdx: sortIdx
                 }
-<<<<<<< HEAD
-=======
 
                 /*
                 
@@ -53,8 +51,7 @@ angular.module('add', ['ui.router']).component('add', {
                 blog.fulltxt = txt;
 
                 */
-                //
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+
                 ClientApiService.saveBlog(blog).then(function(resp){
                         // Reset form
                         this.subtxt = '';

@@ -12,9 +12,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             var cnt = 0;
             var lines = mytxt.split(/\r?\n/); 
 
-          // console.log(mytxt);
-           // var lines = mytxt.split("\n");
-
             var leadingSpace = "";
             for(var k = 0; k < lines.length; k++){
                 // get space, including tabs, up to start of the first character and remove
@@ -74,15 +71,9 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
                     var re = new RegExp("xml-javascript-single" + i,"g");
                     p1 = p1.replace(re, arrSingleString[i]);
                 }
-<<<<<<< HEAD
                 myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
                 cnt += 1;
                 return str;
-=======
-                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>");
-                  cnt += 1;
-                  return str;
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             }); 
             return mytxt;
         }
@@ -121,11 +112,8 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-<<<<<<< HEAD
             txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-=======
-            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -160,23 +148,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
 
             // add <pre> tags to  each line
             var lines = myScript.split(/\n/);
-<<<<<<< HEAD
-        
-=======
-            // remove leading new line if blank
-            var lastIdx = lines.length;
-           // console.log(lines)
-            if( lines[0] === ''){
-                lines = lines.slice(1,lastIdx);  
-            }
-            // remove trailing new line if blank
-            lastIdx = lines.length-1;
-            if(lastIdx >= 0){
-                if( lines[lastIdx] === ''){
-                    lines = lines.slice(0,lastIdx);  
-                }
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
                 x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';

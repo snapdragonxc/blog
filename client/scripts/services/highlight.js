@@ -68,11 +68,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                     var re = new RegExp("xml-javascript-single" + i,"g");
                     p1 = p1.replace(re, arrSingleString[i]);
                 }
-<<<<<<< HEAD
                   myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-=======
-                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>");
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                   cnt += 1;
                   return str;
             }); 
@@ -107,17 +103,13 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         }
         function HighlightScript(txt){
             var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
-           // txt = RemoveRegEx(txt, arrRegex);
+            txt = RemoveRegEx(txt, arrRegex);
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-<<<<<<< HEAD
             txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-=======
-            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -131,25 +123,17 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             for(var i = arrSingleString.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-single" + i,"g");
                 txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
-<<<<<<< HEAD
             } 
-=======
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             // Insert Number Tags
             for(var i = arrNumbers.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-number" + i,"g");
                 txt = txt.replace(re, arrNumbers[i]);
             }
             // Insert Regex Tags
-       /*     for(var i = arrRegex.length -1; i >= 0 ; i--){            
+            for(var i = arrRegex.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-regex" + i,"g");
                 txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
-<<<<<<< HEAD
-            } */
-=======
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+            } 
             return txt;
         }
         function HighlightHTMLCode(txt){
@@ -213,28 +197,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             }
             // add <pre> tags to  each line
             var lines = txt.split(/\n/);
-            // remove leading new line if blank
-            var lastIdx = lines.length;
-<<<<<<< HEAD
-            if( lines[0] === ''){
-               // lines = lines.slice(1,lastIdx);  
-=======
-            console.log(lines[0])
-            if( lines[0] === ''){
-                lines = lines.slice(1,lastIdx);  
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            }
-            // remove trailing new line if blank
-            lastIdx = lines.length-1;
-            if(lastIdx >= 0){
-                if( lines[lastIdx] === ''){
-<<<<<<< HEAD
-                  //  lines = lines.slice(0,lastIdx);  
-=======
-                    lines = lines.slice(0,lastIdx);  
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                }
-            }
+           
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
                 x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';

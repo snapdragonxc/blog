@@ -6,15 +6,12 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
           init: '<'
     }, 
     templateUrl: '../partials/abstracts-template.html',
-<<<<<<< HEAD
+
     controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
         'HighlightService', 'HighlightJSservice',
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
                     HighlightService, HighlightJSservice){
-=======
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams', 'HighlightService', 'HighlightJSservice', 
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, HighlightService, HighlightJSservice){
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();

@@ -5,11 +5,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
         // <--- INITIAL ROUTES --->
         $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
         $urlRouterProvider.when('/admin/list', '/admin/list/1'); 
-<<<<<<< HEAD
         $urlRouterProvider.otherwise('/home');
-=======
-        //$urlRouterProvider.otherwise('/home');
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
         var states = []; 
         // <--- UNPROTECTED ROUTES ---> 
         //<--- BLOG STATE AND ITS CHILD STATES --->
@@ -46,11 +42,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                             }
                             return pages
                     });
-<<<<<<< HEAD
-                }],            
-=======
                 }],           
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             }
         });
         states.push(abstractsState = {  // all abstracts
@@ -202,615 +194,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
         elem.style.position = 'absolute';
     });
 }]);
-angular.module('about', ['ui.router']).component('about', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/about-template.html',
-<<<<<<< HEAD
-    controller: function(){}
-=======
-    controller: function(){
-
-
-            this.test = function(){
-                console.log('about');
-
-                return 'c'
-            }   
-    }
-
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-}); 
-
-                                                                          
-angular.module('abstracts', ['ui.router']).component('abstracts', {
-    bindings: { 
-        abstracts: '<', // one way binding
-        currentPage: '<', 
-        query: '=', // two way binding - query is used for filtering of abstracts with search etc
-          init: '<'
-    }, 
-    templateUrl: '../partials/abstracts-template.html',
-<<<<<<< HEAD
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService', 'HighlightJSservice',
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService, HighlightJSservice){
-=======
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams', 'HighlightService', 'HighlightJSservice', 
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, HighlightService, HighlightJSservice){
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            this.$onInit = function(){
-                if($stateParams.active){
-                    document.getElementById('search-box').focus();
-                }
-            }
-            this.currentPage = 1;
-            this.pageSize = 1; 
-            // note resolved parameters are not available here until the view has loaded.
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            }  
-            this.getDate = function(x){
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }  
-          /*  this.callback = function(){
-                Ellipsis({           
-                    ellipsis: '…',           
-                    debounce: 0,           
-                    responsive: true,           
-                    class: '.clamp',           
-                    lines: 12,           
-                    portrait: null,           
-                    break_word: true
-                });
-            }*/
-            this.readMore = function(abstract){
-                $state.go('blog.article', {id: abstract._id});
-<<<<<<< HEAD
-            }   
-            this.highlight = function(txt){
-                // convert html code. 
-=======
-            }        
-            /*    angular.element(function(){   A delay in rendering when using
-                Ellipsis({           
-                         ellipsis: '…',           
-                         debounce: 0,           
-                         responsive: true,           
-                         class: '.clamp',           
-                         lines: 12,           
-                         portrait: null,           
-                         break_word: true
-                       });
-              }); */   
-
-              this.highlight = function(txt){
-
-                // convert html code.
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-<<<<<<< HEAD
-                // convert javascript code. 
-=======
-                // convert javascript code. Do this on save
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-<<<<<<< HEAD
-                return subtxt;
-            }     
-            /*    angular.element(function(){   A delay in rendering when using
-                Ellipsis({           
-                         ellipsis: '…',           
-                         debounce: 0,           
-                         responsive: true,           
-                         class: '.clamp',           
-                         lines: 12,           
-                         portrait: null,           
-                         break_word: true
-                       });
-              }); */            
-=======
-                
-                console.log('highlight');
-                return subtxt;
-            }
-
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-        }]
-});
-
-
-
-
-    
-angular.module('add', ['ui.router']).component('add', {
-    bindings: { 
-    },         
-    templateUrl: '../partials/add-template.html',
-<<<<<<< HEAD
-    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
-=======
-    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 
-            'HighlightService', 'HighlightJSservice', 'MonthsToNumberService', 
-        function($state, $stateParams, CalendarService, ClientApiService, $window, 
-            HighlightService, HighlightJSservice, MonthsToNumberService){    
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            var that = this;
-            this.cancel = function(){
-                 $window.history.back();        
-            }    
-            this.saveBlog = function(){
-                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
-                var blog = {
-                    title: this.title,        // The same for both article and abstract
-                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.subtxt,   //  The text shown by the abstract
-                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
-                    month: this.selectedMonth,
-                    year: this.selectedYear,
-                    sortIdx: sortIdx
-                }
-<<<<<<< HEAD
-=======
-
-                /*
-                
-                // convert html code. Do this on save
-                var subtxt = blog.subtxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                blog.subtxt = subtxt;
-                //
-                
-                // convert html code text to text with pre/code formatters for color. Do this on save
-                var txt = blog.fulltxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                                            
-                blog.fulltxt = txt;
-
-                */
-                //
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                ClientApiService.saveBlog(blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page });                         
-                    }, function(err){
-                        //console.log(err);
-                        $state.go('login');
-                    }
-                )
-            }
-            /* Start Calendar */
-            this.months = CalendarService.getMonths();
-            this.years = CalendarService.getYears();
-            this.selectedMonth = CalendarService.getCurrentMonth();
-            this.selectedDay = CalendarService.getCurrentDay();
-            this.selectedYear = CalendarService.getCurrentYear();
-            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-            this.changeDate = function() {
-                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-                if(this.selectedDay > this.days.length)
-                    this.selectedDay = thise.days.length.toString();
-            }; 
-            /* End Calendar */        
-        }]
-});
-angular.module('article', ['ui.router']).component('article', {
-    bindings: { 
-        article: '<',
-        abstract: '<',
-    }, // one way binding with resolve
-    templateUrl: '../partials/article-template.html',
-<<<<<<< HEAD
-    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
-        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
-=======
-    controller:[ '$window', 'MonthsFullNameService', '$timeout',
-        function($window, MonthsFullNameService, $timeout){
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            var that = this;
-            this.goBack = function(){
-                $window.history.back();                    
-            }    
-            this.getDate = function(x){
-<<<<<<< HEAD
-=======
-
-                console.log('date-a')
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }
-<<<<<<< HEAD
-            this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                return subtxt;
-            }     
-=======
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            angular.element( function(){ // equivalenet to document ready
-                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
-            });            
-        }]
-});
-angular.module('blog', ['ui.router']).component('blog', {
-    bindings: { 
-        pages: '<',
-        query: '='
-    }, 
-    templateUrl: '../partials/blog-template.html',
-    controller: [ '$state', '$location', '$filter', 'AuthService', 
-<<<<<<< HEAD
-        function($state, $location, $filter, AuthService){            
-=======
-        function($state, $location, $filter, AuthService){   
-
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            this.decorateCategory = function(category) {  
-                if(category.filter !== "posts/all") {
-                    category.month = $filter('extractMonth')(category.filter); 
-                    category.year = $filter('extractYear')(category.filter);  
-                } else {
-                    category.month = 'all';
-                    category.year = 'posts'
-                }
-                return category;
-            } 
-            this.onSearch = function(){
-                this.pages.subTitle = "Search Results"
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
-
-               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
-                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
-            }    
-            this.onEnter = function(){
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
-            }        
-            this.onClick = function(category ){
-                this.pages.filter = category.filter;
-                this.pages.year = category.year;
-                this.pages.month = category.month;
-                this.pages.subTitle = category.month + ' ' + category.year;
-                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
-                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
-            }            
-            this.isArchiveActive = function(category) {
-                var arr =  $location.path().split('\/');
-                var filter = arr[4] + '/' + arr[3];
-                return (category.filter == filter)
-            }
-            this.isActive = function(index) {
-                var idx =  $location.path().split('\/')[5] - 1;                
-                return (idx == index)
-            }
-            // For open close posts
-            this.postHide = false;
-            this.openPosts = function(){
-                if(this.postHide){
-                    this.postHide = false;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
-                } else {
-                    this.postHide = true;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
-                }
-            }
-            // For open close archives
-            this.archiveHide = false;
-            this.openArchives = function(){
-                if(this.archiveHide){
-                    this.archiveHide = false;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
-                } else {
-                    this.archiveHide = true;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
-                }
-            }            
-        }]
-});
-angular.module('contact', ['ui.router']).component('contact', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/contact-template.html',
-    controller: ['MailApiService', 'AuthService',
-        function(MailApiService, AuthService) {
-            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
-            var alertBox = document.querySelector('.contact-alert');
-            var alertLabel = document.querySelector('.contact-alert-msg');
-            this.sendMail = function(){
-                alertBox.style.backgroundColor = blue; 
-                alertLabel.innerHTML = "Sending Message. Please Wait";
-                alertBox.style.display = "block";
-                var payload = {
-                    from: this.from,
-                    subject: this.subject,
-                    msg: this.msg
-                }
-                this.from = '';
-                this.subject = '';
-                this.msg = '';    
-                MailApiService.sendMail(payload).then(function(resp){
-                        alertBox.style.backgroundColor = green;
-                        alertLabel.innerHTML = "Message sent successfully.";                    
-                    }, function(err){
-                        alertBox.style.backgroundColor = red;
-                        alertLabel.innerHTML = "Message failed to send.";
-                    }
-                ) 
-            }        
-        }]
-});
-angular.module('edit', ['ui.router']).component('edit', {
-    bindings: { 
-        pageData: '=',
-    }, 
-    templateUrl: '../partials/edit-template.html',
-<<<<<<< HEAD
-    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
-=======
-    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 'HighlightService','HighlightJSservice',
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService, HighlightService, HighlightJSservice) {                
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            this.cancel = function(){
-                $window.history.back();        
-            }    
-            this.decorateAbstract = function(x) {  
-                var abstract = x;
-                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
-                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
-                return abstract;
-            }
-            this.saveBlog = function(){
-                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
-                var blog = {
-                    title: this.pageData.title,        // The same for both article and abstract
-                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
-                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
-                    month: this.pageData.month,
-                    year: this.pageData.year,
-                    sortIdx: sortIdx
-                }
-<<<<<<< HEAD
-=======
-                /* BLOG ABSTRACT TEXT PROCESS */
-                // convert html code. Do this on save
-                var subtxt = blog.subtxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                blog.subtxt = subtxt;
-                //
-                /* BLOG MAIN TEXT PROCESS */
-                // convert html code text to text with pre/code formatters for color. Do this on save
-                var txt = blog.fulltxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                                            
-                blog.fulltxt = txt;
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                //
-                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );
-            }  
-        }]
-});
-angular.module('home', ['ui.router']).component('home', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/home-template.html',
-    controller:['$stateParams',
-        function($stateParams) {
-            this.$onInit = function(){
-                var grid = document.querySelector('.grid');
-                var msnry = new Masonry( grid, {
-                    itemSelector: '.grid-item',
-                    columnWidth: '.grid-item', //237, //231,                        
-                    gutter: 10,
-                });
-                imagesLoaded( grid ).on( 'progress', function() {
-                    // layout Masonry after each image loads
-                    msnry.layout();
-               });
-            }
-        }]
-});
-
-angular.module('list', ['ui.router']).component('list', {
-    bindings: { 
-        abstracts: '=',  // one way binding        
-        currentPage: '=',
-        callback: '&' // used to set logout button on main nav menu
-    }, 
-    templateUrl: '../partials/list-template.html',
-    controller: ['$state', 'ClientApiService',
-        function($state, ClientApiService) {
-            this.currentPage = 1; 
-            this.pageSize = 5; 
-            var that = this;
-            this.$onInit = function(){
-                that.callback({value: true}); // set state of logout button on main
-            }
-            this.addBlog = function(){
-                $state.go('add', { page: this.currentPage } );
-            }
-            this.deleteBlog = function(id){                
-                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
-                if(lastPage == 0 ){
-                    nextPage = 1;                
-                } else {
-                    var idx = 5;
-                    if( parseInt(this.currentPage) == lastPage ){
-                        idx = this.abstracts.length % 5
-                    }
-                    if( (idx - 1) == 0 ){
-                        nextPage = parseInt(this.currentPage) - 1;
-                    } else {
-                        nextPage = parseInt(this.currentPage)
-                    }
-                }
-                if(nextPage == 0 ){
-                    nextPage = 1;
-                }    
-                ClientApiService.deleteBlog(id).then(function(resp){
-                        $state.go('list', { page: nextPage }, {reload: true});
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );                     
-            }            
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('list', { page: this.currentPage  });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1
-                $state.go('list', { page: this.currentPage });
-            } 
-            this.stripAbstract = function(subtxt){
-                var extract = subtxt.split('<p>');
-                if(extract.length === 1){ // text contains no paragraphs
-                    return extract[0].substring(0, 230); // limit to 230 characters
-                } else { // text contains paragraphs
-                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
-                }
-            }
-        }]
-});
-angular.module('login', ['ui.router']).component('login', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/login-template.html',
-    controller: ['AuthService', '$state',
-        function(AuthService, $state) {
-            var that = this;
-            this.init = function(){
-                this.user = {
-                    username: '',
-                    password: ''
-                }
-            }
-            this.login = function() {                
-                AuthService.login(this.user).then(function(res, err){                    
-                        AuthService.setAuthorized(true); 
-                        $state.go('list', { page: '1' }); 
-                    }, function(err){
-                        // console.log('error', err)
-                        alert('incorrect username or password')
-                        that.init();
-                    }); 
-            }
-            this.init();            
-        }]
-}); 
-<<<<<<< HEAD
-angular.module('custom-filters', [])
-.filter('startFrom', function() { 
-    return function(input, start) {
-        start = +start; 
-        return input.slice(start);
-    }
-})
-.filter('roundup', function () {
-    return function (value) {
-        if(value == 0){
-            value = 1;
-        }       
-        return Math.ceil(value);
-    };
-})
-.filter('extractMonth', function() {
-    return function(x) { 
-        return '' + /[a-zA-Z]+/.exec(x);
-    };
-})
-.filter('extractYear', function() {
-    return function(x) {
-        return '' + /^[0-9]+/.exec(x);
-    };
-})
-.filter('filterByMonth', function() {
-    return function(x, filter) {
-        if(filter == 'posts/all'){
-            return x;
-        } else {
-            return x.filter(function(abstract) { 
-                    return abstract.filter === filter;
-                });
-        }
-    }
-});
-
-
-=======
 angular.module('site-ctrl', []).
     controller('SiteCtrl', ['$state', 'AuthService', '$location', 
         function($state, AuthService, $location) {
@@ -843,7 +226,6 @@ angular.module('site-ctrl', []).
             this.checkStatus(); // call before DOM loads
         }]
 );
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
 angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
     function($q, $http) {
         var currentUser = {
@@ -1111,11 +493,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                 }
                 lines[k] = leadingSpace; 
                 for(var j = 0; j < data.length; j++){
-<<<<<<< HEAD
                     lines[k] = lines[k] + data[j] + " ";
-=======
-                    lines[k] = lines[k] + " " + data[j];
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                 }
             }
             mytxt = "";
@@ -1128,11 +506,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         }
         function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;        
-<<<<<<< HEAD
             mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
-=======
-            mytxt = mytxt.replace(/(\/\/.*\n)/g, function (match, p1, offset, string) {
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                   var str = 'xml-javascript-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -1149,11 +523,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                     var re = new RegExp("xml-javascript-single" + i,"g");
                     p1 = p1.replace(re, arrSingleString[i]);
                 }
-<<<<<<< HEAD
                   myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-=======
-                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>");
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                   cnt += 1;
                   return str;
             }); 
@@ -1188,21 +558,13 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         }
         function HighlightScript(txt){
             var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
-<<<<<<< HEAD
-           // txt = RemoveRegEx(txt, arrRegex);
-=======
             txt = RemoveRegEx(txt, arrRegex);
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-<<<<<<< HEAD
             txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-=======
-            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -1216,40 +578,25 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             for(var i = arrSingleString.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-single" + i,"g");
                 txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
-<<<<<<< HEAD
             } 
-=======
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             // Insert Number Tags
             for(var i = arrNumbers.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-number" + i,"g");
                 txt = txt.replace(re, arrNumbers[i]);
             }
             // Insert Regex Tags
-<<<<<<< HEAD
-       /*     for(var i = arrRegex.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-regex" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
-            } */
-=======
             for(var i = arrRegex.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-regex" + i,"g");
                 txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+            } 
             return txt;
         }
         function HighlightHTMLCode(txt){
             // Remove Scripts
-<<<<<<< HEAD
             var arrScripts = [], arrAttr = [], count = 0;    
 
             txt = txt.trim();
                 
-=======
-            var arrScripts = [], arrAttr = [], count = 0;        
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             txt = txt.replace(/(<script[^>]*>)([\s\S]*?)<\/script>/g, function (match, p1, p2, offset, string) {
                   var str = p1 + 'xml-javascript-' + count + '<\/script>';
                   arrScripts.push(p2);
@@ -1305,28 +652,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             }
             // add <pre> tags to  each line
             var lines = txt.split(/\n/);
-            // remove leading new line if blank
-            var lastIdx = lines.length;
-<<<<<<< HEAD
-            if( lines[0] === ''){
-               // lines = lines.slice(1,lastIdx);  
-=======
-            console.log(lines[0])
-            if( lines[0] === ''){
-                lines = lines.slice(1,lastIdx);  
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-            }
-            // remove trailing new line if blank
-            lastIdx = lines.length-1;
-            if(lastIdx >= 0){
-                if( lines[lastIdx] === ''){
-<<<<<<< HEAD
-                  //  lines = lines.slice(0,lastIdx);  
-=======
-                    lines = lines.slice(0,lastIdx);  
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
-                }
-            }
+           
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
                 x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
@@ -1351,14 +677,10 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
             return mytxt;
         }
-<<<<<<< HEAD
         function RemoveRegEx2( mytxt, myArray ){
             // Regular Expressions are processed per line.
             var cnt = 0;
             var lines = mytxt.split(/\r?\n/); 
-
-          // console.log(mytxt);
-           // var lines = mytxt.split("\n");
 
             var leadingSpace = "";
             for(var k = 0; k < lines.length; k++){
@@ -1368,78 +690,41 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
                     leadingSpace = p1;
                     return p2;
                 }); 
-=======
-        function RemoveRegEx( mytxt, myArray ){
-            // Regular Expressions are processed per line.
-            var cnt = 0;
-            var lines = mytxt.split(/\r?\n/);
-            var leadingSpace = "";
-            for(var k = 0; k < lines.length; k++){
-                // get space, including tabs, up to start of the first character and remove
-                lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
-                    leadingSpace = p1;
-                    return p2;
-                });
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
 
                 var data = lines[k].split(/\s/); // split line based on spaces
                 //    var data = lines[k].split(/\b/); // - word break causes error in regexReplacer
                 function regexReplacer(match, p1, p2, offset, string) {
                     p1 = ReplaceBracketsWithANSII(p1);
                     p2 = ReplaceBracketsWithANSII(p2);
-<<<<<<< HEAD
                     var str = p1 + 'xml-javascript-regex' + cnt ;
-=======
-                      var str = p1 + 'xml-javascript-regex' + cnt ;
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                     if( p2 == ""){
                         str = p1 + "//";
                     } else {
                         myArray.push(p2);
                           cnt += 1;
                     } 
-<<<<<<< HEAD
                       return str; 
-=======
-                      return str;
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                 }
                 for(var j = 0; j < data.length; j++){
                     data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
                 }
                 lines[k] = leadingSpace; 
-<<<<<<< HEAD
               
                 for(var j = 0; j < data.length; j++){
                     lines[k] = lines[k] + data[j] + " ";
                 } 
             }
             var mytxt = "";
-=======
-                for(var j = 0; j < data.length; j++){
-                    lines[k] = lines[k] + " " + data[j];
-                }
-            }
-            mytxt = "";
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             var len = lines.length;
             for(var k = 0; k < len - 1; k++){
                 mytxt = mytxt + lines[k] + "\n";
             }
-<<<<<<< HEAD
             mytxt = mytxt + lines[len-1]; 
-=======
-            mytxt = mytxt + lines[len-1];
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             return mytxt;
         }
         function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;        
-<<<<<<< HEAD
             mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
-=======
-            mytxt = mytxt.replace(/(\/\/.*\n)/g, function (match, p1, offset, string) {
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
                   var str = 'xml-javascript-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -1456,15 +741,9 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
                     var re = new RegExp("xml-javascript-single" + i,"g");
                     p1 = p1.replace(re, arrSingleString[i]);
                 }
-<<<<<<< HEAD
                 myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
                 cnt += 1;
                 return str;
-=======
-                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>");
-                  cnt += 1;
-                  return str;
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             }); 
             return mytxt;
         }
@@ -1497,21 +776,14 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         }
         function HighlightScript(txt){
             var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
-<<<<<<< HEAD
             txt = RemoveRegEx2(txt, arrRegex);
-=======
-            txt = RemoveRegEx(txt, arrRegex);
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-<<<<<<< HEAD
             txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-=======
-            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
+
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -1542,29 +814,10 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
 
             var myScript = HighlightScript(txt);
 
-<<<<<<< HEAD
             myScript = myScript.trim();
 
             // add <pre> tags to  each line
             var lines = myScript.split(/\n/);
-        
-=======
-            // add <pre> tags to  each line
-            var lines = myScript.split(/\n/);
-            // remove leading new line if blank
-            var lastIdx = lines.length;
-           // console.log(lines)
-            if( lines[0] === ''){
-                lines = lines.slice(1,lastIdx);  
-            }
-            // remove trailing new line if blank
-            lastIdx = lines.length-1;
-            if(lastIdx >= 0){
-                if( lines[lastIdx] === ''){
-                    lines = lines.slice(0,lastIdx);  
-                }
-            }
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
                 x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
@@ -1603,40 +856,496 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
-<<<<<<< HEAD
-angular.module('site-ctrl', []).
-    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
-        function($state, AuthService, $location) {
-            this.activeItem="home";
-            this.hide = false;
-            this.currentBtn = 'home';   
-            var that = this; 
-            this.showLogOut = function(value){
-                this.hide = value;
+angular.module('about', ['ui.router']).component('about', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/about-template.html',
+    controller: function(){
+
+
+            this.test = function(){
+                console.log('about');
+
+                return 'c'
+            }   
+    }
+
+}); 
+
+                                                                          
+angular.module('abstracts', ['ui.router']).component('abstracts', {
+    bindings: { 
+        abstracts: '<', // one way binding
+        currentPage: '<', 
+        query: '=', // two way binding - query is used for filtering of abstracts with search etc
+          init: '<'
+    }, 
+    templateUrl: '../partials/abstracts-template.html',
+
+    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
+        'HighlightService', 'HighlightJSservice',
+        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
+                    HighlightService, HighlightJSservice){
+
+            this.$onInit = function(){
+                if($stateParams.active){
+                    document.getElementById('search-box').focus();
+                }
             }
-            this.logOut = function(){
-                AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home', { checkStatus: false }, {reload: true});
-                    that.showLogOut(false);
+            this.currentPage = 1;
+            this.pageSize = 1; 
+            // note resolved parameters are not available here until the view has loaded.
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            }  
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }  
+          /*  this.callback = function(){
+                Ellipsis({           
+                    ellipsis: '…',           
+                    debounce: 0,           
+                    responsive: true,           
+                    class: '.clamp',           
+                    lines: 12,           
+                    portrait: null,           
+                    break_word: true
                 });
+            }*/
+            this.readMore = function(abstract){
+                $state.go('blog.article', {id: abstract._id});
+            }   
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            /*    angular.element(function(){   A delay in rendering when using
+                Ellipsis({           
+                         ellipsis: '…',           
+                         debounce: 0,           
+                         responsive: true,           
+                         class: '.clamp',           
+                         lines: 12,           
+                         portrait: null,           
+                         break_word: true
+                       });
+              }); */   
+
+              this.highlight = function(txt){
+
+                // convert html code.
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                
+                console.log('highlight');
+                return subtxt;
             }
-            this.isActive = function(loc) {
-                return loc == $location.path().split('\/')[1];
-            }
-            this.home = function(){
-                $state.go('home');
-            }
-            this.checkStatus = function(){
-                AuthService.isAuthorized().then(function(res) {
-                    that.showLogOut(true);
-                }, function(err) {
-                    that.showLogOut(false);
-                });
-            }
-            this.checkStatus(); // call before DOM loads
+
         }]
-);
-=======
+});
+
+
+
+
+    
+angular.module('add', ['ui.router']).component('add', {
+    bindings: { 
+    },         
+    templateUrl: '../partials/add-template.html',
+    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
+            var that = this;
+            this.cancel = function(){
+                 $window.history.back();        
+            }    
+            this.saveBlog = function(){
+                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                var blog = {
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
+                    sortIdx: sortIdx
+                }
+
+                /*
+                
+                // convert html code. Do this on save
+                var subtxt = blog.subtxt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                blog.subtxt = subtxt;
+                //
+                
+                // convert html code text to text with pre/code formatters for color. Do this on save
+                var txt = blog.fulltxt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                                            
+                blog.fulltxt = txt;
+
+                */
+
+                ClientApiService.saveBlog(blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page });                         
+                    }, function(err){
+                        //console.log(err);
+                        $state.go('login');
+                    }
+                )
+            }
+            /* Start Calendar */
+            this.months = CalendarService.getMonths();
+            this.years = CalendarService.getYears();
+            this.selectedMonth = CalendarService.getCurrentMonth();
+            this.selectedDay = CalendarService.getCurrentDay();
+            this.selectedYear = CalendarService.getCurrentYear();
+            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = thise.days.length.toString();
+            }; 
+            /* End Calendar */        
+        }]
+});
+angular.module('article', ['ui.router']).component('article', {
+    bindings: { 
+        article: '<',
+        abstract: '<',
+    }, // one way binding with resolve
+    templateUrl: '../partials/article-template.html',
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
+        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+            var that = this;
+            this.goBack = function(){
+                $window.history.back();                    
+            }    
+            this.getDate = function(x){
+
+                console.log('date-a')
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            angular.element( function(){ // equivalenet to document ready
+                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
+            });            
+        }]
+});
+angular.module('blog', ['ui.router']).component('blog', {
+    bindings: { 
+        pages: '<',
+        query: '='
+    }, 
+    templateUrl: '../partials/blog-template.html',
+    controller: [ '$state', '$location', '$filter', 'AuthService', 
+        function($state, $location, $filter, AuthService){   
+
+            this.decorateCategory = function(category) {  
+                if(category.filter !== "posts/all") {
+                    category.month = $filter('extractMonth')(category.filter); 
+                    category.year = $filter('extractYear')(category.filter);  
+                } else {
+                    category.month = 'all';
+                    category.year = 'posts'
+                }
+                return category;
+            } 
+            this.onSearch = function(){
+                this.pages.subTitle = "Search Results"
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
+
+               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
+                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
+            }    
+            this.onEnter = function(){
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
+            }        
+            this.onClick = function(category ){
+                this.pages.filter = category.filter;
+                this.pages.year = category.year;
+                this.pages.month = category.month;
+                this.pages.subTitle = category.month + ' ' + category.year;
+                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
+                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
+            }            
+            this.isArchiveActive = function(category) {
+                var arr =  $location.path().split('\/');
+                var filter = arr[4] + '/' + arr[3];
+                return (category.filter == filter)
+            }
+            this.isActive = function(index) {
+                var idx =  $location.path().split('\/')[5] - 1;                
+                return (idx == index)
+            }
+            // For open close posts
+            this.postHide = false;
+            this.openPosts = function(){
+                if(this.postHide){
+                    this.postHide = false;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
+                } else {
+                    this.postHide = true;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
+                }
+            }
+            // For open close archives
+            this.archiveHide = false;
+            this.openArchives = function(){
+                if(this.archiveHide){
+                    this.archiveHide = false;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
+                } else {
+                    this.archiveHide = true;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
+                }
+            }            
+        }]
+});
+angular.module('contact', ['ui.router']).component('contact', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/contact-template.html',
+    controller: ['MailApiService', 'AuthService',
+        function(MailApiService, AuthService) {
+            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
+            var alertBox = document.querySelector('.contact-alert');
+            var alertLabel = document.querySelector('.contact-alert-msg');
+            this.sendMail = function(){
+                alertBox.style.backgroundColor = blue; 
+                alertLabel.innerHTML = "Sending Message. Please Wait";
+                alertBox.style.display = "block";
+                var payload = {
+                    from: this.from,
+                    subject: this.subject,
+                    msg: this.msg
+                }
+                this.from = '';
+                this.subject = '';
+                this.msg = '';    
+                MailApiService.sendMail(payload).then(function(resp){
+                        alertBox.style.backgroundColor = green;
+                        alertLabel.innerHTML = "Message sent successfully.";                    
+                    }, function(err){
+                        alertBox.style.backgroundColor = red;
+                        alertLabel.innerHTML = "Message failed to send.";
+                    }
+                ) 
+            }        
+        }]
+});
+angular.module('edit', ['ui.router']).component('edit', {
+    bindings: { 
+        pageData: '=',
+    }, 
+    templateUrl: '../partials/edit-template.html',
+    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
+            this.cancel = function(){
+                $window.history.back();        
+            }    
+            this.decorateAbstract = function(x) {  
+                var abstract = x;
+                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
+                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
+                return abstract;
+            }
+            this.saveBlog = function(){
+                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
+                var blog = {
+                    title: this.pageData.title,        // The same for both article and abstract
+                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
+                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
+                    month: this.pageData.month,
+                    year: this.pageData.year,
+                    sortIdx: sortIdx
+                }
+                //
+                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );
+            }  
+        }]
+});
+angular.module('home', ['ui.router']).component('home', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/home-template.html',
+    controller:['$stateParams',
+        function($stateParams) {
+            this.$onInit = function(){
+                var grid = document.querySelector('.grid');
+                var msnry = new Masonry( grid, {
+                    itemSelector: '.grid-item',
+                    columnWidth: '.grid-item', //237, //231,                        
+                    gutter: 10,
+                });
+                imagesLoaded( grid ).on( 'progress', function() {
+                    // layout Masonry after each image loads
+                    msnry.layout();
+               });
+            }
+        }]
+});
+
+angular.module('list', ['ui.router']).component('list', {
+    bindings: { 
+        abstracts: '=',  // one way binding        
+        currentPage: '=',
+        callback: '&' // used to set logout button on main nav menu
+    }, 
+    templateUrl: '../partials/list-template.html',
+    controller: ['$state', 'ClientApiService',
+        function($state, ClientApiService) {
+            this.currentPage = 1; 
+            this.pageSize = 5; 
+            var that = this;
+            this.$onInit = function(){
+                that.callback({value: true}); // set state of logout button on main
+            }
+            this.addBlog = function(){
+                $state.go('add', { page: this.currentPage } );
+            }
+            this.deleteBlog = function(id){                
+                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
+                if(lastPage == 0 ){
+                    nextPage = 1;                
+                } else {
+                    var idx = 5;
+                    if( parseInt(this.currentPage) == lastPage ){
+                        idx = this.abstracts.length % 5
+                    }
+                    if( (idx - 1) == 0 ){
+                        nextPage = parseInt(this.currentPage) - 1;
+                    } else {
+                        nextPage = parseInt(this.currentPage)
+                    }
+                }
+                if(nextPage == 0 ){
+                    nextPage = 1;
+                }    
+                ClientApiService.deleteBlog(id).then(function(resp){
+                        $state.go('list', { page: nextPage }, {reload: true});
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );                     
+            }            
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('list', { page: this.currentPage  });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1
+                $state.go('list', { page: this.currentPage });
+            } 
+            this.stripAbstract = function(subtxt){
+                var extract = subtxt.split('<p>');
+                if(extract.length === 1){ // text contains no paragraphs
+                    return extract[0].substring(0, 230); // limit to 230 characters
+                } else { // text contains paragraphs
+                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
+                }
+            }
+        }]
+});
+angular.module('login', ['ui.router']).component('login', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/login-template.html',
+    controller: ['AuthService', '$state',
+        function(AuthService, $state) {
+            var that = this;
+            this.init = function(){
+                this.user = {
+                    username: '',
+                    password: ''
+                }
+            }
+            this.login = function() {                
+                AuthService.login(this.user).then(function(res, err){                    
+                        AuthService.setAuthorized(true); 
+                        $state.go('list', { page: '1' }); 
+                    }, function(err){
+                        // console.log('error', err)
+                        alert('incorrect username or password')
+                        that.init();
+                    }); 
+            }
+            this.init();            
+        }]
+}); 
 angular.module('custom-filters', [])
 .filter('startFrom', function() { 
     return function(input, start) {
@@ -1674,4 +1383,3 @@ angular.module('custom-filters', [])
     }
 });
 
->>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
