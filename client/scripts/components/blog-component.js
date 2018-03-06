@@ -5,7 +5,8 @@ angular.module('blog', ['ui.router']).component('blog', {
     }, 
     templateUrl: '../partials/blog-template.html',
     controller: [ '$state', '$location', '$filter', 'AuthService', 
-        function($state, $location, $filter, AuthService){            
+        function($state, $location, $filter, AuthService){   
+
             this.decorateCategory = function(category) {  
                 if(category.filter !== "posts/all") {
                     category.month = $filter('extractMonth')(category.filter); 
@@ -19,6 +20,8 @@ angular.module('blog', ['ui.router']).component('blog', {
             this.onSearch = function(){
                 this.pages.subTitle = "Search Results"
                 $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
+
+               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
                 this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
             }    
             this.onEnter = function(){

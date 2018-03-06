@@ -68,7 +68,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                     var re = new RegExp("xml-javascript-single" + i,"g");
                     p1 = p1.replace(re, arrSingleString[i]);
                 }
-                  myArray.push("<span class='javascript-comment'>" + p1 + "</span>");
+                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>");
                   cnt += 1;
                   return str;
             }); 
@@ -95,7 +95,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             var cnt = 0;
             mytxt = mytxt.replace(/([\s=\*\+-/)/(])(\d+)/g, function (match, p1, p2, offset, string) {
                   var str = p1 + 'xml-javascript-number' + cnt;
-                  myArray.push("<span class='javascript-number'>" + p2 + "</span>");
+                  myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
                   cnt += 1;
                   return str;
             } );
@@ -109,7 +109,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="javascript-keyword">' + '$1' + '</span>');            
+            txt = txt.replace(/(function|return|for|new|var|let|while|if)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -118,11 +118,11 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             // Insert String Tags
             for(var i = arrString.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-string" + i,"g");
-                txt = txt.replace(re, "<span class='javascript-string'>" + arrString[i]  + "</span>");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrString[i]  + "</span>");
             }
             for(var i = arrSingleString.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-single" + i,"g");
-                txt = txt.replace(re, "<span class='javascript-string'>" + arrSingleString[i] + "</span>");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
             }
             // Insert Number Tags
             for(var i = arrNumbers.length -1; i >= 0 ; i--){            
@@ -132,7 +132,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             // Insert Regex Tags
             for(var i = arrRegex.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-regex" + i,"g");
-                txt = txt.replace(re, "<span class='javascript-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
+                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
             }
             return txt;
         }
@@ -194,6 +194,19 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             }
             // add <pre> tags to  each line
             var lines = txt.split(/\n/);
+            // remove leading new line if blank
+            var lastIdx = lines.length;
+            console.log(lines[0])
+            if( lines[0] === ''){
+                lines = lines.slice(1,lastIdx);  
+            }
+            // remove trailing new line if blank
+            lastIdx = lines.length-1;
+            if(lastIdx >= 0){
+                if( lines[lastIdx] === ''){
+                    lines = lines.slice(0,lastIdx);  
+                }
+            }
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
                 x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';

@@ -11,6 +11,8 @@ angular.module('article', ['ui.router']).component('article', {
                 $window.history.back();                    
             }    
             this.getDate = function(x){
+
+                console.log('date-a')
                 var mo = '' + /[a-zA-Z]+/.exec(x);
                 var yr = '' + /^[0-9]+/.exec(x);
                 return MonthsFullNameService[mo] + ' ' + yr;

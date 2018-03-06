@@ -51,18 +51,18 @@ div.color-code,
 .xml {
     color: black;
 }
-.javascript-keyword {
+.jscrpt-keyword {
     color: mediumblue;
 }
-.javascript-number {
+.jscrpt-number {
     color:  red;
 }
-.javascript-string {
+.jscrpt-string {
     color:  brown;
 }
-.javascript-comment {
+.jscrpt-comment {
     color: green;
 }
-.javascript-regex {
+.jscrpt-regex {
     color: orange;
 }

@@ -21,7 +21,9 @@ angular.module('add', ['ui.router']).component('add', {
                     year: this.selectedYear,
                     sortIdx: sortIdx
                 }
-                /* BLOG ABSTRACT TEXT PROCESS */
+
+                /*
+                
                 // convert html code. Do this on save
                 var subtxt = blog.subtxt; //  txt for colouring
                 // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
@@ -36,7 +38,7 @@ angular.module('add', ['ui.router']).component('add', {
                 });                      
                 blog.subtxt = subtxt;
                 //
-                /* BLOG MAIN TEXT PROCESS */
+                
                 // convert html code text to text with pre/code formatters for color. Do this on save
                 var txt = blog.fulltxt; //  txt for colouring
                 // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
@@ -49,6 +51,8 @@ angular.module('add', ['ui.router']).component('add', {
                     return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
                 });                                            
                 blog.fulltxt = txt;
+
+                */
                 //
                 ClientApiService.saveBlog(blog).then(function(resp){
                         // Reset form
