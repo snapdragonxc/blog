@@ -1,7 +1,7 @@
 <div class="row blog">
     <div class="col-md-9">
         <div id="blog-container" ui-view abstracts="$ctrl.pages.filteredAbstracts" style="height: //400px"></div>
-    </div>
+    </div> 
     <div class="col-md-3 blog-aside">    
         <form ng-submit="$ctrl.onSearch()">
             <div class="input-group blog-aside-search" >                
@@ -26,11 +26,17 @@
                         {{ abstract.title }}                          
                     </a> 
                 </li>
-            </ul>
+            </ul> 
         </div>
         <div class="blog-aside-divider">
             <hr/>
         </div>
+<<<<<<< HEAD
+        <div class="blog-aside-divider">
+            <hr/>
+        </div>
+=======
+>>>>>>> bdcc75919b9ddd9383f88ba30f5fa52d3b12cc7e
         <div class="blog-archive-posts">
             <div class="archives">
                 <h4>Archived Posts</h4>
@@ -39,12 +45,12 @@
             </div>
             <ul class="nav nav-pills nav-stacked">
                 <li ng-repeat="category in $ctrl.pages.categories | limitTo:$ctrl.archives" ng-click="$ctrl.onClick(category)" ng-class="{active:$ctrl.isArchiveActive(category)}">
-                    {{ category = $ctrl.decorateCategory(category);"" }}  <!-- modify category without displaying it.-->
+                    {{ category = $ctrl.decorateCategory(category);"" }} <!-- modify category without displaying it.-->
                       <a href="#">{{ category.month }}  {{ category.year }} ({{ category.number }})</a>            
                 </li>
-            </ul>
+            </ul> 
         </div>
     </div>
-</div>
+</div> 
 
 

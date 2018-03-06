@@ -5,7 +5,8 @@ angular.module('blog', ['ui.router']).component('blog', {
     }, 
     templateUrl: '../partials/blog-template.html',
     controller: [ '$state', '$location', '$filter', 'AuthService', 
-        function($state, $location, $filter, AuthService){            
+        function($state, $location, $filter, AuthService){   
+
             this.decorateCategory = function(category) {  
                 if(category.filter !== "posts/all") {
                     category.month = $filter('extractMonth')(category.filter); 

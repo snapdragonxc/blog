@@ -5,7 +5,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
         // <--- INITIAL ROUTES --->
         $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
         $urlRouterProvider.when('/admin/list', '/admin/list/1'); 
-        $urlRouterProvider.otherwise('/home');
+        //$urlRouterProvider.otherwise('/home');
         var states = []; 
         // <--- UNPROTECTED ROUTES ---> 
         //<--- BLOG STATE AND ITS CHILD STATES --->
@@ -42,7 +42,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                             }
                             return pages
                     });
-                }],            
+                }],           
             }
         });
         states.push(abstractsState = {  // all abstracts

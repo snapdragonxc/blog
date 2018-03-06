@@ -1,6 +1,5 @@
 angular.module('app', [    
     'ui.router',
-    'ngAnimate',
     'ngSanitize', // this is used for displaying html in a tag as text
     'months-number-services',
     'months-name-services',
