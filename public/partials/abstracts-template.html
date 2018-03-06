@@ -6,7 +6,7 @@
         <h5>Posted on {{abstract.day}} {{ $ctrl.getDate(abstract.filter) }}</h5>
         <br>
        <!-- <div class="clamp" ng-bind-html="abstract.subtxt"></div> remove ellipsis -->
-        <div class="abstracts-subtxt" ng-bind-html="abstract.subtxt"></div> 
+        <div class="abstracts-subtxt" ng-bind-html="$ctrl.highlight(abstract.subtxt)"></div> 
         <br>
         <button ng-click="$ctrl.readMore(abstract)" class="btn btn-default">Read More</button> 
         <br>

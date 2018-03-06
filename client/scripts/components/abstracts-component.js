@@ -6,8 +6,10 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
           init: '<'
     }, 
     templateUrl: '../partials/abstracts-template.html',
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams', 
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams){
+    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
+        'HighlightService', 'HighlightJSservice',
+        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
+                    HighlightService, HighlightJSservice){
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -42,7 +44,22 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
             }*/
             this.readMore = function(abstract){
                 $state.go('blog.article', {id: abstract._id});
-            }        
+            }   
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
             /*    angular.element(function(){   A delay in rendering when using
                 Ellipsis({           
                          ellipsis: '…',           

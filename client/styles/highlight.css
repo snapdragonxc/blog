@@ -4,9 +4,9 @@ div.color-code {
     padding-top: 9px;
     padding-bottom: 9px;
    /* margin-top: 15px;
-    margin-bottom: 15px; */
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 15px; 
+    margin-top: 20px; */
+    margin-bottom: 10px;
     border: 1px solid #ddd;
 }
 #bootstrap-overide-abstract pre,
@@ -51,18 +51,18 @@ div.color-code,
 .xml {
     color: black;
 }
-.javascript-keyword {
+.jscrpt-keyword {
     color: mediumblue;
 }
-.javascript-number {
+.jscrpt-number {
     color:  red;
 }
-.javascript-string {
+.jscrpt-string {
     color:  brown;
 }
-.javascript-comment {
+.jscrpt-comment {
     color: green;
 }
-.javascript-regex {
+.jscrpt-regex {
     color: orange;
 }

@@ -5,10 +5,10 @@
         <h2>{{$ctrl.abstract.title}}</h2>
         <h5>Posted on {{ $ctrl.abstract.day }} {{ $ctrl.getDate($ctrl.abstract.filter) }}</h5>
         <br>
-        <div ng-bind-html="$ctrl.abstract.subtxt"></div>
+        <div ng-bind-html="$ctrl.highlight($ctrl.abstract.subtxt)"></div>
         <hr style="border-top: 1px solid #ddd;">                
         <!-- use ng-bind-html & $sanitize to display html -->
-        <div ng-bind-html="$ctrl.article.fulltxt" ></div>
+        <div ng-bind-html="$ctrl.highlight($ctrl.article.fulltxt)" ></div>
         <br>        
     </div>
     <br>

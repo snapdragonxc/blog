@@ -1,1 +1,1333 @@
-angular.module("app").config(["$stateProvider","$urlRouterProvider","$locationProvider",function(t,e,r){r.html5Mode(!0),e.when("/blog","/blog/abstracts/all/posts/1"),e.when("/admin/list","/admin/list/1"),e.otherwise("/home");var n=[];n.push(blogState={name:"blog",url:"/blog",component:"blog",params:{year:"all",month:"posts"},resolve:{pages:["ClientApiService","$stateParams","$filter","$location",function(t,e,r,n){return t.getPages().then(function(t){if(-1==n.path().search(/article/i)){t.year=e.year,t.month=e.month,t.subTitle=e.month+" "+e.year;var a=t.year+"/"+t.month;t.filteredAbstracts="posts/all"!==a?r("filterByMonth")(t.abstracts,a):t.abstracts}else t.year="all",t.month="posts",t.subTitle=e.month+" "+e.year,t.filteredAbstracts=t.abstracts;return t})}]}}),n.push(abstractsState={name:"blog.abstracts",url:"/abstracts/{month}/{year}/{page}",component:"abstracts",params:{active:!1},resolve:{currentPage:["$stateParams",function(t){return t.page}]}}),n.push(articleState={name:"blog.article",url:"/article/{id}",component:"article",resolve:{abstract:["ClientApiService","$stateParams",function(t,e){return t.getAbstract(e.id)}],article:["ClientApiService","$stateParams",function(t,e){return t.getArticle(e.id)}]}}),n.push(homeState={name:"home",url:"/home",component:"home",params:{checkStatus:!0},resolve:{}}),n.push(contactState={name:"about",url:"/about",component:"about"}),n.push(contactState={name:"contact",url:"/contact",component:"contact"}),n.push(loginState={name:"login",url:"/login",component:"login"}),n.push(listState={name:"list",url:"/list/{page}",component:"list",params:{page:null},resolve:{authorize:["ClientApiService","AuthService","$state",function(t,e,r){return e.isAuthorized()}],abstracts:["ClientApiService","$state",function(t,e){return t.getAbstracts()}],currentPage:["$stateParams",function(t){return t.page}]}}),n.push(editState={name:"edit",url:"/list/edit/{id}",component:"edit",params:{page:null},resolve:{authorize:["AuthService",function(t){return t.isAuthorized()}],pageData:["ClientApiService","$stateParams",function(t,e){return t.getPageData(e.id)}]}}),n.push(addState={name:"add",url:"/list/add",component:"add",params:{page:null},resolve:{authorize:["AuthService",function(t){return t.isAuthorized()}]}}),n.forEach(function(e){t.state(e)})}]).run(["$transitions","$state","$rootScope",function(t,e,r){t.onError({},function(t){"unauthorized"==t.error().detail&&e.go("login")}),t.onStart({to:"blog.article"},function(t){document.getElementById("menu").style.position="static"}),t.onStart({from:"blog.article"},function(t){document.getElementById("menu").style.position="absolute"})}]),angular.module("site-ctrl",[]).controller("SiteCtrl",["$state","AuthService","$location",function(t,e,r){this.activeItem="home",this.hide=!1,this.currentBtn="home";var n=this;this.showLogOut=function(t){this.hide=t},this.logOut=function(){e.logout().then(function(t){},function(e){t.go("home",{checkStatus:!1},{reload:!0}),n.showLogOut(!1)})},this.isActive=function(t){return t==r.path().split("/")[1]},this.home=function(){t.go("home")},this.checkStatus=function(){e.isAuthorized().then(function(t){n.showLogOut(!0)},function(t){n.showLogOut(!1)})},this.checkStatus()}]),angular.module("about",["ui.router"]).component("about",{bindings:{},templateUrl:"../partials/about-template.html",controller:function(){}}),angular.module("abstracts",["ui.router"]).component("abstracts",{bindings:{abstracts:"<",currentPage:"<",query:"=",init:"<"},templateUrl:"../partials/abstracts-template.html",controller:["$state","$window","$location","MonthsFullNameService","$timeout","$stateParams",function(t,e,r,n,a,i){this.$onInit=function(){i.active&&document.getElementById("search-box").focus()},this.currentPage=1,this.pageSize=1,this.nextPage=function(){this.currentPage=parseInt(this.currentPage)+1,t.go("blog.abstracts",{page:this.currentPage})},this.prevPage=function(){this.currentPage=parseInt(this.currentPage)-1,t.go("blog.abstracts",{page:this.currentPage})},this.getDate=function(t){var e=""+/[a-zA-Z]+/.exec(t),r=""+/^[0-9]+/.exec(t);return n[e]+" "+r},this.readMore=function(e){t.go("blog.article",{id:e._id})}}]}),angular.module("add",["ui.router"]).component("add",{bindings:{},templateUrl:"../partials/add-template.html",controller:["$state","$stateParams","CalendarService","ClientApiService","$window","HighlightService","HighlightJSservice","MonthsToNumberService",function(t,e,r,n,a,i,s,o){this.cancel=function(){a.history.back()},this.saveBlog=function(){var r=12*(parseInt(this.selectedYear)-2014)+o[this.selectedMonth],a={title:this.title,fulltxt:this.fulltxt,subtxt:this.subtxt,day:this.selectedDay,month:this.selectedMonth,year:this.selectedYear,sortIdx:r},c=a.subtxt;c=(c=c.replace(/\[code\]([\s\S]*?)\[\/code\]/g,function(t,e,r,n){return'<div class="color-code">'+i.AddColor(e)+"</div>"})).replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g,function(t,e,r,n){return'<div class="color-code">'+s.AddColor(e)+"</div>"}),a.subtxt=c;var l=a.fulltxt;l=(l=l.replace(/\[code\]([\s\S]*?)\[\/code\]/g,function(t,e,r,n){return'<div class="color-code">'+i.AddColor(e)+"</div>"})).replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g,function(t,e,r,n){return'<div class="color-code">'+s.AddColor(e)+"</div>"}),a.fulltxt=l,n.saveBlog(a).then(function(r){this.subtxt="",this.fulltxt="",this.title="",t.go("list",{page:e.page})},function(e){t.go("login")})},this.months=r.getMonths(),this.years=r.getYears(),this.selectedMonth=r.getCurrentMonth(),this.selectedDay=r.getCurrentDay(),this.selectedYear=r.getCurrentYear(),this.days=r.getDays(this.selectedMonth,this.selectedYear),this.changeDate=function(){this.days=r.getDays(this.selectedMonth,this.selectedYear),this.selectedDay>this.days.length&&(this.selectedDay=thise.days.length.toString())}}]}),angular.module("article",["ui.router"]).component("article",{bindings:{article:"<",abstract:"<"},templateUrl:"../partials/article-template.html",controller:["$window","MonthsFullNameService","$timeout",function(t,e,r){this.goBack=function(){t.history.back()},this.getDate=function(t){var r=""+/[a-zA-Z]+/.exec(t),n=""+/^[0-9]+/.exec(t);return e[r]+" "+n},angular.element(function(){document.querySelectorAll(".article-abstract")[0].style.cssText+="max-height: 10000px"})}]}),angular.module("blog",["ui.router"]).component("blog",{bindings:{pages:"<",query:"="},templateUrl:"../partials/blog-template.html",controller:["$state","$location","$filter","AuthService",function(t,e,r,n){this.decorateCategory=function(t){return"posts/all"!==t.filter?(t.month=r("extractMonth")(t.filter),t.year=r("extractYear")(t.filter)):(t.month="all",t.year="posts"),t},this.onSearch=function(){this.pages.subTitle="Search Results",t.go("blog.abstracts",{year:"posts",month:"all",page:"1"}),this.pages.filteredAbstracts=r("filter")(this.pages.abstracts,this.query)},this.onEnter=function(){t.go("blog.abstracts",{year:"posts",month:"all",page:"1",active:!0})},this.onClick=function(e){this.pages.filter=e.filter,this.pages.year=e.year,this.pages.month=e.month,this.pages.subTitle=e.month+" "+e.year,this.pages.filteredAbstracts=r("filterByMonth")(this.pages.abstracts,this.pages.filter),t.go("blog.abstracts",{year:e.year,month:e.month,page:"1",active:!1},{reload:!0})},this.isArchiveActive=function(t){var r=e.path().split("/"),n=r[4]+"/"+r[3];return t.filter==n},this.isActive=function(t){return e.path().split("/")[5]-1==t},this.postHide=!1,this.openPosts=function(){this.postHide?(this.postHide=!1,document.querySelectorAll(".blog-recent-posts")[0].style.cssText+="max-height: 200px"):(this.postHide=!0,document.querySelectorAll(".blog-recent-posts")[0].style.cssText+="max-height: 1000px")},this.archiveHide=!1,this.openArchives=function(){this.archiveHide?(this.archiveHide=!1,document.querySelectorAll(".blog-archive-posts")[0].style.cssText+="max-height: 200px"):(this.archiveHide=!0,document.querySelectorAll(".blog-archive-posts")[0].style.cssText+="max-height: 1000px")}}]}),angular.module("contact",["ui.router"]).component("contact",{bindings:{},templateUrl:"../partials/contact-template.html",controller:["MailApiService","AuthService",function(t,e){var r=document.querySelector(".contact-alert"),n=document.querySelector(".contact-alert-msg");this.sendMail=function(){r.style.backgroundColor="#2196F3",n.innerHTML="Sending Message. Please Wait",r.style.display="block";var e={from:this.from,subject:this.subject,msg:this.msg};this.from="",this.subject="",this.msg="",t.sendMail(e).then(function(t){r.style.backgroundColor="#4CAF50",n.innerHTML="Message sent successfully."},function(t){r.style.backgroundColor="#f44336",n.innerHTML="Message failed to send."})}}]}),angular.module("edit",["ui.router"]).component("edit",{bindings:{pageData:"="},templateUrl:"../partials/edit-template.html",controller:["$state","$stateParams","CalendarService","ClientApiService","$window","MonthsToNumberService","HighlightService","HighlightJSservice",function(t,e,r,n,a,i,s,o){this.cancel=function(){a.history.back()},this.decorateAbstract=function(t){var e=t;return e.month=""+/[a-zA-Z]+/.exec(e.filter),e.year=""+/^[0-9]+/.exec(e.filter),e},this.saveBlog=function(){var r=12*(parseInt(this.pageData.year)-2014)+i[this.pageData.month],a={title:this.pageData.title,fulltxt:this.pageData.fulltxt,subtxt:this.pageData.subtxt,day:this.pageData.day,month:this.pageData.month,year:this.pageData.year,sortIdx:r},c=a.subtxt;c=(c=c.replace(/\[code\]([\s\S]*?)\[\/code\]/g,function(t,e,r,n){return'<div class="color-code">'+s.AddColor(e)+"</div>"})).replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g,function(t,e,r,n){return'<div class="color-code">'+o.AddColor(e)+"</div>"}),a.subtxt=c;var l=a.fulltxt;l=(l=l.replace(/\[code\]([\s\S]*?)\[\/code\]/g,function(t,e,r,n){return'<div class="color-code">'+s.AddColor(e)+"</div>"})).replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g,function(t,e,r,n){return'<div class="color-code">'+o.AddColor(e)+"</div>"}),a.fulltxt=l,n.updateBlog(e.id,a).then(function(r){this.subtxt="",this.fulltxt="",this.title="",t.go("list",{page:e.page},{reload:!0})},function(e){t.go("login")})}}]}),angular.module("home",["ui.router"]).component("home",{bindings:{},templateUrl:"../partials/home-template.html",controller:["$stateParams",function(t){this.$onInit=function(){var t=document.querySelector(".grid"),e=new Masonry(t,{itemSelector:".grid-item",columnWidth:".grid-item",gutter:10});imagesLoaded(t).on("progress",function(){e.layout()})}}]}),angular.module("list",["ui.router"]).component("list",{bindings:{abstracts:"=",currentPage:"=",callback:"&"},templateUrl:"../partials/list-template.html",controller:["$state","ClientApiService",function(t,e){this.currentPage=1,this.pageSize=5;var r=this;this.$onInit=function(){r.callback({value:!0})},this.addBlog=function(){t.go("add",{page:this.currentPage})},this.deleteBlog=function(r){var n=Math.ceil(this.abstracts.length/this.pageSize);if(0==n)nextPage=1;else{var a=5;parseInt(this.currentPage)==n&&(a=this.abstracts.length%5),nextPage=a-1==0?parseInt(this.currentPage)-1:parseInt(this.currentPage)}0==nextPage&&(nextPage=1),e.deleteBlog(r).then(function(e){t.go("list",{page:nextPage},{reload:!0})},function(e){t.go("login")})},this.nextPage=function(){this.currentPage=parseInt(this.currentPage)+1,t.go("list",{page:this.currentPage})},this.prevPage=function(){this.currentPage=parseInt(this.currentPage)-1,t.go("list",{page:this.currentPage})},this.stripAbstract=function(t){var e=t.split("<p>");return 1===e.length?e[0].substring(0,230):e[1].split("</p>")[0].substring(0,230)}}]}),angular.module("login",["ui.router"]).component("login",{bindings:{},templateUrl:"../partials/login-template.html",controller:["AuthService","$state",function(t,e){var r=this;this.init=function(){this.user={username:"",password:""}},this.login=function(){t.login(this.user).then(function(r,n){t.setAuthorized(!0),e.go("list",{page:"1"})},function(t){alert("incorrect username or password"),r.init()})},this.init()}]}),angular.module("custom-filters",[]).filter("startFrom",function(){return function(t,e){return e=+e,t.slice(e)}}).filter("roundup",function(){return function(t){return 0==t&&(t=1),Math.ceil(t)}}).filter("extractMonth",function(){return function(t){return""+/[a-zA-Z]+/.exec(t)}}).filter("extractYear",function(){return function(t){return""+/^[0-9]+/.exec(t)}}).filter("filterByMonth",function(){return function(t,e){return"posts/all"==e?t:t.filter(function(t){return t.filter===e})}}),angular.module("auth-service",[]).factory("AuthService",["$q","$http",function(t,e){var r={username:"",authorized:!1};return{userName:r.username,setAuthorized:function(t){r.authorized=!0},isAuthorized:function(){return t(function(t,n){r.authorized?t("authorized"):e.get("/api/status").then(function(e){r.authorized=!0,t("authorized")},function(t){n("unauthorized")})})},login:function(t){return e.post("/api/login",t)},logout:function(){return r.authorized=!1,e.get("/api/logout")}}}]),angular.module("calendar-service",[]).factory("CalendarService",function(){var t=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],e={Jan:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],Mar:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29,30,31],Apr:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],May:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],Jun:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],Jul:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],Aug:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],Sep:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],Oct:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],Nov:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],Dec:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]},r=new Date;return{getCurrentDay:function(){return r.getDate().toString()},getCurrentMonth:function(){var e=r.getMonth();return t[e]},getCurrentYear:function(){return r.getFullYear().toString()},getYears:function(){return[2018,2017,2016,2015,2014]},getDays:function(t,r){return"Feb"!=t?e[t]:(n=r)%100!=0&&n%4==0||n%400==0?[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29]:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28];var n},getMonths:function(){return t}}}),angular.module("api-services",[]).factory("ClientApiService",["$http","$q","CalendarService",function(t,e,r){var n=[],a=!0,i=!0;var s={getPages:function(){return s.getAbstracts().then(function(t){return{abstracts:t,categories:(e=t,r=["Dec","Nov","Oct","Sep","Aug","Jul","Jun","May","Apr","Mar","Feb","Jan"],n=[],n.push({filter:"posts/all",number:e.length}),["2018","2017","2016","2015"].forEach(function(t){var a=e.filter(function(e){var r=""+/^[0-9]+/.exec(e.filter);return t===r});0!=a.length&&r.forEach(function(e){var r=a.filter(function(t){var r=""+/[a-zA-Z]+/.exec(t.filter);return e===r});0!=r&&n.push({filter:t+"/"+e,number:r.length})})}),n)};var e,r,n})},getAbstracts:function(){return e(function(e,r){a?t.get("api/abstracts",{cache:!1}).then(function(t){a=!1,n=t.data,e(n)},function(t){r(t)}):e(n)})},getAbstract:function(t){function e(e){return e._id===t}return s.getAbstracts().then(function(t){return t.find(e)})},getArticle:function(r){return e(function(e,n){i?t.get("api/article/"+r,{cache:!1}).then(function(t){var r=t.data;e(r)},function(t){n(t)}):e(void 0)})},getPageData:function(t){return s.getAbstract(t).then(function(e){return s.getArticle(t).then(function(t){var n={title:e.title,day:e.day,month:""+/[a-zA-Z]+/.exec(e.filter),year:""+/^[0-9]+/.exec(e.filter),subtxt:e.subtxt,fulltxt:t.fulltxt,months:r.getMonths(),years:r.getYears()};return n.days=r.getDays(n.month,n.year),n})})},saveBlog:function(e){return t.post("/api/blog",e).then(function(t){return a=!0,i=!0,t})},updateBlog:function(e,r){return t.put("/api/blog/"+e,r).then(function(t){return a=!0,i=!0,t})},deleteBlog:function(e){return t.delete("/api/blog/"+e).then(function(t){return a=!0,t})}};return s}]),angular.module("highlight-services",[]).factory("HighlightService",function(){function t(t){return t=(t=(t=(t=t.replace(/</g,"&lt;")).replace(/\&lt\;\//g,"&lt;&#47;")).replace(/>/g,"&gt;")).replace(/\\\//g,"&#92;&#47;")}function e(e){var r,n,a,i,s,o,c,l,u,g,p,h=[],f=[],d=[],m=[],v=[];e=t(e=function(e,r){for(var n=0,a=e.split(/\r?\n/),i="",s=0;s<a.length;s++){a[s]=a[s].replace(/(\s*)(.*)/,function(t,e,r,n,a){return i=e,r});var o=a[s].split(/\s/);function c(e,a,i,s,o){a=t(a),i=t(i);var c=a+"xml-javascript-regex"+n;return""==i?c=a+"//":(r.push(i),n+=1),c}for(var l=0;l<o.length;l++)o[l]=o[l].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g,c);for(a[s]=i,l=0;l<o.length;l++)a[s]=a[s]+" "+o[l]}e="";var u=a.length;for(s=0;s<u-1;s++)e=e+a[s]+"\n";return e+=a[u-1]}(e,h)),n=d,a=m,i=0,r=(r=e).replace(/("[^"]*")/g,function(t,e,r,a){var s="xml-javascript-string"+i;return n.push(e),i+=1,s}),i=0,e=r=r.replace(/('[^']*')/g,function(t,e,r,n){var s="xml-javascript-single"+i;return a.push(e),i+=1,s}),s=f,o=h,c=d,l=m,u=0,e=e.replace(/(\/\/.*\n)/g,function(t,e,r,n){for(var a="xml-javascript-comment"+u,i=o.length-1;i>=0;i--){var g=new RegExp("xml-javascript-regex"+i,"g");e=e.replace(g,o[i])}for(i=c.length-1;i>=0;i--)g=new RegExp("xml-javascript-string"+i,"g"),e=e.replace(g,c[i]);for(i=l.length-1;i>=0;i--)g=new RegExp("xml-javascript-single"+i,"g"),e=e.replace(g,l[i]);return s.push("<span class='javascript-comment'>"+e+"</span>"),u+=1,a}),g=v,p=0,e=(e=e.replace(/([\s=\*\+-/)/(])(\d+)/g,function(t,e,r,n,a){var i=e+"xml-javascript-number"+p;return g.push("<span class='javascript-number'>"+r+"</span>"),p+=1,i})).replace(/(function|return|for|new|var|let|while|if)/g,'<span class="javascript-keyword">$1</span>');for(var b=f.length-1;b>=0;b--){var x=new RegExp("xml-javascript-comment"+b,"g");e=e.replace(x,f[b])}for(b=d.length-1;b>=0;b--){x=new RegExp("xml-javascript-string"+b,"g");e=e.replace(x,"<span class='javascript-string'>"+d[b]+"</span>")}for(b=m.length-1;b>=0;b--){x=new RegExp("xml-javascript-single"+b,"g");e=e.replace(x,"<span class='javascript-string'>"+m[b]+"</span>")}for(b=v.length-1;b>=0;b--){x=new RegExp("xml-javascript-number"+b,"g");e=e.replace(x,v[b])}for(b=h.length-1;b>=0;b--){x=new RegExp("xml-javascript-regex"+b,"g");e=e.replace(x,"<span class='javascript-regex'>/"+h[b]+"/</span>")}return e}return{AddColor:function(t){return function(t){var r=[],n=[],a=0;t=t.replace(/(<script[^>]*>)([\s\S]*?)<\/script>/g,function(t,e,n,i,s){var o=e+"xml-javascript-"+a+"<\/script>";return r.push(n),a+=1,o});for(var i=0;i<r.length;i++)r[i]=e(r[i]);for(a=0,t=t.replace(/<(\w+\s+)([^>]*)>/g,function(t,e,r,i,s){if(""==r)return"";var o="<"+e+"xml-attribute-"+a+">";return n.push(r),a+=1,o}),i=0;i<n.length;i++)n[i]=n[i].replace(/([\w-]+\s*)(=)*(\s*"[^"]*")*/g,"<span class='xml-attribute'>$1</span>$2<span class='xml-string'>$3</span>");for(t=(t=(t=(t=(t=(t=(t=(t=(t=t.replace(/<(\![\w-\s]*)>/g,"mmmm$1nnnn")).replace(/<(\w+)(\s+)([\w-]*)>/g,"aaaadddd$1eeee$2$3bbbb")).replace(/<(\w+)>/g,"aaaadddd$1eeeebbbb")).replace(/<\/(\w+)>/g,"ccccdddd$1eeeebbbb")).replace(/mmmm(\![\w-\s]*)nnnn/g,"<span class='xml-meta'>&lt;$1&gt;</span>")).replace(/aaaa/g,"<span class='xml-bracket'><</span>")).replace(/bbbb/g,"<span class='xml-bracket'>></span>")).replace(/cccc/g,"<span class='xml-bracket'><&#47;</span>")).replace(/dddd(\w+)eeee/g,"<span class='xml-tag'>$1</span>"),i=0;i<n.length;i++){var s=new RegExp("xml-attribute-"+i,"g");t=t.replace(s,n[i])}for(i=0;i<r.length;i++)s=new RegExp("xml-javascript-"+i,"g"),t=t.replace(s,r[i]);var o=t.split(/\n/),c="";for(i=0;i<o.length;i++)c=c+"<pre><span>"+o[i]+"\n</span></pre>";return c}(t)}}}),angular.module("highlightJS-services",[]).factory("HighlightJSservice",function(){function t(t){return t=(t=(t=(t=t.replace(/</g,"&lt;")).replace(/\&lt\;\//g,"&lt;&#47;")).replace(/>/g,"&gt;")).replace(/\\\//g,"&#92;&#47;")}function e(e){var r,n,a,i,s,o,c,l,u,g,p,h=[],f=[],d=[],m=[],v=[];e=t(e=function(e,r){for(var n=0,a=e.split(/\r?\n/),i="",s=0;s<a.length;s++){a[s]=a[s].replace(/(\s*)(.*)/,function(t,e,r,n,a){return i=e,r});var o=a[s].split(/\s/);function c(e,a,i,s,o){a=t(a),i=t(i);var c=a+"xml-javascript-regex"+n;return""==i?c=a+"//":(r.push(i),n+=1),c}for(var l=0;l<o.length;l++)o[l]=o[l].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g,c);for(a[s]=i,l=0;l<o.length;l++)a[s]=a[s]+" "+o[l]}e="";var u=a.length;for(s=0;s<u-1;s++)e=e+a[s]+"\n";return e+=a[u-1]}(e,h)),n=d,a=m,i=0,r=(r=e).replace(/("[^"]*")/g,function(t,e,r,a){var s="xml-javascript-string"+i;return n.push(e),i+=1,s}),i=0,e=r=r.replace(/('[^']*')/g,function(t,e,r,n){var s="xml-javascript-single"+i;return a.push(e),i+=1,s}),s=f,o=h,c=d,l=m,u=0,e=e.replace(/(\/\/.*\n)/g,function(t,e,r,n){for(var a="xml-javascript-comment"+u,i=o.length-1;i>=0;i--){var g=new RegExp("xml-javascript-regex"+i,"g");e=e.replace(g,o[i])}for(i=c.length-1;i>=0;i--)g=new RegExp("xml-javascript-string"+i,"g"),e=e.replace(g,c[i]);for(i=l.length-1;i>=0;i--)g=new RegExp("xml-javascript-single"+i,"g"),e=e.replace(g,l[i]);return s.push("<span class='javascript-comment'>"+e+"</span>"),u+=1,a}),g=v,p=0,e=(e=e.replace(/([\s=\*\+-/)/(])(\d+)/g,function(t,e,r,n,a){var i=e+"xml-javascript-number"+p;return g.push("<span class='javascript-number'>"+r+"</span>"),p+=1,i})).replace(/(function|return|for|new|var|let|while|if)/g,'<span class="javascript-keyword">$1</span>');for(var b=f.length-1;b>=0;b--){var x=new RegExp("xml-javascript-comment"+b,"g");e=e.replace(x,f[b])}for(b=d.length-1;b>=0;b--){x=new RegExp("xml-javascript-string"+b,"g");e=e.replace(x,"<span class='javascript-string'>"+d[b]+"</span>")}for(b=m.length-1;b>=0;b--){x=new RegExp("xml-javascript-single"+b,"g");e=e.replace(x,"<span class='javascript-string'>"+m[b]+"</span>")}for(b=v.length-1;b>=0;b--){x=new RegExp("xml-javascript-number"+b,"g");e=e.replace(x,v[b])}for(b=h.length-1;b>=0;b--){x=new RegExp("xml-javascript-regex"+b,"g");e=e.replace(x,"<span class='javascript-regex'>/"+h[b]+"/</span>")}return e}return{AddColor:function(t){return function(t){for(var r=e(t).split(/\n/),n="",a=0;a<r.length;a++)n=n+"<pre><span>"+r[a]+"\n</span></pre>";return n}(t)}}}),angular.module("mail-api-service",[]).factory("MailApiService",["$http",function(t){return{sendMail:function(e){return t.post("/api/contact",e)}}}]),angular.module("months-name-services",[]).factory("MonthsFullNameService",function(){return{Jan:"January",Feb:"February",Mar:"March",Apr:"April",May:"May",Jun:"June",Jul:"July",Aug:"August",Sep:"September",Oct:"October",Nov:"November",Dec:"December"}}),angular.module("months-number-services",[]).factory("MonthsToNumberService",function(){return{Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12}});
+
+angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 
+    function( $stateProvider, $urlRouterProvider, $locationProvider) {
+        $locationProvider.html5Mode(true); // remove hash-bang.
+        // <--- INITIAL ROUTES --->
+        $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
+        $urlRouterProvider.when('/admin/list', '/admin/list/1'); 
+        $urlRouterProvider.otherwise('/home');
+        var states = []; 
+        // <--- UNPROTECTED ROUTES ---> 
+        //<--- BLOG STATE AND ITS CHILD STATES --->
+        states.push(blogState = { // the parent state for child states: abstracts, absract, article and search states
+            name: 'blog',
+            url: '/blog',
+            component: 'blog',
+            params: {
+                year: 'all',
+                month: 'posts'
+            },
+            resolve: {               
+                // resolve - open page after data loads if a promise
+                pages: ['ClientApiService', '$stateParams', '$filter', '$location', 
+                    function(ClientApiService, $stateParams, $filter, $location) {                                              
+                        return ClientApiService.getPages().then(function(pages){
+                            // set initial page values from url parameters
+                            var isArticle  = $location.path().search(/article/i);
+                            if(isArticle == -1){
+                                pages.year = $stateParams.year;
+                                pages.month = $stateParams.month;
+                                pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
+                                var filter = pages.year + '/' + pages.month;
+                                if(filter !== 'posts/all'){
+                                    pages.filteredAbstracts = $filter('filterByMonth')(pages.abstracts, filter);
+                                } else {
+                                    pages.filteredAbstracts = pages.abstracts;
+                                }
+                            } else {
+                                pages.year = 'all';
+                                pages.month = 'posts';
+                                pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
+                                pages.filteredAbstracts = pages.abstracts;
+                            }
+                            return pages
+                    });
+                }],            
+            }
+        });
+        states.push(abstractsState = {  // all abstracts
+            name: 'blog.abstracts',
+            url: '/abstracts/{month}/{year}/{page}',
+            component: 'abstracts',
+            params: {
+                active: false
+            },
+            resolve: {
+                currentPage: ['$stateParams', function($stateParams) { // not a promise. returned immediately
+                    return $stateParams.page;
+                }]
+            }
+        });
+        //
+        //
+        states.push(articleState = {  // the article state
+            name: 'blog.article',  // distinguish nested state by name with dot 
+            url: '/article/{id}',
+            component: 'article',
+            resolve: {          
+                // resolve - open page after data loads         
+                abstract: ['ClientApiService', '$stateParams', 
+                    function(ClientApiService, $stateParams) {
+                        return ClientApiService.getAbstract($stateParams.id)
+                }],
+                article: ['ClientApiService', '$stateParams', 
+                    function(ClientApiService, $stateParams) {
+                        return ClientApiService.getArticle($stateParams.id);
+                }]        
+            }
+        });
+        //<--- END OF BLOG STATE AND ITS CHILDREN
+        // <--- HOME STATE --->
+        states.push(homeState = {
+            name: 'home',
+            url: '/home',
+            component: 'home',
+            params: {
+                checkStatus: true
+            },
+                resolve: {             
+            }
+        });   
+        // <--- ABOUT STATE ---> 
+        states.push(contactState = {
+            name: 'about',
+            url: '/about',
+            component: 'about',
+        });      
+        // <--- CONTACT STATE ---> 
+        states.push(contactState = {
+            name: 'contact',
+            url: '/contact',
+            component: 'contact',
+        });      
+        //
+        // <--- START PROTECTED ROUTES ---> 
+        // <--- ADMIN LOGIN STATE --->
+        states.push(loginState = {
+            name: 'login',
+            url: '/login',
+            component: 'login'
+        });         
+        // <--- ADMIN LIST STATE --->
+        //
+        states.push(listState = {
+            name: 'list',
+            url: '/list/{page}',
+            component: 'list',
+            params: {
+                page: null // used for carrying return page number
+                },
+                resolve: {                     
+                // authorize goes at top so that it calls before the other resolve parameters
+                authorize: ['ClientApiService', 'AuthService', '$state', 
+                    function(ClientApiService, AuthService, $state) {   
+                        return AuthService.isAuthorized()
+                }],
+                abstracts: ['ClientApiService', '$state', 
+                    function(ClientApiService, $state) {               
+                        return ClientApiService.getAbstracts();           
+                }],
+                currentPage: ['$stateParams', function($stateParams){
+                    return $stateParams.page;
+                }],
+            } 
+        });
+        //
+        // <--- ADMIN EDIT STATE --->
+        //
+        states.push(editState = {
+            name: 'edit',
+            url: '/list/edit/{id}',
+            component: 'edit',
+            params: {
+                page: null // used for carrying return page number
+            },
+            resolve: {          
+                // resolve - open page after data loads
+                authorize: ['AuthService', function(AuthService) {   
+                  return AuthService.isAuthorized()
+                }],
+                pageData: ['ClientApiService', '$stateParams', function(ClientApiService, $stateParams){
+                  return ClientApiService.getPageData($stateParams.id);
+                }]
+            }
+        });
+        //
+        // <--- ADMIN ADD STATE --->
+        states.push(addState = {
+            name: 'add',
+            url: '/list/add',
+            component: 'add',
+            params: {
+              page: null // used for carrying return page number
+            },
+            resolve: {          
+              // resolve - open page after data loads
+              authorize: ['AuthService', function(AuthService) {   
+                  return AuthService.isAuthorized()
+              }],
+            }       
+        }); 
+        // <--- END PROTECTED ROUTES --->
+        //
+        // Loop over the state definitions and register them
+        states.forEach(function(state) {
+                $stateProvider.state(state);
+            });
+    }
+])
+.run(['$transitions', '$state', '$rootScope', function ($transitions, $state, $rootScope) {
+    //<--- Prevent state from transtioning if unauthorized -->
+    $transitions.onError({}, function(transition) {
+        if(transition.error().detail == 'unauthorized'){
+            $state.go('login');                       
+        }
+    });
+    //<--- Allow blog to expand/contract when article is opened by un-fixing/fixing the bottom menu 
+    // when state transitions into and out of article.
+    $transitions.onStart( { to: 'blog.article' }, function(trans) {
+        var elem = document.getElementById("menu");
+        elem.style.position = 'static';
+    });
+    $transitions.onStart( { from: 'blog.article' }, function(trans) {
+        var elem = document.getElementById("menu");
+        elem.style.position = 'absolute';
+    });
+}]);
+angular.module('about', ['ui.router']).component('about', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/about-template.html',
+    controller: function(){}
+}); 
+
+                                                                          
+angular.module('abstracts', ['ui.router']).component('abstracts', {
+    bindings: { 
+        abstracts: '<', // one way binding
+        currentPage: '<', 
+        query: '=', // two way binding - query is used for filtering of abstracts with search etc
+          init: '<'
+    }, 
+    templateUrl: '../partials/abstracts-template.html',
+    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
+        'HighlightService', 'HighlightJSservice',
+        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
+                    HighlightService, HighlightJSservice){
+            this.$onInit = function(){
+                if($stateParams.active){
+                    document.getElementById('search-box').focus();
+                }
+            }
+            this.currentPage = 1;
+            this.pageSize = 1; 
+            // note resolved parameters are not available here until the view has loaded.
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            }  
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }  
+          /*  this.callback = function(){
+                Ellipsis({           
+                    ellipsis: '…',           
+                    debounce: 0,           
+                    responsive: true,           
+                    class: '.clamp',           
+                    lines: 12,           
+                    portrait: null,           
+                    break_word: true
+                });
+            }*/
+            this.readMore = function(abstract){
+                $state.go('blog.article', {id: abstract._id});
+            }   
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            /*    angular.element(function(){   A delay in rendering when using
+                Ellipsis({           
+                         ellipsis: '…',           
+                         debounce: 0,           
+                         responsive: true,           
+                         class: '.clamp',           
+                         lines: 12,           
+                         portrait: null,           
+                         break_word: true
+                       });
+              }); */            
+        }]
+});
+
+
+
+
+    
+angular.module('add', ['ui.router']).component('add', {
+    bindings: { 
+    },         
+    templateUrl: '../partials/add-template.html',
+    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
+            var that = this;
+            this.cancel = function(){
+                 $window.history.back();        
+            }    
+            this.saveBlog = function(){
+                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                var blog = {
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
+                    sortIdx: sortIdx
+                }
+                ClientApiService.saveBlog(blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page });                         
+                    }, function(err){
+                        //console.log(err);
+                        $state.go('login');
+                    }
+                )
+            }
+            /* Start Calendar */
+            this.months = CalendarService.getMonths();
+            this.years = CalendarService.getYears();
+            this.selectedMonth = CalendarService.getCurrentMonth();
+            this.selectedDay = CalendarService.getCurrentDay();
+            this.selectedYear = CalendarService.getCurrentYear();
+            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = thise.days.length.toString();
+            }; 
+            /* End Calendar */        
+        }]
+});
+angular.module('article', ['ui.router']).component('article', {
+    bindings: { 
+        article: '<',
+        abstract: '<',
+    }, // one way binding with resolve
+    templateUrl: '../partials/article-template.html',
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
+        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+            var that = this;
+            this.goBack = function(){
+                $window.history.back();                    
+            }    
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            angular.element( function(){ // equivalenet to document ready
+                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
+            });            
+        }]
+});
+angular.module('blog', ['ui.router']).component('blog', {
+    bindings: { 
+        pages: '<',
+        query: '='
+    }, 
+    templateUrl: '../partials/blog-template.html',
+    controller: [ '$state', '$location', '$filter', 'AuthService', 
+        function($state, $location, $filter, AuthService){            
+            this.decorateCategory = function(category) {  
+                if(category.filter !== "posts/all") {
+                    category.month = $filter('extractMonth')(category.filter); 
+                    category.year = $filter('extractYear')(category.filter);  
+                } else {
+                    category.month = 'all';
+                    category.year = 'posts'
+                }
+                return category;
+            } 
+            this.onSearch = function(){
+                this.pages.subTitle = "Search Results"
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
+
+               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
+                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
+            }    
+            this.onEnter = function(){
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
+            }        
+            this.onClick = function(category ){
+                this.pages.filter = category.filter;
+                this.pages.year = category.year;
+                this.pages.month = category.month;
+                this.pages.subTitle = category.month + ' ' + category.year;
+                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
+                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
+            }            
+            this.isArchiveActive = function(category) {
+                var arr =  $location.path().split('\/');
+                var filter = arr[4] + '/' + arr[3];
+                return (category.filter == filter)
+            }
+            this.isActive = function(index) {
+                var idx =  $location.path().split('\/')[5] - 1;                
+                return (idx == index)
+            }
+            // For open close posts
+            this.postHide = false;
+            this.openPosts = function(){
+                if(this.postHide){
+                    this.postHide = false;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
+                } else {
+                    this.postHide = true;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
+                }
+            }
+            // For open close archives
+            this.archiveHide = false;
+            this.openArchives = function(){
+                if(this.archiveHide){
+                    this.archiveHide = false;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
+                } else {
+                    this.archiveHide = true;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
+                }
+            }            
+        }]
+});
+angular.module('contact', ['ui.router']).component('contact', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/contact-template.html',
+    controller: ['MailApiService', 'AuthService',
+        function(MailApiService, AuthService) {
+            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
+            var alertBox = document.querySelector('.contact-alert');
+            var alertLabel = document.querySelector('.contact-alert-msg');
+            this.sendMail = function(){
+                alertBox.style.backgroundColor = blue; 
+                alertLabel.innerHTML = "Sending Message. Please Wait";
+                alertBox.style.display = "block";
+                var payload = {
+                    from: this.from,
+                    subject: this.subject,
+                    msg: this.msg
+                }
+                this.from = '';
+                this.subject = '';
+                this.msg = '';    
+                MailApiService.sendMail(payload).then(function(resp){
+                        alertBox.style.backgroundColor = green;
+                        alertLabel.innerHTML = "Message sent successfully.";                    
+                    }, function(err){
+                        alertBox.style.backgroundColor = red;
+                        alertLabel.innerHTML = "Message failed to send.";
+                    }
+                ) 
+            }        
+        }]
+});
+angular.module('edit', ['ui.router']).component('edit', {
+    bindings: { 
+        pageData: '=',
+    }, 
+    templateUrl: '../partials/edit-template.html',
+    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
+            this.cancel = function(){
+                $window.history.back();        
+            }    
+            this.decorateAbstract = function(x) {  
+                var abstract = x;
+                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
+                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
+                return abstract;
+            }
+            this.saveBlog = function(){
+                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
+                var blog = {
+                    title: this.pageData.title,        // The same for both article and abstract
+                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
+                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
+                    month: this.pageData.month,
+                    year: this.pageData.year,
+                    sortIdx: sortIdx
+                }
+                //
+                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );
+            }  
+        }]
+});
+angular.module('home', ['ui.router']).component('home', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/home-template.html',
+    controller:['$stateParams',
+        function($stateParams) {
+            this.$onInit = function(){
+                var grid = document.querySelector('.grid');
+                var msnry = new Masonry( grid, {
+                    itemSelector: '.grid-item',
+                    columnWidth: '.grid-item', //237, //231,                        
+                    gutter: 10,
+                });
+                imagesLoaded( grid ).on( 'progress', function() {
+                    // layout Masonry after each image loads
+                    msnry.layout();
+               });
+            }
+        }]
+});
+
+angular.module('list', ['ui.router']).component('list', {
+    bindings: { 
+        abstracts: '=',  // one way binding        
+        currentPage: '=',
+        callback: '&' // used to set logout button on main nav menu
+    }, 
+    templateUrl: '../partials/list-template.html',
+    controller: ['$state', 'ClientApiService',
+        function($state, ClientApiService) {
+            this.currentPage = 1; 
+            this.pageSize = 5; 
+            var that = this;
+            this.$onInit = function(){
+                that.callback({value: true}); // set state of logout button on main
+            }
+            this.addBlog = function(){
+                $state.go('add', { page: this.currentPage } );
+            }
+            this.deleteBlog = function(id){                
+                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
+                if(lastPage == 0 ){
+                    nextPage = 1;                
+                } else {
+                    var idx = 5;
+                    if( parseInt(this.currentPage) == lastPage ){
+                        idx = this.abstracts.length % 5
+                    }
+                    if( (idx - 1) == 0 ){
+                        nextPage = parseInt(this.currentPage) - 1;
+                    } else {
+                        nextPage = parseInt(this.currentPage)
+                    }
+                }
+                if(nextPage == 0 ){
+                    nextPage = 1;
+                }    
+                ClientApiService.deleteBlog(id).then(function(resp){
+                        $state.go('list', { page: nextPage }, {reload: true});
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );                     
+            }            
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('list', { page: this.currentPage  });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1
+                $state.go('list', { page: this.currentPage });
+            } 
+            this.stripAbstract = function(subtxt){
+                var extract = subtxt.split('<p>');
+                if(extract.length === 1){ // text contains no paragraphs
+                    return extract[0].substring(0, 230); // limit to 230 characters
+                } else { // text contains paragraphs
+                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
+                }
+            }
+        }]
+});
+angular.module('login', ['ui.router']).component('login', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/login-template.html',
+    controller: ['AuthService', '$state',
+        function(AuthService, $state) {
+            var that = this;
+            this.init = function(){
+                this.user = {
+                    username: '',
+                    password: ''
+                }
+            }
+            this.login = function() {                
+                AuthService.login(this.user).then(function(res, err){                    
+                        AuthService.setAuthorized(true); 
+                        $state.go('list', { page: '1' }); 
+                    }, function(err){
+                        // console.log('error', err)
+                        alert('incorrect username or password')
+                        that.init();
+                    }); 
+            }
+            this.init();            
+        }]
+}); 
+angular.module('custom-filters', [])
+.filter('startFrom', function() { 
+    return function(input, start) {
+        start = +start; 
+        return input.slice(start);
+    }
+})
+.filter('roundup', function () {
+    return function (value) {
+        if(value == 0){
+            value = 1;
+        }       
+        return Math.ceil(value);
+    };
+})
+.filter('extractMonth', function() {
+    return function(x) { 
+        return '' + /[a-zA-Z]+/.exec(x);
+    };
+})
+.filter('extractYear', function() {
+    return function(x) {
+        return '' + /^[0-9]+/.exec(x);
+    };
+})
+.filter('filterByMonth', function() {
+    return function(x, filter) {
+        if(filter == 'posts/all'){
+            return x;
+        } else {
+            return x.filter(function(abstract) { 
+                    return abstract.filter === filter;
+                });
+        }
+    }
+});
+
+
+angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
+    function($q, $http) {
+        var currentUser = {
+            username: '',
+            authorized: false
+        }
+        var status = function(){
+            return $http.get('/api/status');
+        };
+        var service = {
+            userName: currentUser.username,
+            setAuthorized:  function(authorized){           
+                currentUser.authorized = true;                                  
+            },
+            isAuthorized: function() {
+                // use a promise 
+                return $q(function(resolve, reject) {  
+                    if(currentUser.authorized){ // reload data only after an administration operation
+                        resolve('authorized');
+                    } else {
+                        status().then(function(res){ // handle page refresh
+                                currentUser.authorized = true;  
+                                resolve('authorized');
+                            }, function(err){
+                                reject('unauthorized');
+                            });                    
+                    }
+                });
+            },
+            login: function(user) {
+                return  $http.post('/api/login', user)
+            },
+            logout: function() {
+                    // use a promise 
+                currentUser.authorized = false;
+                return $http.get('/api/logout');               
+            },           
+        };
+        return service;
+    }]
+);
+angular.module('calendar-service', [] ).factory('CalendarService', 
+    function () {    
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var daysOfMonth = { 
+            "Jan": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            "Mar": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31],
+            "Apr": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "May": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            "Jun": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "Jul": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            "Aug": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            "Sep": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "Oct": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+            "Nov": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            "Dec": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+        };
+        var daysOfFebruary = function(year){     
+            if ((year % 100 != 0) && (year % 4 == 0) || (year % 400 == 0)) {
+                return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29];
+            } else {
+                return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28];
+            }
+        }
+        /****************************/
+        var d = new Date();
+        return {
+            getCurrentDay: function(){
+                return d.getDate().toString();
+            },
+            getCurrentMonth: function(){               
+                var m = d.getMonth();
+                return months[m];
+            },
+            getCurrentYear: function(){
+                return d.getFullYear().toString();
+            },
+            getYears: function(){
+                return [2018, 2017, 2016, 2015, 2014];
+            },
+            getDays: function(month, year){
+                if( month != "Feb" ){
+                    return daysOfMonth[month];
+                }
+                else {
+                    return daysOfFebruary(year);
+                }
+            },
+            getMonths: function(){
+                return months;
+            }        
+        };
+    }
+);
+angular.module('api-services', [] ).
+factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, $q, CalendarService) {
+    //<--- Data global across states --->
+    var data = []; 
+    var article;
+    var reloadData = true;
+    var reloadArticle = true;
+   // var categories = [];
+    function populateCategories(abstracts) {
+      // a category is {filter: , number: }
+        var years = ['2018', '2017', '2016', '2015'];
+        //var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var months = ["Dec", "Nov", "Oct", "Sep", "Aug", "Jul", "Jun", "May", "Apr", "Mar", "Feb", "Jan"];
+        var categories = [];
+        categories.push({ filter: 'posts/all', number: abstracts.length});     
+        years.forEach( function(year){
+            var filteredByYear = abstracts.filter( function(abstract){
+                var filterYear = '' +  /^[0-9]+/.exec(abstract.filter) ;
+                return ( year === filterYear )
+            })
+            if(filteredByYear.length != 0){
+                months.forEach( function(month) {
+                    var filteredByMonth = filteredByYear.filter(function(abstract){
+                         var filterMonth =  '' + /[a-zA-Z]+/.exec(abstract.filter);
+                       //  console.log(filterMonth);
+                          return ( month === filterMonth )
+                    })
+                    if(filteredByMonth != 0){
+                        categories.push({
+                            filter: year + '/' + month,
+                            number: filteredByMonth.length
+                        });
+                    }                  
+                });
+            }          
+        });
+        return categories;
+    } 
+    //<--- API SERVICE --->
+    var service = {
+        // Set up the page data for each state, including initial state values
+        getPages: function(){  // used by Blog state          
+            return service.getAbstracts().then( function (abstracts) {
+                return {
+                  abstracts: abstracts,
+                  categories: populateCategories(abstracts),
+                }
+            });      
+        }, 
+        getAbstracts: function() {  
+          // use a promise 
+          return $q(function(resolve, reject) {  
+               if(reloadData){ // reload data only after an adminitration operation
+                    $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
+                        reloadData = false;
+                        data = resp.data;
+                        resolve(data);
+                    }, function(err){
+                        reject(err)
+                    });
+                } else {
+                    resolve(data);
+                }
+            })
+        },
+        getAbstract: function(id) {  // returns a promise
+          function abstractMatchesParam(abstract) {
+            return abstract._id === id;
+          }         
+          return service.getAbstracts().then(function (abstracts) {
+            return abstracts.find(abstractMatchesParam)
+          });
+        },
+        getArticle: function(id) {
+          // use a promise so that categories can be called after data loads
+          return $q(function(resolve, reject) {  
+               if(reloadArticle){ // reload data only after an adminitration operation
+                    $http.get('api/article/' + id, { cache: false }).then(function(resp) {  // returns a promise
+                        var article = resp.data;
+                        resolve(article);
+                    }, function(err){
+                        reject(err)
+                    });
+                } else {
+                    resolve(article);
+                }
+            })
+        },
+        // <--- API ROUTES --->
+        getPageData: function(abstractId) {         
+            return service.getAbstract(abstractId).then(function (abstract) {
+                return service.getArticle(abstractId).then(function(article){
+                      var pageData = {
+                          title: abstract.title,
+                          day: abstract.day,
+                          month: '' + /[a-zA-Z]+/.exec(abstract.filter),
+                          year: '' + /^[0-9]+/.exec(abstract.filter),
+                          subtxt: abstract.subtxt,
+                          fulltxt: article.fulltxt,
+                          months: CalendarService.getMonths(),
+                          years: CalendarService.getYears(),
+                      }
+                      pageData.days = CalendarService.getDays(pageData.month, pageData.year);
+                      return pageData;
+                });
+            });
+        },
+        saveBlog: function(blog) {
+            return $http.post('/api/blog', blog ).then(function (resp) {
+                //console.log(resp.data);
+              reloadData = true;
+              reloadArticle = true;
+                return resp;
+            });
+        },
+        updateBlog: function(id, blog) {
+          return $http.put('/api/blog/' + id, blog ).then(function (resp) {
+              //console.log(resp.data);
+              reloadData = true;  // reload abstracts after save
+              reloadArticle = true; // reload articles after save
+              return resp;
+          });
+        },
+          deleteBlog: function(id) { // payload is article object { content: txt }
+            return $http.delete('/api/blog/' + id ).then(function(resp){
+              reloadData = true; // reload abstracts after save
+                  return resp;
+            });
+          }
+    }
+   return service
+}]);
+
+angular.module('highlight-services', [] ).factory('HighlightService', 
+    function () {
+        function ReplaceBracketsWithANSII( mytxt ){
+            mytxt = mytxt.replace(/</g, "&lt;");
+            mytxt = mytxt.replace(/\&lt\;\//g, "&lt;&#47;");
+            mytxt = mytxt.replace(/>/g, "&gt;");
+            mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
+            return mytxt;
+        }
+        function RemoveRegEx( mytxt, myArray ){
+            // Regular Expressions are processed per line.
+            var cnt = 0;
+            var lines = mytxt.split(/\r?\n/);
+            var leadingSpace = "";
+            for(var k = 0; k < lines.length; k++){
+                // get space, including tabs, up to start of the first character and remove
+                lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
+                    leadingSpace = p1;
+                    return p2;
+                });
+
+                var data = lines[k].split(/\s/); // split line based on spaces
+                //    var data = lines[k].split(/\b/); // - word break causes error in regexReplacer
+                function regexReplacer(match, p1, p2, offset, string) {
+                    p1 = ReplaceBracketsWithANSII(p1);
+                    p2 = ReplaceBracketsWithANSII(p2);
+                      var str = p1 + 'xml-javascript-regex' + cnt ;
+                    if( p2 == ""){
+                        str = p1 + "//";
+                    } else {
+                        myArray.push(p2);
+                          cnt += 1;
+                    } 
+                      return str;
+                }
+                for(var j = 0; j < data.length; j++){
+                    data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
+                }
+                lines[k] = leadingSpace; 
+                for(var j = 0; j < data.length; j++){
+                    lines[k] = lines[k] + data[j] + " ";
+                }
+            }
+            mytxt = "";
+            var len = lines.length;
+            for(var k = 0; k < len - 1; k++){
+                mytxt = mytxt + lines[k] + "\n";
+            }
+            mytxt = mytxt + lines[len-1];
+            return mytxt;
+        }
+        function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
+            var cnt = 0;        
+            mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
+                  var str = 'xml-javascript-comment' + cnt;
+                  // Replace regex in comments to prevent double tags
+                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-regex" + i,"g");
+                    p1 = p1.replace(re, myArrayRegEx[i]);
+                }
+                // Replace strings in comments to prevent double tags
+                for(var i = arrString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-string" + i,"g");
+                    p1 = p1.replace(re, arrString[i]);
+                }
+                // Replace single strings in comments to prevent double tags
+                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-single" + i,"g");
+                    p1 = p1.replace(re, arrSingleString[i]);
+                }
+                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
+                  cnt += 1;
+                  return str;
+            }); 
+            return mytxt;
+        }
+        function RemoveStrings( mytxt, myArray1, myArray2){
+            var cnt = 0;    
+            mytxt = mytxt.replace(/("[^"]*")/g, function(match, p1, offset, string) {
+                  var str = 'xml-javascript-string' + cnt;
+                  myArray1.push(p1);
+                  cnt += 1;
+                  return str;
+            });
+            cnt = 0;        
+            mytxt = mytxt.replace(/('[^']*')/g, function (match, p1, offset, string) {
+                  var str = 'xml-javascript-single' + cnt;
+                  myArray2.push(p1);
+                  cnt += 1;
+                  return str;
+            });
+            return mytxt;
+        }
+        function RemoveNumbers( mytxt, myArray){
+            var cnt = 0;
+            mytxt = mytxt.replace(/([\s=\*\+-/)/(])(\d+)/g, function (match, p1, p2, offset, string) {
+                  var str = p1 + 'xml-javascript-number' + cnt;
+                  myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
+                  cnt += 1;
+                  return str;
+            } );
+            return mytxt;
+        }
+        function HighlightScript(txt){
+            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
+           // txt = RemoveRegEx(txt, arrRegex);
+            txt = ReplaceBracketsWithANSII(txt);
+            txt = RemoveStrings( txt, arrString, arrSingleString);        
+            txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
+            txt = RemoveNumbers( txt, arrNumbers);        
+            // Keyword Replacer
+            txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            // Insert Comment Tags
+            for(var i = arrComments.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-comment" + i,"g");
+                txt = txt.replace(re, arrComments[i]);
+            }
+            // Insert String Tags
+            for(var i = arrString.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-string" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrString[i]  + "</span>");
+            }
+            for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-single" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
+            } 
+            // Insert Number Tags
+            for(var i = arrNumbers.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-number" + i,"g");
+                txt = txt.replace(re, arrNumbers[i]);
+            }
+            // Insert Regex Tags
+       /*     for(var i = arrRegex.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-regex" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
+            } */
+            return txt;
+        }
+        function HighlightHTMLCode(txt){
+            // Remove Scripts
+            var arrScripts = [], arrAttr = [], count = 0;    
+
+            txt = txt.trim();
+                
+            txt = txt.replace(/(<script[^>]*>)([\s\S]*?)<\/script>/g, function (match, p1, p2, offset, string) {
+                  var str = p1 + 'xml-javascript-' + count + '<\/script>';
+                  arrScripts.push(p2);
+                  count += 1;
+                  return str;
+            });
+            // Process Scripts        
+            for(var i = 0; i < arrScripts.length; i++){
+                arrScripts[i] = HighlightScript(arrScripts[i]);
+            }
+            // Remove Attributes
+            count = 0;        
+            txt = txt.replace( /<(\w+\s+)([^>]*)>/g, function (match, p1, p2, offset, string) {              
+                  if(p2 == '')
+                      return '';
+                  var stng = '<' + p1 + 'xml-attribute-' + count + '>';
+                  arrAttr.push(p2);
+                  count += 1;
+                  return stng;
+            });         
+            // Process attributes
+            for(var i = 0; i < arrAttr.length; i++){
+                arrAttr[i] = arrAttr[i].replace(/([\w-]+\s*)(=)*(\s*"[^"]*")*/g, "<span class='xml-attribute'>$1</span>$2<span class='xml-string'>$3</span>");
+            } 
+            // Process tags
+            // Use markers as substitutes for brackets
+            // aaaa = <
+            // bbbb = >
+            // cccc = </
+            // dddd * eeee = tag
+            // meta tag
+            txt = txt.replace(/<(\![\w-\s]*)>/g, "mmmm$1nnnn");
+            // Opening tag
+            txt = txt.replace(/<(\w+)(\s+)([\w-]*)>/g, "aaaadddd$1eeee$2$3bbbb");
+            txt = txt.replace(/<(\w+)>/g, "aaaadddd$1eeeebbbb");
+            // Closing tag
+            txt = txt.replace(/<\/(\w+)>/g, "ccccdddd$1eeeebbbb");
+            // Replace markers with span elements with class defining each color
+            txt = txt.replace(/mmmm(\![\w-\s]*)nnnn/g,  "<span class='xml-meta'>&lt;$1&gt;</span>");
+            txt = txt.replace(/aaaa/g, "<span class='xml-bracket'><</span>");
+            txt = txt.replace(/bbbb/g, "<span class='xml-bracket'>></span>");
+            txt = txt.replace(/cccc/g, "<span class='xml-bracket'><&#47;</span>");
+            txt = txt.replace(/dddd(\w+)eeee/g, "<span class='xml-tag'>$1</span>");
+            // Replace Attributes
+            for(var i = 0; i < arrAttr.length; i++){            
+                var re = new RegExp("xml-attribute-" + i,"g");
+                txt = txt.replace(re, arrAttr[i]);
+            }
+            // Replace Script
+            for(var i = 0; i < arrScripts.length; i++){            
+                var re = new RegExp("xml-javascript-" + i,"g");
+                txt = txt.replace(re, arrScripts[i]);
+            }
+            // add <pre> tags to  each line
+            var lines = txt.split(/\n/);
+            // remove leading new line if blank
+            var lastIdx = lines.length;
+            if( lines[0] === ''){
+               // lines = lines.slice(1,lastIdx);  
+            }
+            // remove trailing new line if blank
+            lastIdx = lines.length-1;
+            if(lastIdx >= 0){
+                if( lines[lastIdx] === ''){
+                  //  lines = lines.slice(0,lastIdx);  
+                }
+            }
+            var x = ""; // html
+            for(var i = 0; i < lines.length; i++){
+                x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
+            //    x = x + '<span>' + lines[i]  + "\n" + '</span>';
+            }
+            //x = '<pre><code>' + x + '</code></pre>';
+            return x // return html code with span elements for color and pre elements for spacing
+        }
+        return {
+            AddColor: function(txt){
+                return HighlightHTMLCode(txt)
+            }                  
+        };
+    }
+);
+angular.module('highlightJS-services', [] ).factory('HighlightJSservice', 
+    function () {
+        function ReplaceBracketsWithANSII( mytxt ){
+            mytxt = mytxt.replace(/</g, "&lt;");
+            mytxt = mytxt.replace(/\&lt\;\//g, "&lt;&#47;");
+            mytxt = mytxt.replace(/>/g, "&gt;");
+            mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
+            return mytxt;
+        }
+        function RemoveRegEx2( mytxt, myArray ){
+            // Regular Expressions are processed per line.
+            var cnt = 0;
+            var lines = mytxt.split(/\r?\n/); 
+
+          // console.log(mytxt);
+           // var lines = mytxt.split("\n");
+
+            var leadingSpace = "";
+            for(var k = 0; k < lines.length; k++){
+                // get space, including tabs, up to start of the first character and remove
+                leadingSpace = ""
+                lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
+                    leadingSpace = p1;
+                    return p2;
+                }); 
+
+                var data = lines[k].split(/\s/); // split line based on spaces
+                //    var data = lines[k].split(/\b/); // - word break causes error in regexReplacer
+                function regexReplacer(match, p1, p2, offset, string) {
+                    p1 = ReplaceBracketsWithANSII(p1);
+                    p2 = ReplaceBracketsWithANSII(p2);
+                    var str = p1 + 'xml-javascript-regex' + cnt ;
+                    if( p2 == ""){
+                        str = p1 + "//";
+                    } else {
+                        myArray.push(p2);
+                          cnt += 1;
+                    } 
+                      return str; 
+                }
+                for(var j = 0; j < data.length; j++){
+                    data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
+                }
+                lines[k] = leadingSpace; 
+              
+                for(var j = 0; j < data.length; j++){
+                    lines[k] = lines[k] + data[j] + " ";
+                } 
+            }
+            var mytxt = "";
+            var len = lines.length;
+            for(var k = 0; k < len - 1; k++){
+                mytxt = mytxt + lines[k] + "\n";
+            }
+            mytxt = mytxt + lines[len-1]; 
+            return mytxt;
+        }
+        function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
+            var cnt = 0;        
+            mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
+                  var str = 'xml-javascript-comment' + cnt;
+                  // Replace regex in comments to prevent double tags
+                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-regex" + i,"g");
+                    p1 = p1.replace(re, myArrayRegEx[i]);
+                }
+                // Replace strings in comments to prevent double tags
+                for(var i = arrString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-string" + i,"g");
+                    p1 = p1.replace(re, arrString[i]);
+                }
+                // Replace single strings in comments to prevent double tags
+                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-single" + i,"g");
+                    p1 = p1.replace(re, arrSingleString[i]);
+                }
+                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
+                cnt += 1;
+                return str;
+            }); 
+            return mytxt;
+        }
+        function RemoveStrings( mytxt, myArray1, myArray2){
+            var cnt = 0;    
+            mytxt = mytxt.replace(/("[^"]*")/g, function(match, p1, offset, string) {
+                  var str = 'xml-javascript-string' + cnt;
+                  myArray1.push(p1);
+                  cnt += 1;
+                  return str;
+            });
+            cnt = 0;        
+            mytxt = mytxt.replace(/('[^']*')/g, function (match, p1, offset, string) {
+                  var str = 'xml-javascript-single' + cnt;
+                  myArray2.push(p1);
+                  cnt += 1;
+                  return str;
+            });
+            return mytxt;
+        }
+        function RemoveNumbers( mytxt, myArray){
+            var cnt = 0;
+            mytxt = mytxt.replace(/([\s=\*\+-/)/(])(\d+)/g, function (match, p1, p2, offset, string) {
+                  var str = p1 + 'xml-javascript-number' + cnt;
+                  myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
+                  cnt += 1;
+                  return str;
+            } );
+            return mytxt;
+        }
+        function HighlightScript(txt){
+            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
+            txt = RemoveRegEx2(txt, arrRegex);
+            txt = ReplaceBracketsWithANSII(txt);
+            txt = RemoveStrings( txt, arrString, arrSingleString);        
+            txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
+            txt = RemoveNumbers( txt, arrNumbers);        
+            // Keyword Replacer
+            txt = txt.replace(/(function|return|for|new|var|let|while|if|else)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            // Insert Comment Tags
+            for(var i = arrComments.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-comment" + i,"g");
+                txt = txt.replace(re, arrComments[i]);
+            }
+            // Insert String Tags
+            for(var i = arrString.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-string" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrString[i]  + "</span>");
+            }
+            for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-single" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
+            }
+            // Insert Number Tags
+            for(var i = arrNumbers.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-number" + i,"g");
+                txt = txt.replace(re, arrNumbers[i]);
+            }
+            // Insert Regex Tags
+            for(var i = arrRegex.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-regex" + i,"g");
+                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
+            }
+            return txt;
+        }
+        function HighlightJSCode(txt){
+
+            var myScript = HighlightScript(txt);
+
+            myScript = myScript.trim();
+
+            // add <pre> tags to  each line
+            var lines = myScript.split(/\n/);
+        
+            var x = ""; // html
+            for(var i = 0; i < lines.length; i++){
+                x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
+            }
+            //x = '<pre><code>' + x + '</code></pre>';
+            return x // return html code with span elements for color and pre elements for spacing
+        }
+        return {
+            AddColor: function(txt){
+                return HighlightJSCode(txt)
+            }                  
+        };
+    }
+);
+angular.module('mail-api-service', []).factory('MailApiService', ['$http', 
+    function($http) {
+        //<--- API MAIL SERVICE --->
+        var service = {
+            sendMail: function(payload) {
+                return $http.post('/api/contact', payload );
+            }       
+        }
+       return service;
+    }]
+);
+
+angular.module('months-name-services', []).factory('MonthsFullNameService', 
+    function (){
+        return { "Jan": "January", "Feb": "February", "Mar": "March", "Apr": "April", "May": "May", "Jun": "June", "Jul": 
+            "July", "Aug": "August", "Sep": "September", "Oct": "October", "Nov": "November", "Dec": "December" };
+    }
+)
+angular.module('months-number-services', []).factory( 'MonthsToNumberService', 
+    function (){
+        return { "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, 
+                "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
+    }
+)
+angular.module('site-ctrl', []).
+    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
+        function($state, AuthService, $location) {
+            this.activeItem="home";
+            this.hide = false;
+            this.currentBtn = 'home';   
+            var that = this; 
+            this.showLogOut = function(value){
+                this.hide = value;
+            }
+            this.logOut = function(){
+                AuthService.logout().then(function(resp){}, function(err){
+                    $state.go('home', { checkStatus: false }, {reload: true});
+                    that.showLogOut(false);
+                });
+            }
+            this.isActive = function(loc) {
+                return loc == $location.path().split('\/')[1];
+            }
+            this.home = function(){
+                $state.go('home');
+            }
+            this.checkStatus = function(){
+                AuthService.isAuthorized().then(function(res) {
+                    that.showLogOut(true);
+                }, function(err) {
+                    that.showLogOut(false);
+                });
+            }
+            this.checkStatus(); // call before DOM loads
+        }]
+);

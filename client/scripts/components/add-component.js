@@ -2,10 +2,8 @@ angular.module('add', ['ui.router']).component('add', {
     bindings: { 
     },         
     templateUrl: '../partials/add-template.html',
-    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 
-            'HighlightService', 'HighlightJSservice', 'MonthsToNumberService', 
-        function($state, $stateParams, CalendarService, ClientApiService, $window, 
-            HighlightService, HighlightJSservice, MonthsToNumberService){    
+    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
             var that = this;
             this.cancel = function(){
                  $window.history.back();        
@@ -21,35 +19,6 @@ angular.module('add', ['ui.router']).component('add', {
                     year: this.selectedYear,
                     sortIdx: sortIdx
                 }
-                /* BLOG ABSTRACT TEXT PROCESS */
-                // convert html code. Do this on save
-                var subtxt = blog.subtxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                blog.subtxt = subtxt;
-                //
-                /* BLOG MAIN TEXT PROCESS */
-                // convert html code text to text with pre/code formatters for color. Do this on save
-                var txt = blog.fulltxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                                            
-                blog.fulltxt = txt;
-                //
                 ClientApiService.saveBlog(blog).then(function(resp){
                         // Reset form
                         this.subtxt = '';

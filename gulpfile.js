@@ -6,7 +6,7 @@ var minify = require('gulp-minify-css');
 gulp.task('js', function(){
    gulp.src('client/scripts/**/*.js')
    .pipe(concat('client.js'))
-   .pipe(uglify())
+  /* .pipe(uglify()) */
    .pipe(gulp.dest('public/scripts/'));
 });
 //

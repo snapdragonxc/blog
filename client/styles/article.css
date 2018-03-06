@@ -25,3 +25,8 @@
     transition: max-height 3s;
     overflow: hidden   
 }
+
+.article p {
+   /* line-height: 20px;
+    margin-bottom: 20px;*/ /* must equal line-height to prevent ugly truncanation on overflow */
+}
