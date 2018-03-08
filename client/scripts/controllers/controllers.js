@@ -10,7 +10,7 @@ angular.module('site-ctrl', []).
             }
             this.logOut = function(){
                 AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home', { checkStatus: false }, {reload: true});
+                    $state.go('home');
                     that.showLogOut(false);
                 });
             }
@@ -21,7 +21,7 @@ angular.module('site-ctrl', []).
                 $state.go('home');
             }
             this.checkStatus = function(){
-                AuthService.isAuthorized().then(function(res) {
+                AuthService.checkStatus().then(function(res) {
                     that.showLogOut(true);
                 }, function(err) {
                     that.showLogOut(false);

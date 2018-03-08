@@ -89,7 +89,7 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                     return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
                 });                      
                 
-                console.log('highlight');
+                //console.log('highlight');
                 return subtxt;
             }
 

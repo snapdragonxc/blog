@@ -10,19 +10,23 @@ angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http',
         var service = {
             userName: currentUser.username,
             setAuthorized:  function(authorized){           
-                currentUser.authorized = true;                                  
+                currentUser.authorized = authorized;                                  
             },
-            isAuthorized: function() {
+            getAuthorized:  function(){           
+                return currentUser.authorized;                                  
+            },
+            checkStatus: function() {
                 // use a promise 
                 return $q(function(resolve, reject) {  
-                    if(currentUser.authorized){ // reload data only after an administration operation
-                        resolve('authorized');
+                    if(currentUser.authorized){ 
+                        resolve(true);
                     } else {
-                        status().then(function(res){ // handle page refresh
+                        // handle page refresh
+                        status().then(function(res){ 
                                 currentUser.authorized = true;  
-                                resolve('authorized');
+                                resolve(true);
                             }, function(err){
-                                reject('unauthorized');
+                                reject(false);
                             });                    
                     }
                 });

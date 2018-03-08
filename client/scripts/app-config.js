@@ -1,6 +1,7 @@
 
 angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 
     function( $stateProvider, $urlRouterProvider, $locationProvider) {
+        
         $locationProvider.html5Mode(true); // remove hash-bang.
         // <--- INITIAL ROUTES --->
         $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
@@ -17,7 +18,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 year: 'all',
                 month: 'posts'
             },
-            resolve: {               
+            resolve: {       
                 // resolve - open page after data loads if a promise
                 pages: ['ClientApiService', '$stateParams', '$filter', '$location', 
                     function(ClientApiService, $stateParams, $filter, $location) {                                              
@@ -56,7 +57,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 currentPage: ['$stateParams', function($stateParams) { // not a promise. returned immediately
                     return $stateParams.page;
                 }]
-            }
+            },
+            
         });
         //
         //
@@ -64,7 +66,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             name: 'blog.article',  // distinguish nested state by name with dot 
             url: '/article/{id}',
             component: 'article',
-            resolve: {          
+            resolve: {     
                 // resolve - open page after data loads         
                 abstract: ['ClientApiService', '$stateParams', 
                     function(ClientApiService, $stateParams) {
@@ -74,7 +76,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                     function(ClientApiService, $stateParams) {
                         return ClientApiService.getArticle($stateParams.id);
                 }]        
-            }
+            },
+            
         });
         //<--- END OF BLOG STATE AND ITS CHILDREN
         // <--- HOME STATE --->
@@ -82,11 +85,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             name: 'home',
             url: '/home',
             component: 'home',
-            params: {
-                checkStatus: true
-            },
-                resolve: {             
-            }
+            params: {},
+            resolve: {}
         });   
         // <--- ABOUT STATE ---> 
         states.push(contactState = {
@@ -121,7 +121,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 // authorize goes at top so that it calls before the other resolve parameters
                 authorize: ['ClientApiService', 'AuthService', '$state', 
                     function(ClientApiService, AuthService, $state) {   
-                        return AuthService.isAuthorized()
+                        return AuthService.checkStatus()
                 }],
                 abstracts: ['ClientApiService', '$state', 
                     function(ClientApiService, $state) {               
@@ -145,7 +145,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             resolve: {          
                 // resolve - open page after data loads
                 authorize: ['AuthService', function(AuthService) {   
-                  return AuthService.isAuthorized()
+                  return AuthService.checkStatus()
                 }],
                 pageData: ['ClientApiService', '$stateParams', function(ClientApiService, $stateParams){
                   return ClientApiService.getPageData($stateParams.id);
@@ -164,7 +164,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             resolve: {          
               // resolve - open page after data loads
               authorize: ['AuthService', function(AuthService) {   
-                  return AuthService.isAuthorized()
+                  return AuthService.checkStatus()
               }],
             }       
         }); 
@@ -176,21 +176,48 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             });
     }
 ])
-.run(['$transitions', '$state', '$rootScope', function ($transitions, $state, $rootScope) {
-    //<--- Prevent state from transtioning if unauthorized -->
-    $transitions.onError({}, function(transition) {
-        if(transition.error().detail == 'unauthorized'){
-            $state.go('login');                       
-        }
-    });
-    //<--- Allow blog to expand/contract when article is opened by un-fixing/fixing the bottom menu 
-    // when state transitions into and out of article.
-    $transitions.onStart( { to: 'blog.article' }, function(trans) {
-        var elem = document.getElementById("menu");
-        elem.style.position = 'static';
-    });
-    $transitions.onStart( { from: 'blog.article' }, function(trans) {
-        var elem = document.getElementById("menu");
-        elem.style.position = 'absolute';
-    });
+.run(['$transitions', '$state', '$rootScope',  
+    function ($transitions, $state, $rootScope) {
+        var spinnerElement = '<i class="fa fa-spinner fa-pulse fa-3x fa-fw" aria-hidden="true"></i>';
+        var timer;
+        //<--- Prevent state from transtioning if unauthorized -->
+        $transitions.onError({}, function(transition) {
+            if(transition.error().detail == 'unauthorized'){
+                $state.go('login');                       
+            }
+        });
+        //<--- Allow blog to expand/contract when article is opened by un-fixing/fixing the bottom menu 
+        // when state transitions into and out of article.
+        $transitions.onStart( { to: 'blog.article' }, function(trans) {
+            var elem = document.getElementById("menu");
+            elem.style.position = 'static';
+        });
+        $transitions.onStart( { from: 'blog.article' }, function(trans) {
+            var elem = document.getElementById("menu");
+            elem.style.position = 'absolute';
+        });
+
+        // <--- Spinner Element on to blog, remove when an abstract is shown.
+        $transitions.onBefore( { to: 'blog' }, function(trans) {
+            // add spinner if resolve is slow api          
+            timer = setTimeout(function(){ 
+                document.getElementById("spinner").innerHTML = spinnerElement;  
+            }, 200);                                       
+        });
+        $transitions.onSuccess( { to: 'blog.abstracts' }, function(trans) {
+            document.getElementById("spinner").innerHTML='';
+            clearTimeout(timer);
+        });
+        //
+        // <--- Spinner Element on to article, remove when an article is shown.
+        $transitions.onBefore( { to: 'blog.article' }, function(trans) {
+            // add spinner if resolve is slow api          
+            timer = setTimeout(function(){ 
+                document.getElementById("spinner").innerHTML = spinnerElement;  
+            }, 200);
+        });
+        $transitions.onSuccess( { to: 'blog.article' }, function(trans) {
+            document.getElementById("spinner").innerHTML='';
+            clearTimeout(timer);
+        });
 }]);

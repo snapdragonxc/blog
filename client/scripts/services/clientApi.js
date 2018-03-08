@@ -1,11 +1,12 @@
 angular.module('api-services', [] ).
-factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, $q, CalendarService) {
+factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService', 
+    function($http, $q, CalendarService, AuthService) {
     //<--- Data global across states --->
     var data = []; 
     var article;
-    var reloadData = true;
-    var reloadArticle = true;
-   // var categories = [];
+    var adminMode = false;
+    
+    // var categories = [];
     function populateCategories(abstracts) {
       // a category is {filter: , number: }
         var years = ['2018', '2017', '2016', '2015'];
@@ -47,19 +48,31 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
                 }
             });      
         }, 
+        setAdminMode: function(mode){
+            adminMode = mode;
+        },
+        getAdminMode: function(){
+            return adminMode;
+        },        
         getAbstracts: function() {  
           // use a promise 
           return $q(function(resolve, reject) {  
-               if(reloadData){ // reload data only after an adminitration operation
+                var adminMode = AuthService.getAuthorized();
+                console.log(adminMode);
+                if(adminMode){ // if admin mode do not cache data
                     $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
-                        reloadData = false;
                         data = resp.data;
                         resolve(data);
                     }, function(err){
                         reject(err)
                     });
-                } else {
-                    resolve(data);
+                } else { // if admin mode cache data  
+                    $http.get('api/abstracts', { cache: true }).then(function(resp) {                       
+                        data = resp.data;
+                        resolve(data);
+                    }, function(err){
+                        reject(err)
+                    });
                 }
             })
         },
@@ -74,15 +87,22 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
         getArticle: function(id) {
           // use a promise so that categories can be called after data loads
           return $q(function(resolve, reject) {  
-               if(reloadArticle){ // reload data only after an adminitration operation
+                var adminMode = AuthService.getAuthorized();
+                console.log(adminMode);
+                if(adminMode){ // if admin mode do not cache data               
                     $http.get('api/article/' + id, { cache: false }).then(function(resp) {  // returns a promise
                         var article = resp.data;
                         resolve(article);
                     }, function(err){
                         reject(err)
-                    });
-                } else {
-                    resolve(article);
+                    });    
+                } else { // if admin mode cache data  
+                    $http.get('api/article/' + id, { cache: true }).then(function(resp) {  // returns a promise
+                        var article = resp.data;
+                        resolve(article);
+                    }, function(err){
+                        reject(err)
+                    });                   
                 }
             })
         },
@@ -108,8 +128,7 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
         saveBlog: function(blog) {
             return $http.post('/api/blog', blog ).then(function (resp) {
                 //console.log(resp.data);
-              reloadData = true;
-              reloadArticle = true;
+                reloadData = true;
                 return resp;
             });
         },
@@ -117,7 +136,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
           return $http.put('/api/blog/' + id, blog ).then(function (resp) {
               //console.log(resp.data);
               reloadData = true;  // reload abstracts after save
-              reloadArticle = true; // reload articles after save
               return resp;
           });
         },

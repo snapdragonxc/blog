@@ -38,6 +38,15 @@
         html {
             overflow-y: scroll; /* To correct horizonatal jumping */
         }
+        #spinner {
+            position: absolute;
+
+            left: 460px;
+
+            top: 450px;
+
+            z-index: 1000;
+        }
     </style>
 </head>
 <body ng-app="app">   
@@ -53,6 +62,7 @@
             </div> 
         </div>
         <!-- PAGES -ie COMPONENTS -->
+        <div id="spinner"></div>
         <ui-view callback="$site.showLogOut(value)" ></ui-view>
         <!-- SITE MENU AT BOTTOM -->
         <div id="menu" class="site-footer">

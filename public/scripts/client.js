@@ -1,6 +1,7 @@
 
 angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 
     function( $stateProvider, $urlRouterProvider, $locationProvider) {
+        
         $locationProvider.html5Mode(true); // remove hash-bang.
         // <--- INITIAL ROUTES --->
         $urlRouterProvider.when('/blog', '/blog/abstracts/all/posts/1'); 
@@ -17,7 +18,16 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 year: 'all',
                 month: 'posts'
             },
-            resolve: {               
+            resolve: {       
+                /* simulate api delay*/    
+                delay: function($q, $timeout, ClientApiService) {
+                  var delay = $q.defer();
+                  $timeout(delay.resolve, 500);
+                  
+                 // delayTime = 0;
+
+                  return delay.promise;
+                },    
                 // resolve - open page after data loads if a promise
                 pages: ['ClientApiService', '$stateParams', '$filter', '$location', 
                     function(ClientApiService, $stateParams, $filter, $location) {                                              
@@ -56,7 +66,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 currentPage: ['$stateParams', function($stateParams) { // not a promise. returned immediately
                     return $stateParams.page;
                 }]
-            }
+            },
+            
         });
         //
         //
@@ -64,7 +75,14 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             name: 'blog.article',  // distinguish nested state by name with dot 
             url: '/article/{id}',
             component: 'article',
-            resolve: {          
+            resolve: {     
+                /* simulate api delay */ 
+                delay: function($q, $timeout) {
+                  var delay = $q.defer();
+                  $timeout(delay.resolve, 150);
+                  console.log('k')
+                  return delay.promise;
+                },    
                 // resolve - open page after data loads         
                 abstract: ['ClientApiService', '$stateParams', 
                     function(ClientApiService, $stateParams) {
@@ -74,7 +92,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                     function(ClientApiService, $stateParams) {
                         return ClientApiService.getArticle($stateParams.id);
                 }]        
-            }
+            },
+            
         });
         //<--- END OF BLOG STATE AND ITS CHILDREN
         // <--- HOME STATE --->
@@ -82,11 +101,8 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             name: 'home',
             url: '/home',
             component: 'home',
-            params: {
-                checkStatus: true
-            },
-                resolve: {             
-            }
+            params: {},
+            resolve: {}
         });   
         // <--- ABOUT STATE ---> 
         states.push(contactState = {
@@ -121,7 +137,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 // authorize goes at top so that it calls before the other resolve parameters
                 authorize: ['ClientApiService', 'AuthService', '$state', 
                     function(ClientApiService, AuthService, $state) {   
-                        return AuthService.isAuthorized()
+                        return AuthService.checkStatus()
                 }],
                 abstracts: ['ClientApiService', '$state', 
                     function(ClientApiService, $state) {               
@@ -145,7 +161,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             resolve: {          
                 // resolve - open page after data loads
                 authorize: ['AuthService', function(AuthService) {   
-                  return AuthService.isAuthorized()
+                  return AuthService.checkStatus()
                 }],
                 pageData: ['ClientApiService', '$stateParams', function(ClientApiService, $stateParams){
                   return ClientApiService.getPageData($stateParams.id);
@@ -164,7 +180,7 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             resolve: {          
               // resolve - open page after data loads
               authorize: ['AuthService', function(AuthService) {   
-                  return AuthService.isAuthorized()
+                  return AuthService.checkStatus()
               }],
             }       
         }); 
@@ -176,23 +192,50 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             });
     }
 ])
-.run(['$transitions', '$state', '$rootScope', function ($transitions, $state, $rootScope) {
-    //<--- Prevent state from transtioning if unauthorized -->
-    $transitions.onError({}, function(transition) {
-        if(transition.error().detail == 'unauthorized'){
-            $state.go('login');                       
-        }
-    });
-    //<--- Allow blog to expand/contract when article is opened by un-fixing/fixing the bottom menu 
-    // when state transitions into and out of article.
-    $transitions.onStart( { to: 'blog.article' }, function(trans) {
-        var elem = document.getElementById("menu");
-        elem.style.position = 'static';
-    });
-    $transitions.onStart( { from: 'blog.article' }, function(trans) {
-        var elem = document.getElementById("menu");
-        elem.style.position = 'absolute';
-    });
+.run(['$transitions', '$state', '$rootScope',  
+    function ($transitions, $state, $rootScope) {
+        var spinnerElement = '<i class="fa fa-spinner fa-pulse fa-3x fa-fw" aria-hidden="true"></i>';
+        var timer;
+        //<--- Prevent state from transtioning if unauthorized -->
+        $transitions.onError({}, function(transition) {
+            if(transition.error().detail == 'unauthorized'){
+                $state.go('login');                       
+            }
+        });
+        //<--- Allow blog to expand/contract when article is opened by un-fixing/fixing the bottom menu 
+        // when state transitions into and out of article.
+        $transitions.onStart( { to: 'blog.article' }, function(trans) {
+            var elem = document.getElementById("menu");
+            elem.style.position = 'static';
+        });
+        $transitions.onStart( { from: 'blog.article' }, function(trans) {
+            var elem = document.getElementById("menu");
+            elem.style.position = 'absolute';
+        });
+
+        // <--- Spinner Element on to blog, remove when an abstract is shown.
+        $transitions.onBefore( { to: 'blog' }, function(trans) {
+            // add spinner if resolve is slow api          
+            timer = setTimeout(function(){ 
+                document.getElementById("spinner").innerHTML = spinnerElement;  
+            }, 200);                                       
+        });
+        $transitions.onSuccess( { to: 'blog.abstracts' }, function(trans) {
+            document.getElementById("spinner").innerHTML='';
+            clearTimeout(timer);
+        });
+        //
+        // <--- Spinner Element on to article, remove when an article is shown.
+        $transitions.onBefore( { to: 'blog.article' }, function(trans) {
+            // add spinner if resolve is slow api          
+            timer = setTimeout(function(){ 
+                document.getElementById("spinner").innerHTML = spinnerElement;  
+            }, 200);
+        });
+        $transitions.onSuccess( { to: 'blog.article' }, function(trans) {
+            document.getElementById("spinner").innerHTML='';
+            clearTimeout(timer);
+        });
 }]);
 angular.module('site-ctrl', []).
     controller('SiteCtrl', ['$state', 'AuthService', '$location', 
@@ -206,7 +249,7 @@ angular.module('site-ctrl', []).
             }
             this.logOut = function(){
                 AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home', { checkStatus: false }, {reload: true});
+                    $state.go('home');
                     that.showLogOut(false);
                 });
             }
@@ -217,7 +260,7 @@ angular.module('site-ctrl', []).
                 $state.go('home');
             }
             this.checkStatus = function(){
-                AuthService.isAuthorized().then(function(res) {
+                AuthService.checkStatus().then(function(res) {
                     that.showLogOut(true);
                 }, function(err) {
                     that.showLogOut(false);
@@ -226,6 +269,534 @@ angular.module('site-ctrl', []).
             this.checkStatus(); // call before DOM loads
         }]
 );
+angular.module('custom-filters', [])
+.filter('startFrom', function() { 
+    return function(input, start) {
+        start = +start; 
+        return input.slice(start);
+    }
+})
+.filter('roundup', function () {
+    return function (value) {
+        if(value == 0){
+            value = 1;
+        }       
+        return Math.ceil(value);
+    };
+})
+.filter('extractMonth', function() {
+    return function(x) { 
+        return '' + /[a-zA-Z]+/.exec(x);
+    };
+})
+.filter('extractYear', function() {
+    return function(x) {
+        return '' + /^[0-9]+/.exec(x);
+    };
+})
+.filter('filterByMonth', function() {
+    return function(x, filter) {
+        if(filter == 'posts/all'){
+            return x;
+        } else {
+            return x.filter(function(abstract) { 
+                    return abstract.filter === filter;
+                });
+        }
+    }
+});
+
+
+angular.module('about', ['ui.router']).component('about', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/about-template.html',
+    controller: function(){
+
+
+            this.test = function(){
+                console.log('about');
+
+                return 'c'
+            }   
+    }
+
+}); 
+
+                                                                          
+angular.module('abstracts', ['ui.router']).component('abstracts', {
+    bindings: { 
+        abstracts: '<', // one way binding
+        currentPage: '<', 
+        query: '=', // two way binding - query is used for filtering of abstracts with search etc
+          init: '<'
+    }, 
+    templateUrl: '../partials/abstracts-template.html',
+
+    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
+        'HighlightService', 'HighlightJSservice',
+        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
+                    HighlightService, HighlightJSservice){
+
+            this.$onInit = function(){
+                if($stateParams.active){
+                    document.getElementById('search-box').focus();
+                }
+            }
+            this.currentPage = 1;
+            this.pageSize = 1; 
+            // note resolved parameters are not available here until the view has loaded.
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            }  
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }  
+          /*  this.callback = function(){
+                Ellipsis({           
+                    ellipsis: '…',           
+                    debounce: 0,           
+                    responsive: true,           
+                    class: '.clamp',           
+                    lines: 12,           
+                    portrait: null,           
+                    break_word: true
+                });
+            }*/
+            this.readMore = function(abstract){
+                $state.go('blog.article', {id: abstract._id});
+            }   
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            /*    angular.element(function(){   A delay in rendering when using
+                Ellipsis({           
+                         ellipsis: '…',           
+                         debounce: 0,           
+                         responsive: true,           
+                         class: '.clamp',           
+                         lines: 12,           
+                         portrait: null,           
+                         break_word: true
+                       });
+              }); */   
+
+              this.highlight = function(txt){
+
+                // convert html code.
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                
+                //console.log('highlight');
+                return subtxt;
+            }
+
+        }]
+});
+
+
+
+
+    
+angular.module('add', ['ui.router']).component('add', {
+    bindings: { 
+    },         
+    templateUrl: '../partials/add-template.html',
+    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
+            var that = this;
+            this.cancel = function(){
+                 $window.history.back();        
+            }    
+            this.saveBlog = function(){
+                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                var blog = {
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
+                    sortIdx: sortIdx
+                }
+
+                /*
+                
+                // convert html code. Do this on save
+                var subtxt = blog.subtxt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                blog.subtxt = subtxt;
+                //
+                
+                // convert html code text to text with pre/code formatters for color. Do this on save
+                var txt = blog.fulltxt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });
+                // convert javascript code. Do this on save
+                // Code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                                            
+                blog.fulltxt = txt;
+
+                */
+
+                ClientApiService.saveBlog(blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page });                         
+                    }, function(err){
+                        //console.log(err);
+                        $state.go('login');
+                    }
+                )
+            }
+            /* Start Calendar */
+            this.months = CalendarService.getMonths();
+            this.years = CalendarService.getYears();
+            this.selectedMonth = CalendarService.getCurrentMonth();
+            this.selectedDay = CalendarService.getCurrentDay();
+            this.selectedYear = CalendarService.getCurrentYear();
+            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = thise.days.length.toString();
+            }; 
+            /* End Calendar */        
+        }]
+});
+angular.module('article', ['ui.router']).component('article', {
+    bindings: { 
+        article: '<',
+        abstract: '<',
+    }, // one way binding with resolve
+    templateUrl: '../partials/article-template.html',
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
+        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+            var that = this;
+            this.goBack = function(){
+                $window.history.back();                    
+            }    
+            this.getDate = function(x){
+
+                console.log('date-a')
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }
+            this.highlight = function(txt){
+                // convert html code. 
+                var subtxt = txt; //  txt for colouring
+                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // convert javascript code. 
+                // Code is distiguished by '[codejs]' brackets. 
+                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return subtxt;
+            }     
+            angular.element( function(){ // equivalenet to document ready
+                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
+            });            
+        }]
+});
+angular.module('blog', ['ui.router']).component('blog', {
+    bindings: { 
+        pages: '<',
+        query: '='
+    }, 
+    templateUrl: '../partials/blog-template.html',
+    controller: [ '$state', '$location', '$filter', 'AuthService', 
+        function($state, $location, $filter, AuthService){   
+
+            this.decorateCategory = function(category) {  
+                if(category.filter !== "posts/all") {
+                    category.month = $filter('extractMonth')(category.filter); 
+                    category.year = $filter('extractYear')(category.filter);  
+                } else {
+                    category.month = 'all';
+                    category.year = 'posts'
+                }
+                return category;
+            } 
+            this.onSearch = function(){
+                this.pages.subTitle = "Search Results"
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
+
+               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
+                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
+            }    
+            this.onEnter = function(){
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
+            }        
+            this.onClick = function(category ){
+                this.pages.filter = category.filter;
+                this.pages.year = category.year;
+                this.pages.month = category.month;
+                this.pages.subTitle = category.month + ' ' + category.year;
+                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
+                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
+            }            
+            this.isArchiveActive = function(category) {
+                var arr =  $location.path().split('\/');
+                var filter = arr[4] + '/' + arr[3];
+                return (category.filter == filter)
+            }
+            this.isActive = function(index) {
+                var idx =  $location.path().split('\/')[5] - 1;                
+                return (idx == index)
+            }
+            // For open close posts
+            this.postHide = false;
+            this.openPosts = function(){
+                if(this.postHide){
+                    this.postHide = false;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
+                } else {
+                    this.postHide = true;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
+                }
+            }
+            // For open close archives
+            this.archiveHide = false;
+            this.openArchives = function(){
+                if(this.archiveHide){
+                    this.archiveHide = false;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
+                } else {
+                    this.archiveHide = true;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
+                }
+            }            
+        }]
+});
+angular.module('contact', ['ui.router']).component('contact', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/contact-template.html',
+    controller: ['MailApiService', 'AuthService',
+        function(MailApiService, AuthService) {
+            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
+            var alertBox = document.querySelector('.contact-alert');
+            var alertLabel = document.querySelector('.contact-alert-msg');
+            this.sendMail = function(){
+                alertBox.style.backgroundColor = blue; 
+                alertLabel.innerHTML = "Sending Message. Please Wait";
+                alertBox.style.display = "block";
+                var payload = {
+                    from: this.from,
+                    subject: this.subject,
+                    msg: this.msg
+                }
+                this.from = '';
+                this.subject = '';
+                this.msg = '';    
+                MailApiService.sendMail(payload).then(function(resp){
+                        alertBox.style.backgroundColor = green;
+                        alertLabel.innerHTML = "Message sent successfully.";                    
+                    }, function(err){
+                        alertBox.style.backgroundColor = red;
+                        alertLabel.innerHTML = "Message failed to send.";
+                    }
+                ) 
+            }        
+        }]
+});
+angular.module('edit', ['ui.router']).component('edit', {
+    bindings: { 
+        pageData: '=',
+    }, 
+    templateUrl: '../partials/edit-template.html',
+    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
+            this.cancel = function(){
+                $window.history.back();        
+            }    
+            this.decorateAbstract = function(x) {  
+                var abstract = x;
+                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
+                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
+                return abstract;
+            }
+            this.saveBlog = function(){
+                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
+                var blog = {
+                    title: this.pageData.title,        // The same for both article and abstract
+                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
+                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
+                    month: this.pageData.month,
+                    year: this.pageData.year,
+                    sortIdx: sortIdx
+                }
+                //
+                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );
+            }  
+        }]
+});
+angular.module('home', ['ui.router']).component('home', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/home-template.html',
+    controller:['$stateParams',
+        function($stateParams) {
+            this.$onInit = function(){
+                var grid = document.querySelector('.grid');
+                var msnry = new Masonry( grid, {
+                    itemSelector: '.grid-item',
+                    columnWidth: '.grid-item', //237, //231,                        
+                    gutter: 10,
+                });
+                imagesLoaded( grid ).on( 'progress', function() {
+                    // layout Masonry after each image loads
+                    msnry.layout();
+               });
+            }
+        }]
+});
+
+angular.module('list', ['ui.router']).component('list', {
+    bindings: { 
+        abstracts: '=',  // one way binding        
+        currentPage: '=',
+        callback: '&' // used to set logout button on main nav menu
+    }, 
+    templateUrl: '../partials/list-template.html',
+    controller: ['$state', 'ClientApiService',
+        function($state, ClientApiService) {
+            this.currentPage = 1; 
+            this.pageSize = 5; 
+            var that = this;
+            this.$onInit = function(){
+                that.callback({value: true}); // set state of logout button on main
+            }
+            this.addBlog = function(){
+                $state.go('add', { page: this.currentPage } );
+            }
+            this.deleteBlog = function(id){                
+                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
+                if(lastPage == 0 ){
+                    nextPage = 1;                
+                } else {
+                    var idx = 5;
+                    if( parseInt(this.currentPage) == lastPage ){
+                        idx = this.abstracts.length % 5
+                    }
+                    if( (idx - 1) == 0 ){
+                        nextPage = parseInt(this.currentPage) - 1;
+                    } else {
+                        nextPage = parseInt(this.currentPage)
+                    }
+                }
+                if(nextPage == 0 ){
+                    nextPage = 1;
+                }    
+                ClientApiService.deleteBlog(id).then(function(resp){
+                        $state.go('list', { page: nextPage }, {reload: true});
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );                     
+            }            
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('list', { page: this.currentPage  });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1
+                $state.go('list', { page: this.currentPage });
+            } 
+            this.stripAbstract = function(subtxt){
+                var extract = subtxt.split('<p>');
+                if(extract.length === 1){ // text contains no paragraphs
+                    return extract[0].substring(0, 230); // limit to 230 characters
+                } else { // text contains paragraphs
+                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
+                }
+            }
+        }]
+});
+angular.module('login', ['ui.router']).component('login', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/login-template.html',
+    controller: ['AuthService', '$state', 'ClientApiService',
+        function(AuthService, $state) {
+            var that = this;
+            this.init = function(){
+                this.user = {
+                    username: '',
+                    password: ''
+                }
+            }
+            this.login = function() {                
+                AuthService.login(this.user).then(function(res, err){                    
+                        AuthService.setAuthorized(true); 
+                        $state.go('list', { page: '1' }); 
+                    }, function(err){
+                        // console.log('error', err)
+                        alert('incorrect username or password')
+                        that.init();
+                    }); 
+            }
+            this.init();            
+        }]
+}); 
 angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
     function($q, $http) {
         var currentUser = {
@@ -238,19 +809,23 @@ angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http',
         var service = {
             userName: currentUser.username,
             setAuthorized:  function(authorized){           
-                currentUser.authorized = true;                                  
+                currentUser.authorized = authorized;                                  
             },
-            isAuthorized: function() {
+            getAuthorized:  function(){           
+                return currentUser.authorized;                                  
+            },
+            checkStatus: function() {
                 // use a promise 
                 return $q(function(resolve, reject) {  
-                    if(currentUser.authorized){ // reload data only after an administration operation
-                        resolve('authorized');
+                    if(currentUser.authorized){ 
+                        resolve(true);
                     } else {
-                        status().then(function(res){ // handle page refresh
+                        // handle page refresh
+                        status().then(function(res){ 
                                 currentUser.authorized = true;  
-                                resolve('authorized');
+                                resolve(true);
                             }, function(err){
-                                reject('unauthorized');
+                                reject(false);
                             });                    
                     }
                 });
@@ -321,13 +896,14 @@ angular.module('calendar-service', [] ).factory('CalendarService',
     }
 );
 angular.module('api-services', [] ).
-factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, $q, CalendarService) {
+factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService', 
+    function($http, $q, CalendarService, AuthService) {
     //<--- Data global across states --->
     var data = []; 
     var article;
-    var reloadData = true;
-    var reloadArticle = true;
-   // var categories = [];
+    var adminMode = false;
+    
+    // var categories = [];
     function populateCategories(abstracts) {
       // a category is {filter: , number: }
         var years = ['2018', '2017', '2016', '2015'];
@@ -369,19 +945,31 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
                 }
             });      
         }, 
+        setAdminMode: function(mode){
+            adminMode = mode;
+        },
+        getAdminMode: function(){
+            return adminMode;
+        },        
         getAbstracts: function() {  
           // use a promise 
           return $q(function(resolve, reject) {  
-               if(reloadData){ // reload data only after an adminitration operation
+                var adminMode = AuthService.getAuthorized();
+                console.log(adminMode);
+                if(adminMode){ // if admin mode do not cache data
                     $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
-                        reloadData = false;
                         data = resp.data;
                         resolve(data);
                     }, function(err){
                         reject(err)
                     });
                 } else {
-                    resolve(data);
+                    $http.get('api/abstracts', { cache: true }).then(function(resp) {                       
+                        data = resp.data;
+                        resolve(data);
+                    }, function(err){
+                        reject(err)
+                    });
                 }
             })
         },
@@ -396,15 +984,22 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
         getArticle: function(id) {
           // use a promise so that categories can be called after data loads
           return $q(function(resolve, reject) {  
-               if(reloadArticle){ // reload data only after an adminitration operation
+                var adminMode = AuthService.getAuthorized();
+                console.log(adminMode);
+                if(adminMode){ // if admin mode do not cache data               
                     $http.get('api/article/' + id, { cache: false }).then(function(resp) {  // returns a promise
                         var article = resp.data;
                         resolve(article);
                     }, function(err){
                         reject(err)
-                    });
+                    });    
                 } else {
-                    resolve(article);
+                    $http.get('api/article/' + id, { cache: true }).then(function(resp) {  // returns a promise
+                        var article = resp.data;
+                        resolve(article);
+                    }, function(err){
+                        reject(err)
+                    });                   
                 }
             })
         },
@@ -430,8 +1025,7 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
         saveBlog: function(blog) {
             return $http.post('/api/blog', blog ).then(function (resp) {
                 //console.log(resp.data);
-              reloadData = true;
-              reloadArticle = true;
+                reloadData = true;
                 return resp;
             });
         },
@@ -439,7 +1033,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', function($http, 
           return $http.put('/api/blog/' + id, blog ).then(function (resp) {
               //console.log(resp.data);
               reloadData = true;  // reload abstracts after save
-              reloadArticle = true; // reload articles after save
               return resp;
           });
         },
@@ -856,530 +1449,3 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
-angular.module('about', ['ui.router']).component('about', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/about-template.html',
-    controller: function(){
-
-
-            this.test = function(){
-                console.log('about');
-
-                return 'c'
-            }   
-    }
-
-}); 
-
-                                                                          
-angular.module('abstracts', ['ui.router']).component('abstracts', {
-    bindings: { 
-        abstracts: '<', // one way binding
-        currentPage: '<', 
-        query: '=', // two way binding - query is used for filtering of abstracts with search etc
-          init: '<'
-    }, 
-    templateUrl: '../partials/abstracts-template.html',
-
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService', 'HighlightJSservice',
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService, HighlightJSservice){
-
-            this.$onInit = function(){
-                if($stateParams.active){
-                    document.getElementById('search-box').focus();
-                }
-            }
-            this.currentPage = 1;
-            this.pageSize = 1; 
-            // note resolved parameters are not available here until the view has loaded.
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            }  
-            this.getDate = function(x){
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }  
-          /*  this.callback = function(){
-                Ellipsis({           
-                    ellipsis: '…',           
-                    debounce: 0,           
-                    responsive: true,           
-                    class: '.clamp',           
-                    lines: 12,           
-                    portrait: null,           
-                    break_word: true
-                });
-            }*/
-            this.readMore = function(abstract){
-                $state.go('blog.article', {id: abstract._id});
-            }   
-            this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                return subtxt;
-            }     
-            /*    angular.element(function(){   A delay in rendering when using
-                Ellipsis({           
-                         ellipsis: '…',           
-                         debounce: 0,           
-                         responsive: true,           
-                         class: '.clamp',           
-                         lines: 12,           
-                         portrait: null,           
-                         break_word: true
-                       });
-              }); */   
-
-              this.highlight = function(txt){
-
-                // convert html code.
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                
-                console.log('highlight');
-                return subtxt;
-            }
-
-        }]
-});
-
-
-
-
-    
-angular.module('add', ['ui.router']).component('add', {
-    bindings: { 
-    },         
-    templateUrl: '../partials/add-template.html',
-    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
-            var that = this;
-            this.cancel = function(){
-                 $window.history.back();        
-            }    
-            this.saveBlog = function(){
-                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
-                var blog = {
-                    title: this.title,        // The same for both article and abstract
-                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.subtxt,   //  The text shown by the abstract
-                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
-                    month: this.selectedMonth,
-                    year: this.selectedYear,
-                    sortIdx: sortIdx
-                }
-
-                /*
-                
-                // convert html code. Do this on save
-                var subtxt = blog.subtxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                blog.subtxt = subtxt;
-                //
-                
-                // convert html code text to text with pre/code formatters for color. Do this on save
-                var txt = blog.fulltxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                                            
-                blog.fulltxt = txt;
-
-                */
-
-                ClientApiService.saveBlog(blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page });                         
-                    }, function(err){
-                        //console.log(err);
-                        $state.go('login');
-                    }
-                )
-            }
-            /* Start Calendar */
-            this.months = CalendarService.getMonths();
-            this.years = CalendarService.getYears();
-            this.selectedMonth = CalendarService.getCurrentMonth();
-            this.selectedDay = CalendarService.getCurrentDay();
-            this.selectedYear = CalendarService.getCurrentYear();
-            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-            this.changeDate = function() {
-                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-                if(this.selectedDay > this.days.length)
-                    this.selectedDay = thise.days.length.toString();
-            }; 
-            /* End Calendar */        
-        }]
-});
-angular.module('article', ['ui.router']).component('article', {
-    bindings: { 
-        article: '<',
-        abstract: '<',
-    }, // one way binding with resolve
-    templateUrl: '../partials/article-template.html',
-    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
-        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
-            var that = this;
-            this.goBack = function(){
-                $window.history.back();                    
-            }    
-            this.getDate = function(x){
-
-                console.log('date-a')
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }
-            this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                return subtxt;
-            }     
-            angular.element( function(){ // equivalenet to document ready
-                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
-            });            
-        }]
-});
-angular.module('blog', ['ui.router']).component('blog', {
-    bindings: { 
-        pages: '<',
-        query: '='
-    }, 
-    templateUrl: '../partials/blog-template.html',
-    controller: [ '$state', '$location', '$filter', 'AuthService', 
-        function($state, $location, $filter, AuthService){   
-
-            this.decorateCategory = function(category) {  
-                if(category.filter !== "posts/all") {
-                    category.month = $filter('extractMonth')(category.filter); 
-                    category.year = $filter('extractYear')(category.filter);  
-                } else {
-                    category.month = 'all';
-                    category.year = 'posts'
-                }
-                return category;
-            } 
-            this.onSearch = function(){
-                this.pages.subTitle = "Search Results"
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
-
-               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
-                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
-            }    
-            this.onEnter = function(){
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
-            }        
-            this.onClick = function(category ){
-                this.pages.filter = category.filter;
-                this.pages.year = category.year;
-                this.pages.month = category.month;
-                this.pages.subTitle = category.month + ' ' + category.year;
-                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
-                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
-            }            
-            this.isArchiveActive = function(category) {
-                var arr =  $location.path().split('\/');
-                var filter = arr[4] + '/' + arr[3];
-                return (category.filter == filter)
-            }
-            this.isActive = function(index) {
-                var idx =  $location.path().split('\/')[5] - 1;                
-                return (idx == index)
-            }
-            // For open close posts
-            this.postHide = false;
-            this.openPosts = function(){
-                if(this.postHide){
-                    this.postHide = false;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
-                } else {
-                    this.postHide = true;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
-                }
-            }
-            // For open close archives
-            this.archiveHide = false;
-            this.openArchives = function(){
-                if(this.archiveHide){
-                    this.archiveHide = false;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
-                } else {
-                    this.archiveHide = true;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
-                }
-            }            
-        }]
-});
-angular.module('contact', ['ui.router']).component('contact', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/contact-template.html',
-    controller: ['MailApiService', 'AuthService',
-        function(MailApiService, AuthService) {
-            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
-            var alertBox = document.querySelector('.contact-alert');
-            var alertLabel = document.querySelector('.contact-alert-msg');
-            this.sendMail = function(){
-                alertBox.style.backgroundColor = blue; 
-                alertLabel.innerHTML = "Sending Message. Please Wait";
-                alertBox.style.display = "block";
-                var payload = {
-                    from: this.from,
-                    subject: this.subject,
-                    msg: this.msg
-                }
-                this.from = '';
-                this.subject = '';
-                this.msg = '';    
-                MailApiService.sendMail(payload).then(function(resp){
-                        alertBox.style.backgroundColor = green;
-                        alertLabel.innerHTML = "Message sent successfully.";                    
-                    }, function(err){
-                        alertBox.style.backgroundColor = red;
-                        alertLabel.innerHTML = "Message failed to send.";
-                    }
-                ) 
-            }        
-        }]
-});
-angular.module('edit', ['ui.router']).component('edit', {
-    bindings: { 
-        pageData: '=',
-    }, 
-    templateUrl: '../partials/edit-template.html',
-    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
-            this.cancel = function(){
-                $window.history.back();        
-            }    
-            this.decorateAbstract = function(x) {  
-                var abstract = x;
-                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
-                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
-                return abstract;
-            }
-            this.saveBlog = function(){
-                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
-                var blog = {
-                    title: this.pageData.title,        // The same for both article and abstract
-                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
-                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
-                    month: this.pageData.month,
-                    year: this.pageData.year,
-                    sortIdx: sortIdx
-                }
-                //
-                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );
-            }  
-        }]
-});
-angular.module('home', ['ui.router']).component('home', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/home-template.html',
-    controller:['$stateParams',
-        function($stateParams) {
-            this.$onInit = function(){
-                var grid = document.querySelector('.grid');
-                var msnry = new Masonry( grid, {
-                    itemSelector: '.grid-item',
-                    columnWidth: '.grid-item', //237, //231,                        
-                    gutter: 10,
-                });
-                imagesLoaded( grid ).on( 'progress', function() {
-                    // layout Masonry after each image loads
-                    msnry.layout();
-               });
-            }
-        }]
-});
-
-angular.module('list', ['ui.router']).component('list', {
-    bindings: { 
-        abstracts: '=',  // one way binding        
-        currentPage: '=',
-        callback: '&' // used to set logout button on main nav menu
-    }, 
-    templateUrl: '../partials/list-template.html',
-    controller: ['$state', 'ClientApiService',
-        function($state, ClientApiService) {
-            this.currentPage = 1; 
-            this.pageSize = 5; 
-            var that = this;
-            this.$onInit = function(){
-                that.callback({value: true}); // set state of logout button on main
-            }
-            this.addBlog = function(){
-                $state.go('add', { page: this.currentPage } );
-            }
-            this.deleteBlog = function(id){                
-                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
-                if(lastPage == 0 ){
-                    nextPage = 1;                
-                } else {
-                    var idx = 5;
-                    if( parseInt(this.currentPage) == lastPage ){
-                        idx = this.abstracts.length % 5
-                    }
-                    if( (idx - 1) == 0 ){
-                        nextPage = parseInt(this.currentPage) - 1;
-                    } else {
-                        nextPage = parseInt(this.currentPage)
-                    }
-                }
-                if(nextPage == 0 ){
-                    nextPage = 1;
-                }    
-                ClientApiService.deleteBlog(id).then(function(resp){
-                        $state.go('list', { page: nextPage }, {reload: true});
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );                     
-            }            
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('list', { page: this.currentPage  });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1
-                $state.go('list', { page: this.currentPage });
-            } 
-            this.stripAbstract = function(subtxt){
-                var extract = subtxt.split('<p>');
-                if(extract.length === 1){ // text contains no paragraphs
-                    return extract[0].substring(0, 230); // limit to 230 characters
-                } else { // text contains paragraphs
-                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
-                }
-            }
-        }]
-});
-angular.module('login', ['ui.router']).component('login', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/login-template.html',
-    controller: ['AuthService', '$state',
-        function(AuthService, $state) {
-            var that = this;
-            this.init = function(){
-                this.user = {
-                    username: '',
-                    password: ''
-                }
-            }
-            this.login = function() {                
-                AuthService.login(this.user).then(function(res, err){                    
-                        AuthService.setAuthorized(true); 
-                        $state.go('list', { page: '1' }); 
-                    }, function(err){
-                        // console.log('error', err)
-                        alert('incorrect username or password')
-                        that.init();
-                    }); 
-            }
-            this.init();            
-        }]
-}); 
-angular.module('custom-filters', [])
-.filter('startFrom', function() { 
-    return function(input, start) {
-        start = +start; 
-        return input.slice(start);
-    }
-})
-.filter('roundup', function () {
-    return function (value) {
-        if(value == 0){
-            value = 1;
-        }       
-        return Math.ceil(value);
-    };
-})
-.filter('extractMonth', function() {
-    return function(x) { 
-        return '' + /[a-zA-Z]+/.exec(x);
-    };
-})
-.filter('extractYear', function() {
-    return function(x) {
-        return '' + /^[0-9]+/.exec(x);
-    };
-})
-.filter('filterByMonth', function() {
-    return function(x, filter) {
-        if(filter == 'posts/all'){
-            return x;
-        } else {
-            return x.filter(function(abstract) { 
-                    return abstract.filter === filter;
-                });
-        }
-    }
-});
-

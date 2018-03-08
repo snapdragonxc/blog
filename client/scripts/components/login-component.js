@@ -2,7 +2,7 @@ angular.module('login', ['ui.router']).component('login', {
     bindings: { 
     }, // one way binding
     templateUrl: '../partials/login-template.html',
-    controller: ['AuthService', '$state',
+    controller: ['AuthService', '$state', 'ClientApiService',
         function(AuthService, $state) {
             var that = this;
             this.init = function(){
