@@ -19,15 +19,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                 month: 'posts'
             },
             resolve: {       
-                /* simulate api delay*/    
-                delay: function($q, $timeout, ClientApiService) {
-                  var delay = $q.defer();
-                  $timeout(delay.resolve, 500);
-                  
-                 // delayTime = 0;
-
-                  return delay.promise;
-                },    
                 // resolve - open page after data loads if a promise
                 pages: ['ClientApiService', '$stateParams', '$filter', '$location', 
                     function(ClientApiService, $stateParams, $filter, $location) {                                              
@@ -76,13 +67,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             url: '/article/{id}',
             component: 'article',
             resolve: {     
-                /* simulate api delay */ 
-                delay: function($q, $timeout) {
-                  var delay = $q.defer();
-                  $timeout(delay.resolve, 150);
-                  console.log('k')
-                  return delay.promise;
-                },    
                 // resolve - open page after data loads         
                 abstract: ['ClientApiService', '$stateParams', 
                     function(ClientApiService, $stateParams) {
@@ -237,38 +221,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             clearTimeout(timer);
         });
 }]);
-angular.module('site-ctrl', []).
-    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
-        function($state, AuthService, $location) {
-            this.activeItem="home";
-            this.hide = false;
-            this.currentBtn = 'home';   
-            var that = this; 
-            this.showLogOut = function(value){
-                this.hide = value;
-            }
-            this.logOut = function(){
-                AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home');
-                    that.showLogOut(false);
-                });
-            }
-            this.isActive = function(loc) {
-                return loc == $location.path().split('\/')[1];
-            }
-            this.home = function(){
-                $state.go('home');
-            }
-            this.checkStatus = function(){
-                AuthService.checkStatus().then(function(res) {
-                    that.showLogOut(true);
-                }, function(err) {
-                    that.showLogOut(false);
-                });
-            }
-            this.checkStatus(); // call before DOM loads
-        }]
-);
 angular.module('custom-filters', [])
 .filter('startFrom', function() { 
     return function(input, start) {
@@ -307,6 +259,38 @@ angular.module('custom-filters', [])
 });
 
 
+angular.module('site-ctrl', []).
+    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
+        function($state, AuthService, $location) {
+            this.activeItem="home";
+            this.hide = false;
+            this.currentBtn = 'home';   
+            var that = this; 
+            this.showLogOut = function(value){
+                this.hide = value;
+            }
+            this.logOut = function(){
+                AuthService.logout().then(function(resp){}, function(err){
+                    $state.go('home');
+                    that.showLogOut(false);
+                });
+            }
+            this.isActive = function(loc) {
+                return loc == $location.path().split('\/')[1];
+            }
+            this.home = function(){
+                $state.go('home');
+            }
+            this.checkStatus = function(){
+                AuthService.checkStatus().then(function(res) {
+                    that.showLogOut(true);
+                }, function(err) {
+                    that.showLogOut(false);
+                });
+            }
+            this.checkStatus(); // call before DOM loads
+        }]
+);
 angular.module('about', ['ui.router']).component('about', {
     bindings: { 
     }, 
@@ -963,7 +947,7 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                     }, function(err){
                         reject(err)
                     });
-                } else {
+                } else { // if admin mode cache data  
                     $http.get('api/abstracts', { cache: true }).then(function(resp) {                       
                         data = resp.data;
                         resolve(data);
@@ -993,7 +977,7 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                     }, function(err){
                         reject(err)
                     });    
-                } else {
+                } else { // if admin mode cache data  
                     $http.get('api/article/' + id, { cache: true }).then(function(resp) {  // returns a promise
                         var article = resp.data;
                         resolve(article);
@@ -1085,8 +1069,12 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                     data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
                 }
                 lines[k] = leadingSpace; 
-                for(var j = 0; j < data.length; j++){
-                    lines[k] = lines[k] + data[j] + " ";
+                var len = data.length -1;
+                for(var j = 0; j < len; j++){
+                    lines[k] = lines[k] + data[j] + " "; // re-insert space
+                }
+                if(len >= 0){
+                    lines[k] = lines[k] + data[len]; // drop space on end of line
                 }
             }
             mytxt = "";
@@ -1270,7 +1258,7 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
             return mytxt;
         }
-        function RemoveRegEx2( mytxt, myArray ){
+        function RemoveRegEx( mytxt, myArray ){
             // Regular Expressions are processed per line.
             var cnt = 0;
             var lines = mytxt.split(/\r?\n/); 
@@ -1303,9 +1291,13 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
                 }
                 lines[k] = leadingSpace; 
               
-                for(var j = 0; j < data.length; j++){
-                    lines[k] = lines[k] + data[j] + " ";
-                } 
+                var len = data.length -1;
+                for(var j = 0; j < len; j++){
+                    lines[k] = lines[k] + data[j] + " "; // re-insert space
+                }
+                if(len >= 0){
+                    lines[k] = lines[k] + data[len]; // drop space on end of line
+                }
             }
             var mytxt = "";
             var len = lines.length;
@@ -1369,7 +1361,7 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         }
         function HighlightScript(txt){
             var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
-            txt = RemoveRegEx2(txt, arrRegex);
+            txt = RemoveRegEx(txt, arrRegex);
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);

@@ -7,7 +7,7 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
             return mytxt;
         }
-        function RemoveRegEx2( mytxt, myArray ){
+        function RemoveRegEx( mytxt, myArray ){
             // Regular Expressions are processed per line.
             var cnt = 0;
             var lines = mytxt.split(/\r?\n/); 
@@ -40,9 +40,13 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
                 }
                 lines[k] = leadingSpace; 
               
-                for(var j = 0; j < data.length; j++){
-                    lines[k] = lines[k] + data[j] + " ";
-                } 
+                var len = data.length -1;
+                for(var j = 0; j < len; j++){
+                    lines[k] = lines[k] + data[j] + " "; // re-insert space
+                }
+                if(len >= 0){
+                    lines[k] = lines[k] + data[len]; // drop space on end of line
+                }
             }
             var mytxt = "";
             var len = lines.length;
@@ -106,7 +110,7 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         }
         function HighlightScript(txt){
             var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
-            txt = RemoveRegEx2(txt, arrRegex);
+            txt = RemoveRegEx(txt, arrRegex);
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);

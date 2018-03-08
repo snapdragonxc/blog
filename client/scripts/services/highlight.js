@@ -37,8 +37,12 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                     data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
                 }
                 lines[k] = leadingSpace; 
-                for(var j = 0; j < data.length; j++){
-                    lines[k] = lines[k] + data[j] + " ";
+                var len = data.length -1;
+                for(var j = 0; j < len; j++){
+                    lines[k] = lines[k] + data[j] + " "; // re-insert space
+                }
+                if(len >= 0){
+                    lines[k] = lines[k] + data[len]; // drop space on end of line
                 }
             }
             mytxt = "";
