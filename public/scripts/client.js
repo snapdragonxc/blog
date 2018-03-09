@@ -221,88 +221,11 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             clearTimeout(timer);
         });
 }]);
-angular.module('custom-filters', [])
-.filter('startFrom', function() { 
-    return function(input, start) {
-        start = +start; 
-        return input.slice(start);
-    }
-})
-.filter('roundup', function () {
-    return function (value) {
-        if(value == 0){
-            value = 1;
-        }       
-        return Math.ceil(value);
-    };
-})
-.filter('extractMonth', function() {
-    return function(x) { 
-        return '' + /[a-zA-Z]+/.exec(x);
-    };
-})
-.filter('extractYear', function() {
-    return function(x) {
-        return '' + /^[0-9]+/.exec(x);
-    };
-})
-.filter('filterByMonth', function() {
-    return function(x, filter) {
-        if(filter == 'posts/all'){
-            return x;
-        } else {
-            return x.filter(function(abstract) { 
-                    return abstract.filter === filter;
-                });
-        }
-    }
-});
-
-
-angular.module('site-ctrl', []).
-    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
-        function($state, AuthService, $location) {
-            this.activeItem="home";
-            this.hide = false;
-            this.currentBtn = 'home';   
-            var that = this; 
-            this.showLogOut = function(value){
-                this.hide = value;
-            }
-            this.logOut = function(){
-                AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home');
-                    that.showLogOut(false);
-                });
-            }
-            this.isActive = function(loc) {
-                return loc == $location.path().split('\/')[1];
-            }
-            this.home = function(){
-                $state.go('home');
-            }
-            this.checkStatus = function(){
-                AuthService.checkStatus().then(function(res) {
-                    that.showLogOut(true);
-                }, function(err) {
-                    that.showLogOut(false);
-                });
-            }
-            this.checkStatus(); // call before DOM loads
-        }]
-);
 angular.module('about', ['ui.router']).component('about', {
     bindings: { 
     }, 
     templateUrl: '../partials/about-template.html',
     controller: function(){
-
-
-            this.test = function(){
-                console.log('about');
-
-                return 'c'
-            }   
     }
 
 }); 
@@ -321,7 +244,6 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
         'HighlightService', 'HighlightJSservice',
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
                     HighlightService, HighlightJSservice){
-
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -343,66 +265,23 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 var yr = '' + /^[0-9]+/.exec(x);
                 return MonthsFullNameService[mo] + ' ' + yr;
             }  
-          /*  this.callback = function(){
-                Ellipsis({           
-                    ellipsis: '…',           
-                    debounce: 0,           
-                    responsive: true,           
-                    class: '.clamp',           
-                    lines: 12,           
-                    portrait: null,           
-                    break_word: true
-                });
-            }*/
             this.readMore = function(abstract){
                 $state.go('blog.article', {id: abstract._id});
             }   
             this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                // Convert any HTML code to code with colour on the fly. 
+                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
                 });                      
                 //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                // Convert any javascript code to code with colour on the fly. 
+                // Javascript code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
                 });                      
-                return subtxt;
+                return txt;
             }     
-            /*    angular.element(function(){   A delay in rendering when using
-                Ellipsis({           
-                         ellipsis: '…',           
-                         debounce: 0,           
-                         responsive: true,           
-                         class: '.clamp',           
-                         lines: 12,           
-                         portrait: null,           
-                         break_word: true
-                       });
-              }); */   
-
-              this.highlight = function(txt){
-
-                // convert html code.
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                
-                //console.log('highlight');
-                return subtxt;
-            }
-
         }]
 });
 
@@ -431,39 +310,6 @@ angular.module('add', ['ui.router']).component('add', {
                     year: this.selectedYear,
                     sortIdx: sortIdx
                 }
-
-                /*
-                
-                // convert html code. Do this on save
-                var subtxt = blog.subtxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                blog.subtxt = subtxt;
-                //
-                
-                // convert html code text to text with pre/code formatters for color. Do this on save
-                var txt = blog.fulltxt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                                            
-                blog.fulltxt = txt;
-
-                */
-
                 ClientApiService.saveBlog(blog).then(function(resp){
                         // Reset form
                         this.subtxt = '';
@@ -486,7 +332,7 @@ angular.module('add', ['ui.router']).component('add', {
             this.changeDate = function() {
                 this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
                 if(this.selectedDay > this.days.length)
-                    this.selectedDay = thise.days.length.toString();
+                    this.selectedDay = this.days.length.toString();
             }; 
             /* End Calendar */        
         }]
@@ -504,26 +350,23 @@ angular.module('article', ['ui.router']).component('article', {
                 $window.history.back();                    
             }    
             this.getDate = function(x){
-
-                console.log('date-a')
                 var mo = '' + /[a-zA-Z]+/.exec(x);
                 var yr = '' + /^[0-9]+/.exec(x);
                 return MonthsFullNameService[mo] + ' ' + yr;
             }
             this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                // Convert any HTML code to code with colour on the fly. 
+                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
                 });                      
                 //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                // Convert any javascript code to code with colour on the fly. 
+                // Javascript code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
                 });                      
-                return subtxt;
+                return txt;
             }     
             angular.element( function(){ // equivalenet to document ready
                 document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
@@ -639,27 +482,32 @@ angular.module('edit', ['ui.router']).component('edit', {
     templateUrl: '../partials/edit-template.html',
     controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
         function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
+            var that = this;
+            this.$onInit = function(){               
+                this.selectedYear = this.pageData.year;
+                this.selectedMonth = this.pageData.month;
+                this.selectedDay = this.pageData.day;
+                this.title = this.pageData.title;
+                this.subtxt = this.pageData.subtxt;
+                this.fulltxt = this.pageData.fulltxt;
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                this.months = CalendarService.getMonths();
+                this.years = CalendarService.getYears();
+            }
             this.cancel = function(){
                 $window.history.back();        
             }    
-            this.decorateAbstract = function(x) {  
-                var abstract = x;
-                abstract.month = '' + /[a-zA-Z]+/.exec(abstract.filter);
-                abstract.year = '' + /^[0-9]+/.exec(abstract.filter); 
-                return abstract;
-            }
             this.saveBlog = function(){
-                var sortIdx = 12 * (parseInt(this.pageData.year) - 2014 ) + MonthsToNumberService[this.pageData.month];
+                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
                 var blog = {
-                    title: this.pageData.title,        // The same for both article and abstract
-                    fulltxt: this.pageData.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.pageData.subtxt,   //  The text shown by the abstract
-                    day: this.pageData.day,    // day, month, year for category filtering of abstracts
-                    month: this.pageData.month,
-                    year: this.pageData.year,
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
                     sortIdx: sortIdx
                 }
-                //
                 ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
                         // Reset form
                         this.subtxt = '';
@@ -670,7 +518,12 @@ angular.module('edit', ['ui.router']).component('edit', {
                         $state.go('login');
                     }
                 );
-            }  
+            }
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = this.days.length.toString();
+            };       
         }]
 });
 angular.module('home', ['ui.router']).component('home', {
@@ -904,7 +757,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                 months.forEach( function(month) {
                     var filteredByMonth = filteredByYear.filter(function(abstract){
                          var filterMonth =  '' + /[a-zA-Z]+/.exec(abstract.filter);
-                       //  console.log(filterMonth);
                           return ( month === filterMonth )
                     })
                     if(filteredByMonth != 0){
@@ -939,15 +791,14 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
           // use a promise 
           return $q(function(resolve, reject) {  
                 var adminMode = AuthService.getAuthorized();
-                console.log(adminMode);
-                if(adminMode){ // if admin mode do not cache data
+                if(adminMode){ // if in admin mode then do not cache data
                     $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
                         data = resp.data;
                         resolve(data);
                     }, function(err){
                         reject(err)
                     });
-                } else { // if admin mode cache data  
+                } else { // if not in admin mode then cache data  
                     $http.get('api/abstracts', { cache: true }).then(function(resp) {                       
                         data = resp.data;
                         resolve(data);
@@ -969,7 +820,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
           // use a promise so that categories can be called after data loads
           return $q(function(resolve, reject) {  
                 var adminMode = AuthService.getAuthorized();
-                console.log(adminMode);
                 if(adminMode){ // if admin mode do not cache data               
                     $http.get('api/article/' + id, { cache: false }).then(function(resp) {  // returns a promise
                         var article = resp.data;
@@ -998,24 +848,19 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                           year: '' + /^[0-9]+/.exec(abstract.filter),
                           subtxt: abstract.subtxt,
                           fulltxt: article.fulltxt,
-                          months: CalendarService.getMonths(),
-                          years: CalendarService.getYears(),
                       }
-                      pageData.days = CalendarService.getDays(pageData.month, pageData.year);
                       return pageData;
                 });
             });
         },
         saveBlog: function(blog) {
             return $http.post('/api/blog', blog ).then(function (resp) {
-                //console.log(resp.data);
                 reloadData = true;
                 return resp;
             });
         },
         updateBlog: function(id, blog) {
           return $http.put('/api/blog/' + id, blog ).then(function (resp) {
-              //console.log(resp.data);
               reloadData = true;  // reload abstracts after save
               return resp;
           });
@@ -1441,3 +1286,73 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
+angular.module('custom-filters', [])
+.filter('startFrom', function() { 
+    return function(input, start) {
+        start = +start; 
+        return input.slice(start);
+    }
+})
+.filter('roundup', function () {
+    return function (value) {
+        if(value == 0){
+            value = 1;
+        }       
+        return Math.ceil(value);
+    };
+})
+.filter('extractMonth', function() {
+    return function(x) { 
+        return '' + /[a-zA-Z]+/.exec(x);
+    };
+})
+.filter('extractYear', function() {
+    return function(x) {
+        return '' + /^[0-9]+/.exec(x);
+    };
+})
+.filter('filterByMonth', function() {
+    return function(x, filter) {
+        if(filter == 'posts/all'){
+            return x;
+        } else {
+            return x.filter(function(abstract) { 
+                    return abstract.filter === filter;
+                });
+        }
+    }
+});
+
+
+angular.module('site-ctrl', []).
+    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
+        function($state, AuthService, $location) {
+            this.activeItem="home";
+            this.hide = false;
+            this.currentBtn = 'home';   
+            var that = this; 
+            this.showLogOut = function(value){
+                this.hide = value;
+            }
+            this.logOut = function(){
+                AuthService.logout().then(function(resp){}, function(err){
+                    $state.go('home');
+                    that.showLogOut(false);
+                });
+            }
+            this.isActive = function(loc) {
+                return loc == $location.path().split('\/')[1];
+            }
+            this.home = function(){
+                $state.go('home');
+            }
+            this.checkStatus = function(){
+                AuthService.checkStatus().then(function(res) {
+                    that.showLogOut(true);
+                }, function(err) {
+                    that.showLogOut(false);
+                });
+            }
+            this.checkStatus(); // call before DOM loads
+        }]
+);

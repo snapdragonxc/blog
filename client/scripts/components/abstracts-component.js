@@ -11,7 +11,6 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
         'HighlightService', 'HighlightJSservice',
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
                     HighlightService, HighlightJSservice){
-
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -33,66 +32,23 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 var yr = '' + /^[0-9]+/.exec(x);
                 return MonthsFullNameService[mo] + ' ' + yr;
             }  
-          /*  this.callback = function(){
-                Ellipsis({           
-                    ellipsis: '…',           
-                    debounce: 0,           
-                    responsive: true,           
-                    class: '.clamp',           
-                    lines: 12,           
-                    portrait: null,           
-                    break_word: true
-                });
-            }*/
             this.readMore = function(abstract){
                 $state.go('blog.article', {id: abstract._id});
             }   
             this.highlight = function(txt){
-                // convert html code. 
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                // Convert any HTML code to code with colour on the fly. 
+                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
                 });                      
                 //
-                // convert javascript code. 
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                // Convert any javascript code to code with colour on the fly. 
+                // Javascript code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
                     return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
                 });                      
-                return subtxt;
+                return txt;
             }     
-            /*    angular.element(function(){   A delay in rendering when using
-                Ellipsis({           
-                         ellipsis: '…',           
-                         debounce: 0,           
-                         responsive: true,           
-                         class: '.clamp',           
-                         lines: 12,           
-                         portrait: null,           
-                         break_word: true
-                       });
-              }); */   
-
-              this.highlight = function(txt){
-
-                // convert html code.
-                var subtxt = txt; //  txt for colouring
-                // Code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                subtxt = subtxt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // convert javascript code. Do this on save
-                // Code is distiguished by '[codejs]' brackets. 
-                subtxt = subtxt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                
-                //console.log('highlight');
-                return subtxt;
-            }
-
         }]
 });
 

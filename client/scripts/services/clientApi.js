@@ -23,7 +23,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                 months.forEach( function(month) {
                     var filteredByMonth = filteredByYear.filter(function(abstract){
                          var filterMonth =  '' + /[a-zA-Z]+/.exec(abstract.filter);
-                       //  console.log(filterMonth);
                           return ( month === filterMonth )
                     })
                     if(filteredByMonth != 0){
@@ -58,15 +57,14 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
           // use a promise 
           return $q(function(resolve, reject) {  
                 var adminMode = AuthService.getAuthorized();
-                console.log(adminMode);
-                if(adminMode){ // if admin mode do not cache data
+                if(adminMode){ // if in admin mode then do not cache data
                     $http.get('api/abstracts', { cache: false }).then(function(resp) {                       
                         data = resp.data;
                         resolve(data);
                     }, function(err){
                         reject(err)
                     });
-                } else { // if admin mode cache data  
+                } else { // if not in admin mode then cache data  
                     $http.get('api/abstracts', { cache: true }).then(function(resp) {                       
                         data = resp.data;
                         resolve(data);
@@ -88,7 +86,6 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
           // use a promise so that categories can be called after data loads
           return $q(function(resolve, reject) {  
                 var adminMode = AuthService.getAuthorized();
-                console.log(adminMode);
                 if(adminMode){ // if admin mode do not cache data               
                     $http.get('api/article/' + id, { cache: false }).then(function(resp) {  // returns a promise
                         var article = resp.data;
@@ -117,24 +114,19 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
                           year: '' + /^[0-9]+/.exec(abstract.filter),
                           subtxt: abstract.subtxt,
                           fulltxt: article.fulltxt,
-                          months: CalendarService.getMonths(),
-                          years: CalendarService.getYears(),
                       }
-                      pageData.days = CalendarService.getDays(pageData.month, pageData.year);
                       return pageData;
                 });
             });
         },
         saveBlog: function(blog) {
             return $http.post('/api/blog', blog ).then(function (resp) {
-                //console.log(resp.data);
                 reloadData = true;
                 return resp;
             });
         },
         updateBlog: function(id, blog) {
           return $http.put('/api/blog/' + id, blog ).then(function (resp) {
-              //console.log(resp.data);
               reloadData = true;  // reload abstracts after save
               return resp;
           });
