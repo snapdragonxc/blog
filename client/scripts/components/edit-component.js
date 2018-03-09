@@ -23,7 +23,7 @@ angular.module('edit', ['ui.router']).component('edit', {
             this.saveBlog = function(){
                 var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
                     + parseInt(this.selectedDay);
-                console.log(sortIdx);
+                //console.log(sortIdx);
                 var blog = {
                     title: this.title,        // The same for both article and abstract
                     fulltxt: this.fulltxt,     // The main text of the article. Can contain code

@@ -16,6 +16,8 @@ angular.module('article', ['ui.router']).component('article', {
                 return MonthsFullNameService[mo] + ' ' + yr;
             }
             this.highlight = function(txt){
+                if(txt == undefined)
+                    return '';
                 // Convert any HTML code to code with colour on the fly. 
                 // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
                 txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  

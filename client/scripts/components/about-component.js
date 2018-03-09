@@ -4,7 +4,6 @@ angular.module('about', ['ui.router']).component('about', {
     templateUrl: '../partials/about-template.html',
     controller: function(){
     }
-
 }); 
 
                                                                           

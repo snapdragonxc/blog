@@ -36,6 +36,8 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 $state.go('blog.article', {id: abstract._id});
             }   
             this.highlight = function(txt){
+                if(txt == undefined)
+                    return '';
                 // Convert any HTML code to code with colour on the fly. 
                 // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
                 txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
