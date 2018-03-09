@@ -235,6 +235,7 @@ angular.module('site-ctrl', []).
                 AuthService.logout().then(function(resp){}, function(err){
                     $state.go('home');
                     that.showLogOut(false);
+                    location.reload(true);
                 });
             }
             this.isActive = function(loc) {
@@ -253,425 +254,6 @@ angular.module('site-ctrl', []).
             this.checkStatus(); // call before DOM loads
         }]
 );
-angular.module('about', ['ui.router']).component('about', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/about-template.html',
-    controller: function(){
-    }
-
-}); 
-
-                                                                          
-angular.module('abstracts', ['ui.router']).component('abstracts', {
-    bindings: { 
-        abstracts: '<', // one way binding
-        currentPage: '<', 
-        query: '=', // two way binding - query is used for filtering of abstracts with search etc
-          init: '<'
-    }, 
-    templateUrl: '../partials/abstracts-template.html',
-
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService', 'HighlightJSservice',
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService, HighlightJSservice){
-            this.$onInit = function(){
-                if($stateParams.active){
-                    document.getElementById('search-box').focus();
-                }
-            }
-            this.currentPage = 1;
-            this.pageSize = 1; 
-            // note resolved parameters are not available here until the view has loaded.
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1                
-                $state.go('blog.abstracts', { page: this.currentPage });
-            }  
-            this.getDate = function(x){
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }  
-            this.readMore = function(abstract){
-                $state.go('blog.article', {id: abstract._id});
-            }   
-            this.highlight = function(txt){
-                // Convert any HTML code to code with colour on the fly. 
-                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // Convert any javascript code to code with colour on the fly. 
-                // Javascript code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                return txt;
-            }     
-        }]
-});
-
-
-
-
-    
-angular.module('add', ['ui.router']).component('add', {
-    bindings: { 
-    },         
-    templateUrl: '../partials/add-template.html',
-    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
-            var that = this;
-            this.cancel = function(){
-                 $window.history.back();        
-            }    
-            this.saveBlog = function(){
-                 var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
-                    + parseInt(this.selectedDay);
-                var blog = {
-                    title: this.title,        // The same for both article and abstract
-                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.subtxt,   //  The text shown by the abstract
-                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
-                    month: this.selectedMonth,
-                    year: this.selectedYear,
-                    sortIdx: sortIdx
-                }
-                ClientApiService.saveBlog(blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page });                         
-                    }, function(err){
-                        //console.log(err);
-                        $state.go('login');
-                    }
-                )
-            }
-            /* Start Calendar */
-            this.months = CalendarService.getMonths();
-            this.years = CalendarService.getYears();
-            this.selectedMonth = CalendarService.getCurrentMonth();
-            this.selectedDay = CalendarService.getCurrentDay();
-            this.selectedYear = CalendarService.getCurrentYear();
-            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-            this.changeDate = function() {
-                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-                if(this.selectedDay > this.days.length)
-                    this.selectedDay = this.days.length.toString();
-            }; 
-            /* End Calendar */        
-        }]
-});
-angular.module('article', ['ui.router']).component('article', {
-    bindings: { 
-        article: '<',
-        abstract: '<',
-    }, // one way binding with resolve
-    templateUrl: '../partials/article-template.html',
-    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
-        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
-            var that = this;
-            this.goBack = function(){
-                $window.history.back();                    
-            }    
-            this.getDate = function(x){
-                var mo = '' + /[a-zA-Z]+/.exec(x);
-                var yr = '' + /^[0-9]+/.exec(x);
-                return MonthsFullNameService[mo] + ' ' + yr;
-            }
-            this.highlight = function(txt){
-
-                if(txt == undefined)
-                    return '';
-                // Convert any HTML code to code with colour on the fly. 
-                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
-                });                      
-                //
-                // Convert any javascript code to code with colour on the fly. 
-                // Javascript code is distiguished by '[codejs]' brackets. 
-                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
-                });                      
-                return txt;
-            }     
-            angular.element( function(){ // equivalenet to document ready
-                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
-            });            
-        }]
-});
-angular.module('blog', ['ui.router']).component('blog', {
-    bindings: { 
-        pages: '<',
-        query: '='
-    }, 
-    templateUrl: '../partials/blog-template.html',
-    controller: [ '$state', '$location', '$filter', 'AuthService', 
-        function($state, $location, $filter, AuthService){   
-
-            this.decorateCategory = function(category) {  
-                if(category.filter !== "posts/all") {
-                    category.month = $filter('extractMonth')(category.filter); 
-                    category.year = $filter('extractYear')(category.filter);  
-                } else {
-                    category.month = 'all';
-                    category.year = 'posts'
-                }
-                return category;
-            } 
-            this.onSearch = function(){
-                this.pages.subTitle = "Search Results"
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
-
-               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
-                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
-            }    
-            this.onEnter = function(){
-                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
-            }        
-            this.onClick = function(category ){
-                this.pages.filter = category.filter;
-                this.pages.year = category.year;
-                this.pages.month = category.month;
-                this.pages.subTitle = category.month + ' ' + category.year;
-                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
-                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
-            }            
-            this.isArchiveActive = function(category) {
-                var arr =  $location.path().split('\/');
-                var filter = arr[4] + '/' + arr[3];
-                return (category.filter == filter)
-            }
-            this.isActive = function(index) {
-                var idx =  $location.path().split('\/')[5] - 1;                
-                return (idx == index)
-            }
-            // For open close posts
-            this.postHide = false;
-            this.openPosts = function(){
-                if(this.postHide){
-                    this.postHide = false;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
-                } else {
-                    this.postHide = true;
-                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
-                }
-            }
-            // For open close archives
-            this.archiveHide = false;
-            this.openArchives = function(){
-                if(this.archiveHide){
-                    this.archiveHide = false;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
-                } else {
-                    this.archiveHide = true;
-                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
-                }
-            }            
-        }]
-});
-angular.module('contact', ['ui.router']).component('contact', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/contact-template.html',
-    controller: ['MailApiService', 'AuthService',
-        function(MailApiService, AuthService) {
-            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
-            var alertBox = document.querySelector('.contact-alert');
-            var alertLabel = document.querySelector('.contact-alert-msg');
-            this.sendMail = function(){
-                alertBox.style.backgroundColor = blue; 
-                alertLabel.innerHTML = "Sending Message. Please Wait";
-                alertBox.style.display = "block";
-                var payload = {
-                    from: this.from,
-                    subject: this.subject,
-                    msg: this.msg
-                }
-                this.from = '';
-                this.subject = '';
-                this.msg = '';    
-                MailApiService.sendMail(payload).then(function(resp){
-                        alertBox.style.backgroundColor = green;
-                        alertLabel.innerHTML = "Message sent successfully.";                    
-                    }, function(err){
-                        alertBox.style.backgroundColor = red;
-                        alertLabel.innerHTML = "Message failed to send.";
-                    }
-                ) 
-            }        
-        }]
-});
-angular.module('edit', ['ui.router']).component('edit', {
-    bindings: { 
-        pageData: '=',
-    }, 
-    templateUrl: '../partials/edit-template.html',
-    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
-        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
-            var that = this;
-            this.$onInit = function(){               
-                this.selectedYear = this.pageData.year;
-                this.selectedMonth = this.pageData.month;
-                this.selectedDay = this.pageData.day;
-                this.title = this.pageData.title;
-                this.subtxt = this.pageData.subtxt;
-                this.fulltxt = this.pageData.fulltxt;
-                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-                this.months = CalendarService.getMonths();
-                this.years = CalendarService.getYears();
-            }
-            this.cancel = function(){
-                $window.history.back();        
-            }    
-            this.saveBlog = function(){
-                var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
-                    + parseInt(this.selectedDay);
-                //console.log(sortIdx);
-                var blog = {
-                    title: this.title,        // The same for both article and abstract
-                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
-                    subtxt: this.subtxt,   //  The text shown by the abstract
-                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
-                    month: this.selectedMonth,
-                    year: this.selectedYear,
-                    sortIdx: sortIdx
-                }
-                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
-                        // Reset form
-                        this.subtxt = '';
-                        this.fulltxt = '';
-                        this.title = '';                
-                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );
-            }
-            this.changeDate = function() {
-                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
-                if(this.selectedDay > this.days.length)
-                    this.selectedDay = this.days.length.toString();
-            };       
-        }]
-});
-angular.module('home', ['ui.router']).component('home', {
-    bindings: { 
-    }, 
-    templateUrl: '../partials/home-template.html',
-    controller:['$stateParams',
-        function($stateParams) {
-            this.$onInit = function(){
-                var grid = document.querySelector('.grid');
-                var msnry = new Masonry( grid, {
-                    itemSelector: '.grid-item',
-                    columnWidth: '.grid-item', //237, //231,                        
-                    gutter: 10,
-                });
-                imagesLoaded( grid ).on( 'progress', function() {
-                    // layout Masonry after each image loads
-                    msnry.layout();
-               });
-            }
-        }]
-});
-
-angular.module('list', ['ui.router']).component('list', {
-    bindings: { 
-        abstracts: '=',  // one way binding        
-        currentPage: '=',
-        callback: '&' // used to set logout button on main nav menu
-    }, 
-    templateUrl: '../partials/list-template.html',
-    controller: ['$state', 'ClientApiService',
-        function($state, ClientApiService) {
-            this.currentPage = 1; 
-            this.pageSize = 5; 
-            var that = this;
-            this.$onInit = function(){
-                that.callback({value: true}); // set state of logout button on main
-            }
-            this.addBlog = function(){
-                $state.go('add', { page: this.currentPage } );
-            }
-            this.deleteBlog = function(id){                
-                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
-                if(lastPage == 0 ){
-                    nextPage = 1;                
-                } else {
-                    var idx = 5;
-                    if( parseInt(this.currentPage) == lastPage ){
-                        idx = this.abstracts.length % 5
-                    }
-                    if( (idx - 1) == 0 ){
-                        nextPage = parseInt(this.currentPage) - 1;
-                    } else {
-                        nextPage = parseInt(this.currentPage)
-                    }
-                }
-                if(nextPage == 0 ){
-                    nextPage = 1;
-                }    
-                ClientApiService.deleteBlog(id).then(function(resp){
-                        $state.go('list', { page: nextPage }, {reload: true});
-                    }, function(err){
-                        $state.go('login');
-                    }
-                );                     
-            }            
-            this.nextPage = function() {
-                this.currentPage = parseInt(this.currentPage) + 1                
-                $state.go('list', { page: this.currentPage  });
-            } 
-            this.prevPage = function() {
-                this.currentPage = parseInt(this.currentPage) - 1
-                $state.go('list', { page: this.currentPage });
-            } 
-            this.stripAbstract = function(subtxt){
-                var extract = subtxt.split('<p>');
-                if(extract.length === 1){ // text contains no paragraphs
-                    return extract[0].substring(0, 230); // limit to 230 characters
-                } else { // text contains paragraphs
-                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
-                }
-            }
-        }]
-});
-angular.module('login', ['ui.router']).component('login', {
-    bindings: { 
-    }, // one way binding
-    templateUrl: '../partials/login-template.html',
-    controller: ['AuthService', '$state', 'ClientApiService',
-        function(AuthService, $state) {
-            var that = this;
-            this.init = function(){
-                this.user = {
-                    username: '',
-                    password: ''
-                }
-            }
-            this.login = function() {                
-                AuthService.login(this.user).then(function(res, err){                    
-                        AuthService.setAuthorized(true); 
-                        $state.go('list', { page: '1' }); 
-                    }, function(err){
-                        // console.log('error', err)
-                        alert('incorrect username or password')
-                        that.init();
-                    }); 
-            }
-            this.init();            
-        }]
-}); 
 angular.module('custom-filters', [])
 .filter('startFrom', function() { 
     return function(input, start) {
@@ -1364,3 +946,422 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
+angular.module('about', ['ui.router']).component('about', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/about-template.html',
+    controller: function(){
+    }
+}); 
+
+                                                                          
+angular.module('abstracts', ['ui.router']).component('abstracts', {
+    bindings: { 
+        abstracts: '<', // one way binding
+        currentPage: '<', 
+        query: '=', // two way binding - query is used for filtering of abstracts with search etc
+          init: '<'
+    }, 
+    templateUrl: '../partials/abstracts-template.html',
+
+    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
+        'HighlightService', 'HighlightJSservice',
+        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
+                    HighlightService, HighlightJSservice){
+            this.$onInit = function(){
+                if($stateParams.active){
+                    document.getElementById('search-box').focus();
+                }
+            }
+            this.currentPage = 1;
+            this.pageSize = 1; 
+            // note resolved parameters are not available here until the view has loaded.
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1                
+                $state.go('blog.abstracts', { page: this.currentPage });
+            }  
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }  
+            this.readMore = function(abstract){
+                $state.go('blog.article', {id: abstract._id});
+            }   
+            this.highlight = function(txt){
+                if(txt == undefined)
+                    return '';
+                // Convert any HTML code to code with colour on the fly. 
+                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // Convert any javascript code to code with colour on the fly. 
+                // Javascript code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return txt;
+            }     
+        }]
+});
+
+
+
+
+    
+angular.module('add', ['ui.router']).component('add', {
+    bindings: { 
+    },         
+    templateUrl: '../partials/add-template.html',
+    controller: [ '$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService', 
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService){    
+            var that = this;
+            this.cancel = function(){
+                 $window.history.back();        
+            }    
+            this.saveBlog = function(){
+                 var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                    + parseInt(this.selectedDay);
+                var blog = {
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
+                    sortIdx: sortIdx
+                }
+                ClientApiService.saveBlog(blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page });                         
+                    }, function(err){
+                        //console.log(err);
+                        $state.go('login');
+                    }
+                )
+            }
+            /* Start Calendar */
+            this.months = CalendarService.getMonths();
+            this.years = CalendarService.getYears();
+            this.selectedMonth = CalendarService.getCurrentMonth();
+            this.selectedDay = CalendarService.getCurrentDay();
+            this.selectedYear = CalendarService.getCurrentYear();
+            this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = this.days.length.toString();
+            }; 
+            /* End Calendar */        
+        }]
+});
+angular.module('article', ['ui.router']).component('article', {
+    bindings: { 
+        article: '<',
+        abstract: '<',
+    }, // one way binding with resolve
+    templateUrl: '../partials/article-template.html',
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
+        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+            var that = this;
+            this.goBack = function(){
+                $window.history.back();                    
+            }    
+            this.getDate = function(x){
+                var mo = '' + /[a-zA-Z]+/.exec(x);
+                var yr = '' + /^[0-9]+/.exec(x);
+                return MonthsFullNameService[mo] + ' ' + yr;
+            }
+            this.highlight = function(txt){
+                if(txt == undefined)
+                    return '';
+                // Convert any HTML code to code with colour on the fly. 
+                // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                });                      
+                //
+                // Convert any javascript code to code with colour on the fly. 
+                // Javascript code is distiguished by '[codejs]' brackets. 
+                txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
+                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                });                      
+                return txt;
+            }     
+            angular.element( function(){ // equivalenet to document ready
+                document.querySelectorAll('.article-abstract')[0].style.cssText += 'max-height: 10000px';    
+            });            
+        }]
+});
+angular.module('blog', ['ui.router']).component('blog', {
+    bindings: { 
+        pages: '<',
+        query: '='
+    }, 
+    templateUrl: '../partials/blog-template.html',
+    controller: [ '$state', '$location', '$filter', 'AuthService', 
+        function($state, $location, $filter, AuthService){   
+
+            this.decorateCategory = function(category) {  
+                if(category.filter !== "posts/all") {
+                    category.month = $filter('extractMonth')(category.filter); 
+                    category.year = $filter('extractYear')(category.filter);  
+                } else {
+                    category.month = 'all';
+                    category.year = 'posts'
+                }
+                return category;
+            } 
+            this.onSearch = function(){
+                this.pages.subTitle = "Search Results"
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1' });
+
+               /* this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, {title: this.query});*/
+                this.pages.filteredAbstracts = $filter('filter')(this.pages.abstracts, this.query);
+            }    
+            this.onEnter = function(){
+                $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
+            }        
+            this.onClick = function(category ){
+                this.pages.filter = category.filter;
+                this.pages.year = category.year;
+                this.pages.month = category.month;
+                this.pages.subTitle = category.month + ' ' + category.year;
+                this.pages.filteredAbstracts = $filter('filterByMonth')(this.pages.abstracts, this.pages.filter);
+                $state.go('blog.abstracts', { year: category.year, month : category.month, page: '1', active: false  }, {reload: true});
+            }            
+            this.isArchiveActive = function(category) {
+                var arr =  $location.path().split('\/');
+                var filter = arr[4] + '/' + arr[3];
+                return (category.filter == filter)
+            }
+            this.isActive = function(index) {
+                var idx =  $location.path().split('\/')[5] - 1;                
+                return (idx == index)
+            }
+            // For open close posts
+            this.postHide = false;
+            this.openPosts = function(){
+                if(this.postHide){
+                    this.postHide = false;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 200px';        
+                } else {
+                    this.postHide = true;
+                    document.querySelectorAll('.blog-recent-posts')[0].style.cssText += 'max-height: 1000px';                    
+                }
+            }
+            // For open close archives
+            this.archiveHide = false;
+            this.openArchives = function(){
+                if(this.archiveHide){
+                    this.archiveHide = false;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 200px';
+                } else {
+                    this.archiveHide = true;
+                    document.querySelectorAll('.blog-archive-posts')[0].style.cssText += 'max-height: 1000px';
+                }
+            }            
+        }]
+});
+angular.module('contact', ['ui.router']).component('contact', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/contact-template.html',
+    controller: ['MailApiService', 'AuthService',
+        function(MailApiService, AuthService) {
+            var blue = '#2196F3', green = '#4CAF50', red = '#f44336';
+            var alertBox = document.querySelector('.contact-alert');
+            var alertLabel = document.querySelector('.contact-alert-msg');
+            this.sendMail = function(){
+                alertBox.style.backgroundColor = blue; 
+                alertLabel.innerHTML = "Sending Message. Please Wait";
+                alertBox.style.display = "block";
+                var payload = {
+                    from: this.from,
+                    subject: this.subject,
+                    msg: this.msg
+                }
+                this.from = '';
+                this.subject = '';
+                this.msg = '';    
+                MailApiService.sendMail(payload).then(function(resp){
+                        alertBox.style.backgroundColor = green;
+                        alertLabel.innerHTML = "Message sent successfully.";                    
+                    }, function(err){
+                        alertBox.style.backgroundColor = red;
+                        alertLabel.innerHTML = "Message failed to send.";
+                    }
+                ) 
+            }        
+        }]
+});
+angular.module('edit', ['ui.router']).component('edit', {
+    bindings: { 
+        pageData: '=',
+    }, 
+    templateUrl: '../partials/edit-template.html',
+    controller: ['$state', '$stateParams', 'CalendarService', 'ClientApiService', '$window', 'MonthsToNumberService',
+        function($state, $stateParams, CalendarService, ClientApiService, $window, MonthsToNumberService) {                
+            var that = this;
+            this.$onInit = function(){               
+                this.selectedYear = this.pageData.year;
+                this.selectedMonth = this.pageData.month;
+                this.selectedDay = this.pageData.day;
+                this.title = this.pageData.title;
+                this.subtxt = this.pageData.subtxt;
+                this.fulltxt = this.pageData.fulltxt;
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                this.months = CalendarService.getMonths();
+                this.years = CalendarService.getYears();
+            }
+            this.cancel = function(){
+                $window.history.back();        
+            }    
+            this.saveBlog = function(){
+                var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                    + parseInt(this.selectedDay);
+                //console.log(sortIdx);
+                var blog = {
+                    title: this.title,        // The same for both article and abstract
+                    fulltxt: this.fulltxt,     // The main text of the article. Can contain code
+                    subtxt: this.subtxt,   //  The text shown by the abstract
+                    day: this.selectedDay,    // day, month, year for category filtering of abstracts
+                    month: this.selectedMonth,
+                    year: this.selectedYear,
+                    sortIdx: sortIdx
+                }
+                ClientApiService.updateBlog($stateParams.id, blog).then(function(resp){
+                        // Reset form
+                        this.subtxt = '';
+                        this.fulltxt = '';
+                        this.title = '';                
+                        $state.go('list', { page: $stateParams.page }, {reload: true}); // set cache false so data reloads            
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );
+            }
+            this.changeDate = function() {
+                this.days = CalendarService.getDays(this.selectedMonth, this.selectedYear);
+                if(this.selectedDay > this.days.length)
+                    this.selectedDay = this.days.length.toString();
+            };       
+        }]
+});
+angular.module('home', ['ui.router']).component('home', {
+    bindings: { 
+    }, 
+    templateUrl: '../partials/home-template.html',
+    controller:['$stateParams',
+        function($stateParams) {
+            this.$onInit = function(){
+                var grid = document.querySelector('.grid');
+                var msnry = new Masonry( grid, {
+                    itemSelector: '.grid-item',
+                    columnWidth: '.grid-item', //237, //231,                        
+                    gutter: 10,
+                });
+                imagesLoaded( grid ).on( 'progress', function() {
+                    // layout Masonry after each image loads
+                    msnry.layout();
+               });
+            }
+        }]
+});
+
+angular.module('list', ['ui.router']).component('list', {
+    bindings: { 
+        abstracts: '=',  // one way binding        
+        currentPage: '=',
+        callback: '&' // used to set logout button on main nav menu
+    }, 
+    templateUrl: '../partials/list-template.html',
+    controller: ['$state', 'ClientApiService',
+        function($state, ClientApiService) {
+            this.currentPage = 1; 
+            this.pageSize = 5; 
+            var that = this;
+            this.$onInit = function(){
+                that.callback({value: true}); // set state of logout button on main
+            }
+            this.addBlog = function(){
+                $state.go('add', { page: this.currentPage } );
+            }
+            this.deleteBlog = function(id){                
+                var lastPage =  Math.ceil(this.abstracts.length /this.pageSize);
+                if(lastPage == 0 ){
+                    nextPage = 1;                
+                } else {
+                    var idx = 5;
+                    if( parseInt(this.currentPage) == lastPage ){
+                        idx = this.abstracts.length % 5
+                    }
+                    if( (idx - 1) == 0 ){
+                        nextPage = parseInt(this.currentPage) - 1;
+                    } else {
+                        nextPage = parseInt(this.currentPage)
+                    }
+                }
+                if(nextPage == 0 ){
+                    nextPage = 1;
+                }    
+                ClientApiService.deleteBlog(id).then(function(resp){
+                        $state.go('list', { page: nextPage }, {reload: true});
+                    }, function(err){
+                        $state.go('login');
+                    }
+                );                     
+            }            
+            this.nextPage = function() {
+                this.currentPage = parseInt(this.currentPage) + 1                
+                $state.go('list', { page: this.currentPage  });
+            } 
+            this.prevPage = function() {
+                this.currentPage = parseInt(this.currentPage) - 1
+                $state.go('list', { page: this.currentPage });
+            } 
+            this.stripAbstract = function(subtxt){
+                var extract = subtxt.split('<p>');
+                if(extract.length === 1){ // text contains no paragraphs
+                    return extract[0].substring(0, 230); // limit to 230 characters
+                } else { // text contains paragraphs
+                    return extract[1].split('</p>')[0].substring(0, 230); // return first paragraph limit to 235 characters
+                }
+            }
+        }]
+});
+angular.module('login', ['ui.router']).component('login', {
+    bindings: { 
+    }, // one way binding
+    templateUrl: '../partials/login-template.html',
+    controller: ['AuthService', '$state', 'ClientApiService',
+        function(AuthService, $state) {
+            var that = this;
+            this.init = function(){
+                this.user = {
+                    username: '',
+                    password: ''
+                }
+            }
+            this.login = function() {                
+                AuthService.login(this.user).then(function(res, err){                    
+                        AuthService.setAuthorized(true); 
+                        $state.go('list', { page: '1' }); 
+                    }, function(err){
+                        // console.log('error', err)
+                        alert('incorrect username or password')
+                        that.init();
+                    }); 
+            }
+            this.init();            
+        }]
+}); 

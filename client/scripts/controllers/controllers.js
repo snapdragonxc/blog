@@ -12,6 +12,7 @@ angular.module('site-ctrl', []).
                 AuthService.logout().then(function(resp){}, function(err){
                     $state.go('home');
                     that.showLogOut(false);
+                    location.reload(true);
                 });
             }
             this.isActive = function(loc) {
