@@ -300,7 +300,7 @@ angular.module('add', ['ui.router']).component('add', {
                  $window.history.back();        
             }    
             this.saveBlog = function(){
-                 var sortIdx = ( parseInt(this.selectedYear) - 2014 ) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                 var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
                     + parseInt(this.selectedDay);
                 var blog = {
                     title: this.title,        // The same for both article and abstract
@@ -499,7 +499,7 @@ angular.module('edit', ['ui.router']).component('edit', {
                 $window.history.back();        
             }    
             this.saveBlog = function(){
-                var sortIdx = ( parseInt(this.selectedYear) - 2014 ) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
                     + parseInt(this.selectedDay);
                 console.log(sortIdx);
                 var blog = {
@@ -1314,6 +1314,8 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             return txt;
         }
         function HighlightJSCode(txt){
+
+            txt = txt + '\n'; // to ensure correct termination of a comment
 
             var myScript = HighlightScript(txt);
 

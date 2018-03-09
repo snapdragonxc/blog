@@ -146,6 +146,8 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         }
         function HighlightJSCode(txt){
 
+            txt = txt + '\n'; // to ensure correct termination of a comment
+
             var myScript = HighlightScript(txt);
 
             myScript = myScript.trim();
