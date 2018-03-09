@@ -21,7 +21,7 @@
                 <h4 ng-hide="!$ctrl.postHide" ng-click="$ctrl.openPosts()" class="openPosts"><i class="fa fa-chevron-circle-up"></i></h4>                
             </div>
             <ul class="nav nav-pills nav-stacked">
-                <li ng-repeat="abstract in $ctrl.pages.filteredAbstracts | limitTo:$ctrl.posts" ng-class="{active:$ctrl.isActive($index)}">
+                <li ng-repeat="abstract in $ctrl.pages.filteredAbstracts" ng-class="{active:$ctrl.isActive($index)}">
                       <a ui-sref="blog.abstracts({ year: $ctrl.pages.year , month: $ctrl.pages.month, page: ($index + 1), active: false })"> 
                         {{ abstract.title }}                          
                     </a> 
@@ -38,7 +38,7 @@
                 <h4 ng-hide="!$ctrl.archiveHide" ng-click="$ctrl.openArchives()" class="openArchives"><i class="fa fa-chevron-circle-up"></i></h4>
             </div>
             <ul class="nav nav-pills nav-stacked">
-                <li ng-repeat="category in $ctrl.pages.categories | limitTo:$ctrl.archives" ng-click="$ctrl.onClick(category)" ng-class="{active:$ctrl.isArchiveActive(category)}">
+                <li ng-repeat="category in $ctrl.pages.categories" ng-click="$ctrl.onClick(category)" ng-class="{active:$ctrl.isArchiveActive(category)}">
                     {{ category = $ctrl.decorateCategory(category);"" }} <!-- modify category without displaying it.-->
                       <a href="#">{{ category.month }}  {{ category.year }} ({{ category.number }})</a>            
                 </li>

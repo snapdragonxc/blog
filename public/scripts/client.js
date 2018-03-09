@@ -300,7 +300,8 @@ angular.module('add', ['ui.router']).component('add', {
                  $window.history.back();        
             }    
             this.saveBlog = function(){
-                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                 var sortIdx = ( parseInt(this.selectedYear) - 2014 ) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                    + parseInt(this.selectedDay);
                 var blog = {
                     title: this.title,        // The same for both article and abstract
                     fulltxt: this.fulltxt,     // The main text of the article. Can contain code
@@ -498,7 +499,9 @@ angular.module('edit', ['ui.router']).component('edit', {
                 $window.history.back();        
             }    
             this.saveBlog = function(){
-                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                var sortIdx = ( parseInt(this.selectedYear) - 2014 ) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                    + parseInt(this.selectedDay);
+                console.log(sortIdx);
                 var blog = {
                     title: this.title,        // The same for both article and abstract
                     fulltxt: this.fulltxt,     // The main text of the article. Can contain code
@@ -634,6 +637,76 @@ angular.module('login', ['ui.router']).component('login', {
             this.init();            
         }]
 }); 
+angular.module('site-ctrl', []).
+    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
+        function($state, AuthService, $location) {
+            this.activeItem="home";
+            this.hide = false;
+            this.currentBtn = 'home';   
+            var that = this; 
+            this.showLogOut = function(value){
+                this.hide = value;
+            }
+            this.logOut = function(){
+                AuthService.logout().then(function(resp){}, function(err){
+                    $state.go('home');
+                    that.showLogOut(false);
+                });
+            }
+            this.isActive = function(loc) {
+                return loc == $location.path().split('\/')[1];
+            }
+            this.home = function(){
+                $state.go('home');
+            }
+            this.checkStatus = function(){
+                AuthService.checkStatus().then(function(res) {
+                    that.showLogOut(true);
+                }, function(err) {
+                    that.showLogOut(false);
+                });
+            }
+            this.checkStatus(); // call before DOM loads
+        }]
+);
+angular.module('custom-filters', [])
+.filter('startFrom', function() { 
+    return function(input, start) {
+        start = +start; 
+        return input.slice(start);
+    }
+})
+.filter('roundup', function () {
+    return function (value) {
+        if(value == 0){
+            value = 1;
+        }       
+        return Math.ceil(value);
+    };
+})
+.filter('extractMonth', function() {
+    return function(x) { 
+        return '' + /[a-zA-Z]+/.exec(x);
+    };
+})
+.filter('extractYear', function() {
+    return function(x) {
+        return '' + /^[0-9]+/.exec(x);
+    };
+})
+.filter('filterByMonth', function() {
+    return function(x, filter) {
+        if(filter == 'posts/all'){
+            return x;
+        } else {
+            return x.filter(function(abstract) { 
+                    return abstract.filter === filter;
+                });
+        }
+    }
+});
+
+
 angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
     function($q, $http) {
         var currentUser = {
@@ -1286,73 +1359,3 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
-angular.module('custom-filters', [])
-.filter('startFrom', function() { 
-    return function(input, start) {
-        start = +start; 
-        return input.slice(start);
-    }
-})
-.filter('roundup', function () {
-    return function (value) {
-        if(value == 0){
-            value = 1;
-        }       
-        return Math.ceil(value);
-    };
-})
-.filter('extractMonth', function() {
-    return function(x) { 
-        return '' + /[a-zA-Z]+/.exec(x);
-    };
-})
-.filter('extractYear', function() {
-    return function(x) {
-        return '' + /^[0-9]+/.exec(x);
-    };
-})
-.filter('filterByMonth', function() {
-    return function(x, filter) {
-        if(filter == 'posts/all'){
-            return x;
-        } else {
-            return x.filter(function(abstract) { 
-                    return abstract.filter === filter;
-                });
-        }
-    }
-});
-
-
-angular.module('site-ctrl', []).
-    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
-        function($state, AuthService, $location) {
-            this.activeItem="home";
-            this.hide = false;
-            this.currentBtn = 'home';   
-            var that = this; 
-            this.showLogOut = function(value){
-                this.hide = value;
-            }
-            this.logOut = function(){
-                AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home');
-                    that.showLogOut(false);
-                });
-            }
-            this.isActive = function(loc) {
-                return loc == $location.path().split('\/')[1];
-            }
-            this.home = function(){
-                $state.go('home');
-            }
-            this.checkStatus = function(){
-                AuthService.checkStatus().then(function(res) {
-                    that.showLogOut(true);
-                }, function(err) {
-                    that.showLogOut(false);
-                });
-            }
-            this.checkStatus(); // call before DOM loads
-        }]
-);

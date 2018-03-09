@@ -21,7 +21,9 @@ angular.module('edit', ['ui.router']).component('edit', {
                 $window.history.back();        
             }    
             this.saveBlog = function(){
-                var sortIdx = 12 * ( parseInt(this.selectedYear) - 2014 ) + MonthsToNumberService[this.selectedMonth];
+                var sortIdx = (parseInt(this.selectedYear) - 2014) * 360 + MonthsToNumberService[this.selectedMonth] * 30
+                    + parseInt(this.selectedDay);
+                console.log(sortIdx);
                 var blog = {
                     title: this.title,        // The same for both article and abstract
                     fulltxt: this.fulltxt,     // The main text of the article. Can contain code
