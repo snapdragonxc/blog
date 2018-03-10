@@ -78,6 +78,59 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             }); 
             return mytxt;
         }
+        function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
+            var cnt = 0;   
+            mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
+                console.log('p1', p1)
+                  var str = 'xml-javascript-left-comment' + cnt;
+                  // Replace regex in comments to prevent double tags
+                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-regex" + i,"g");
+                    p1 = p1.replace(re, myArrayRegEx[i]);
+                }
+                // Replace strings in comments to prevent double tags
+                for(var i = arrString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-string" + i,"g");
+                    p1 = p1.replace(re, arrString[i]);
+                }
+                // Replace single strings in comments to prevent double tags
+                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-single" + i,"g");
+                    p1 = p1.replace(re, arrSingleString[i]);
+                } 
+                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
+                cnt += 1;
+                return str;
+            }); 
+            return mytxt;
+        }
+        function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
+            var cnt = 0;
+            mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
+
+                console.log('p1', p1)
+                  var str = 'xml-javascript-right-comment' + cnt;
+                  // Replace regex in comments to prevent double tags
+                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-regex" + i,"g");
+                    p1 = p1.replace(re, myArrayRegEx[i]);
+                }
+                // Replace strings in comments to prevent double tags
+                for(var i = arrString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-string" + i,"g");
+                    p1 = p1.replace(re, arrString[i]);
+                }
+                // Replace single strings in comments to prevent double tags
+                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
+                    var re = new RegExp("xml-javascript-single" + i,"g");
+                    p1 = p1.replace(re, arrSingleString[i]);
+                }
+                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
+                cnt += 1;
+                return str;
+            }); 
+            return mytxt;
+        }
         function RemoveStrings( mytxt, myArray1, myArray2){
             var cnt = 0;    
             mytxt = mytxt.replace(/("[^"]*")/g, function(match, p1, offset, string) {
@@ -106,11 +159,13 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             return mytxt;
         }
         function HighlightScript(txt){
-            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [];
+            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [],arrLeftComments = [], arrRightComments = [];
             txt = RemoveRegEx(txt, arrRegex);
             txt = ReplaceBracketsWithANSII(txt);
             txt = RemoveStrings( txt, arrString, arrSingleString);        
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
+            txt = RemoveRightComments(txt, arrRightComments, arrRegex, arrString, arrSingleString); /* order is important - right must come first */
+            txt = RemoveLeftComments(txt, arrLeftComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
             txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s|with\s|\sin\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
@@ -122,6 +177,16 @@ angular.module('highlight-services', [] ).factory('HighlightService',
                 var re = new RegExp("xml-javascript-comment" + i,"g");
                 txt = txt.replace(re, arrComments[i]);
             }
+            // Insert Left-Comment Tags
+            for(var i = arrLeftComments.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-left-comment" + i,"g");
+                txt = txt.replace(re, arrLeftComments[i]);
+            }
+            // Insert Right-Comment Tags
+           for(var i = arrRightComments.length -1; i >= 0 ; i--){            
+                var re = new RegExp("xml-javascript-right-comment" + i,"g");
+                txt = txt.replace(re, arrRightComments[i]);
+            }          
             // Insert String Tags
             for(var i = arrString.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-string" + i,"g");
