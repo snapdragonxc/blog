@@ -150,7 +150,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         }
         function RemoveNumbers( mytxt, myArray){
             var cnt = 0;
-            mytxt = mytxt.replace(/([\s=\*\+-/)/(])(\d+)/g, function (match, p1, p2, offset, string) {
+            mytxt = mytxt.replace(/([\s=\*\+-/:)/(])(\d+)/g, function (match, p1, p2, offset, string) {
                   var str = p1 + 'xml-javascript-number' + cnt;
                   myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
                   cnt += 1;
