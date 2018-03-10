@@ -93,3 +93,10 @@
     padding-right: 5px;  
 
 }
+
+.blog-recent-posts ul>li a {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    width: 100%;
+}

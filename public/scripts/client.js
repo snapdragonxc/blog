@@ -761,7 +761,7 @@ angular.module('calendar-service', [] ).factory('CalendarService',
         var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         var daysOfMonth = { 
             "Jan": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
-            "Mar": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31],
+            "Mar": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
             "Apr": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
             "May": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
             "Jun": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
@@ -1067,9 +1067,10 @@ angular.module('highlight-services', [] ).factory('HighlightService',
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(function|if|return|while|else|switch\s|case\s|break\s)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');            
-            txt = txt.replace(/\((function|if|return|while|else|new|switch\s|case\s|break\s)/g, + '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');       
+            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s|with\s|in\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            txt = txt.replace(/(function|if|return|while|else|switch|case|break|with|in)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');            
+            txt = txt.replace(/\((function\s|if\s|return\s|while\s|else\s|new\s|switch\s|case\s|break\s|with\s|in\s)/g, '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            txt = txt.replace(/(break|default)(:|;)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '$2');  
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
@@ -1291,10 +1292,10 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
             txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
             txt = RemoveNumbers( txt, arrNumbers);        
             // Keyword Replacer
-            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(function|if|return|while|else|switch\s|case\s|break\s)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');            
-            txt = txt.replace(/\((function|if|return|while|else|new|switch\s|case\s|break\s)/g, '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(break|default)(:|;)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '$2');            
+            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s|with\s|\sin\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            txt = txt.replace(/(function|if|return|while|else|switch|case|break|with|\sin)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');           
+            txt = txt.replace(/\((function\s|if\s|return\s|while\s|else\s|new\s|switch\s|case\s|break\s|with\s|in\s)/g, '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');            
+            txt = txt.replace(/(break|default)(:|;)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '$2');          
             // Insert Comment Tags
             for(var i = arrComments.length -1; i >= 0 ; i--){            
                 var re = new RegExp("xml-javascript-comment" + i,"g");
