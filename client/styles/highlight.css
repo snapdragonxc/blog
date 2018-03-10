@@ -3,7 +3,7 @@ div.color-code {
     padding-right: 15px;
     padding-top: 9px;
     padding-bottom: 9px;
-   /* margin-top: 15px;
+    /* margin-top: 15px;
     margin-bottom: 15px; 
     margin-top: 20px; */
     margin-bottom: 10px;
@@ -14,55 +14,55 @@ div.color-code {
     font-family: 'Inconsolata', 'Source Code Pro';
     font-size: 14px; 
     font-weight: normal;
-   /* line-height: 1; */
+    /* line-height: 1; */
     line-height: 20px;
-    -moz-tab-size:    4; /* Firefox 4+ */
-    -o-tab-size:      4; /* Opera 11.5 & 12.1 only */
-    tab-size:         4; /* Chrome 21+, Safari 6.1+, Opera 15+ */
-       margin: 0;
+    -moz-tab-size: 4; /* Firefox 4+ */
+    -o-tab-size: 4; /* Opera 11.5 & 12.1 only */
+    tab-size: 4; /* Chrome 21+, Safari 6.1+, Opera 15+ */
+    margin: 0;
     padding: 0;
     white-space: pre-wrap;
     color: #222;
     border: 0px;
     border-radius: 0;
-      font-weight: 500;
+    font-weight: 500;
 }
 div.color-code, 
 #bootstrap-overide pre span,
 #bootstrap-overide-abstract pre,
 #bootstrap-overide-article pre {
-     background-color: #f4f4f4;
+    background-color: #f4f4f4;
 }
 .xml-meta {
-    color: #555;
+    color: #555; /* grey */
 }        
 .xml-bracket {
-    color: mediumblue;
+    color: #0000cd; /* mediumblue */
 }
 .xml-tag {
-    color: brown;
+    color: #a52a2a; /* brown */
 }
 .xml-attribute {
-    color:  red;
+    color:  #ff0000; /* red */
 }
 .xml-string {
-    color: mediumblue;
+    color: #0000cd; /* mediumblue */
 }
 .xml {
-    color: black;
+    color: #000000; /* black */
 }
 .jscrpt-keyword {
-    color: mediumblue;
+    color: #0000cd; /* mediumblue */
 }
 .jscrpt-number {
-    color:  red;
+    color:  #ff0000; /* red */
 }
 .jscrpt-string {
-    color:  brown;
+    color:  #a52a2a; /* brown */
 }
 .jscrpt-comment {
-    color: green;
+    color: #008000; /* green */
 }
 .jscrpt-regex {
-    color: orange;
-}
+    color: #ffa500; /* orange */
+}            
