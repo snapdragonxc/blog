@@ -1035,7 +1035,6 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;   
             mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
-                console.log('p1', p1)
                   var str = 'xml-javascript-left-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -1061,8 +1060,6 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;
             mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
-
-                console.log('p1', p1)
                   var str = 'xml-javascript-right-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -1104,7 +1101,7 @@ angular.module('highlight-services', [] ).factory('HighlightService',
         }
         function RemoveNumbers( mytxt, myArray){
             var cnt = 0;
-            mytxt = mytxt.replace(/([\s=\*\+-/)/(])(\d+)/g, function (match, p1, p2, offset, string) {
+            mytxt = mytxt.replace(/([\s=\*\+-/:)/(])(\d+)/g, function (match, p1, p2, offset, string) {
                   var str = p1 + 'xml-javascript-number' + cnt;
                   myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
                   cnt += 1;
@@ -1325,7 +1322,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;   
             mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
-                console.log('p1', p1)
                   var str = 'xml-javascript-left-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -1351,8 +1347,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;
             mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
-
-                console.log('p1', p1)
                   var str = 'xml-javascript-right-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            

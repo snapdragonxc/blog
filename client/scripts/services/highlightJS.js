@@ -84,7 +84,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;   
             mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
-                console.log('p1', p1)
                   var str = 'xml-javascript-left-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
@@ -110,8 +109,6 @@ angular.module('highlightJS-services', [] ).factory('HighlightJSservice',
         function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
             var cnt = 0;
             mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
-
-                console.log('p1', p1)
                   var str = 'xml-javascript-right-comment' + cnt;
                   // Replace regex in comments to prevent double tags
                 for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
