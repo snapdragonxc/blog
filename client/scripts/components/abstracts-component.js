@@ -7,10 +7,8 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
     }, 
     templateUrl: '../partials/abstracts-template.html',
 
-    controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService',
-        function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService){
+    controller: [ '$state', 'MonthsFullNameService', '$stateParams',
+        function($state, MonthsFullNameService, $stateParams){
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -40,14 +38,16 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                     return '';
                 // Convert any HTML code to code with colour on the fly. 
                 // HTML code is distiguished by '[code]' brackets. Add color to text only within these brackets.
-                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt) + '</div>';
+                txt = txt.replace(/\[code\]([\s\S]*?)\[\/code\]/g, function(match, txt, offset, string) { 
+                    var html = Prism.highlight(txt, Prism.languages.html);    
+                    return '<div class="color-code"><pre>'  +  html + '</pre></div>';
                 });                      
                 //
                 // Convert any javascript code to code with colour on the fly. 
                 // Javascript code is distiguished by '[codejs]' brackets. 
                 txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightService.AddColor(txt, 'js') + '</div>';
+                    var html = Prism.highlight(txt, Prism.languages.javascript);    
+                    return '<div class="color-code"><pre>'  +  html + '</pre></div>';
                 });                      
                 return txt;
             }     

@@ -3,7 +3,6 @@ angular.module('app', [
     'ngSanitize', // this is used for displaying html in a tag as text
     'months-number-services',
     'months-name-services',
-    'highlight-services',
     'api-services',
     'calendar-service',
     'auth-service',

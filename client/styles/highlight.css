@@ -28,27 +28,9 @@ div.color-code {
     font-weight: 500;
 }
 div.color-code, 
-#bootstrap-overide pre span,
 #bootstrap-overide-abstract pre,
 #bootstrap-overide-article pre {
     background-color: #f4f4f4;
 }
 
-.tagcolor {color: mediumblue;}
-.tagnamecolor {color: brown;}
-.attributecolor {color: red;}
-.attributevaluecolor {color: mediumblue;}
-.commentcolor {color: green;}
-.cssselectorcolor {color: brown;}
-.csspropertycolor {color: red;}
-.csspropertyvaluecolor {color: mediumblue;}
-.cssdelimitercolor {color: black;}
-.cssimportantcolor {
-    color: red;
-    font-weight:bold;
-}  
-.jscolor {color: black;}
-.jskeywordcolor {color: mediumblue;}
-.jsstringcolor {color: brown;}
-.jsnumbercolor {color: red;}
-.jspropertycolor {color: black;}
+
