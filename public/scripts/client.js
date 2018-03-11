@@ -240,9 +240,9 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
     templateUrl: '../partials/abstracts-template.html',
 
     controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService', 'HighlightJSservice',
+        'HighlightService',
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService, HighlightJSservice){
+                    HighlightService){
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -279,7 +279,7 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 // Convert any javascript code to code with colour on the fly. 
                 // Javascript code is distiguished by '[codejs]' brackets. 
                 txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt, 'js') + '</div>';
                 });                      
                 return txt;
             }     
@@ -345,8 +345,8 @@ angular.module('article', ['ui.router']).component('article', {
         abstract: '<',
     }, // one way binding with resolve
     templateUrl: '../partials/article-template.html',
-    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
-        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService',
+        function($window, MonthsFullNameService, $timeout, HighlightService){
             var that = this;
             this.goBack = function(){
                 $window.history.back();                    
@@ -368,7 +368,7 @@ angular.module('article', ['ui.router']).component('article', {
                 // Convert any javascript code to code with colour on the fly. 
                 // Javascript code is distiguished by '[codejs]' brackets. 
                 txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt, 'js') + '</div>';
                 });                      
                 return txt;
             }     
@@ -954,518 +954,330 @@ factory('ClientApiService',  ['$http', '$q', 'CalendarService', 'AuthService',
 
 angular.module('highlight-services', [] ).factory('HighlightService', 
     function () {
-        function ReplaceBracketsWithANSII( mytxt ){
-            mytxt = mytxt.replace(/</g, "&lt;");
-            mytxt = mytxt.replace(/\&lt\;\//g, "&lt;&#47;");
-            mytxt = mytxt.replace(/>/g, "&gt;");
-            mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
-            return mytxt;
-        }
-        function RemoveRegEx( mytxt, myArray ){
-            // Regular Expressions are processed per line.
-            var cnt = 0;
-            var lines = mytxt.split(/\r?\n/);
-            var leadingSpace = "";
-            for(var k = 0; k < lines.length; k++){
-                // get space, including tabs, up to start of the first character and remove
-                lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
-                    leadingSpace = p1;
-                    return p2;
-                });
-
-                var data = lines[k].split(/\s/); // split line based on spaces
-                //    var data = lines[k].split(/\b/); // - word break causes error in regexReplacer
-                function regexReplacer(match, p1, p2, offset, string) {
-                    p1 = ReplaceBracketsWithANSII(p1);
-                    p2 = ReplaceBracketsWithANSII(p2);
-                      var str = p1 + 'xml-javascript-regex' + cnt ;
-                    if( p2 == ""){
-                        str = p1 + "//";
-                    } else {
-                        myArray.push(p2);
-                          cnt += 1;
-                    } 
-                      return str;
-                }
-                for(var j = 0; j < data.length; j++){
-                    data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
-                }
-                lines[k] = leadingSpace; 
-                var len = data.length -1;
-                for(var j = 0; j < len; j++){
-                    lines[k] = lines[k] + data[j] + " "; // re-insert space
-                }
-                if(len >= 0){
-                    lines[k] = lines[k] + data[len]; // drop space on end of line
-                }
-            }
-            mytxt = "";
-            var len = lines.length;
-            for(var k = 0; k < len - 1; k++){
-                mytxt = mytxt + lines[k] + "\n";
-            }
-            mytxt = mytxt + lines[len-1];
-            return mytxt;
-        }
-        function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;        
-            mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                }
-                  myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                  cnt += 1;
-                  return str;
-            }); 
-            return mytxt;
-        }
-        function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;   
-            mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-left-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                } 
-                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                cnt += 1;
-                return str;
-            }); 
-            return mytxt;
-        }
-        function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;
-            mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-right-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                }
-                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                cnt += 1;
-                return str;
-            }); 
-            return mytxt;
-        }
-        function RemoveStrings( mytxt, myArray1, myArray2){
-            var cnt = 0;    
-            mytxt = mytxt.replace(/("[^"]*")/g, function(match, p1, offset, string) {
-                  var str = 'xml-javascript-string' + cnt;
-                  myArray1.push(p1);
-                  cnt += 1;
-                  return str;
-            });
-            cnt = 0;        
-            mytxt = mytxt.replace(/('[^']*')/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-single' + cnt;
-                  myArray2.push(p1);
-                  cnt += 1;
-                  return str;
-            });
-            return mytxt;
-        }
-        function RemoveNumbers( mytxt, myArray){
-            var cnt = 0;
-            mytxt = mytxt.replace(/([\s=\*\+-/:)/(])(\d+)/g, function (match, p1, p2, offset, string) {
-                  var str = p1 + 'xml-javascript-number' + cnt;
-                  myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
-                  cnt += 1;
-                  return str;
-            } );
-            return mytxt;
-        }
-        function HighlightScript(txt){
-            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [],arrLeftComments = [], arrRightComments = [];
-            txt = RemoveRegEx(txt, arrRegex);
-            txt = ReplaceBracketsWithANSII(txt);
-            txt = RemoveStrings( txt, arrString, arrSingleString);        
-            txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);
-            txt = RemoveRightComments(txt, arrRightComments, arrRegex, arrString, arrSingleString); /* order is important - right must come first */
-            txt = RemoveLeftComments(txt, arrLeftComments, arrRegex, arrString, arrSingleString);
-            txt = RemoveNumbers( txt, arrNumbers);        
-            // Keyword Replacer
-            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s|with\s|\sin\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(function|if|return|while|else|switch|case|break|with|\sin)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');           
-            txt = txt.replace(/\((function\s|if\s|return\s|while\s|else\s|new\s|switch\s|case\s|break\s|with\s|in\s)/g, '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(break|default)(:|;)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '$2');           
-            // Insert Comment Tags
-            for(var i = arrComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-comment" + i,"g");
-                txt = txt.replace(re, arrComments[i]);
-            }
-            // Insert Left-Comment Tags
-            for(var i = arrLeftComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-left-comment" + i,"g");
-                txt = txt.replace(re, arrLeftComments[i]);
-            }
-            // Insert Right-Comment Tags
-           for(var i = arrRightComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-right-comment" + i,"g");
-                txt = txt.replace(re, arrRightComments[i]);
-            }          
-            // Insert String Tags
-            for(var i = arrString.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-string" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrString[i]  + "</span>");
-            }
-            for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-single" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
-            } 
-            // Insert Number Tags
-            for(var i = arrNumbers.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-number" + i,"g");
-                txt = txt.replace(re, arrNumbers[i]);
-            }
-            // Insert Regex Tags
-            for(var i = arrRegex.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-regex" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
-            } 
-            return txt;
-        }
-        function HighlightHTMLCode(txt){
-            // Remove Scripts
-            var arrScripts = [], arrAttr = [], count = 0;    
-
-            txt = txt.trim();
-                
-            txt = txt.replace(/(<script[^>]*>)([\s\S]*?)<\/script>/g, function (match, p1, p2, offset, string) {
-                  var str = p1 + 'xml-javascript-' + count + '<\/script>';
-                  arrScripts.push(p2);
-                  count += 1;
-                  return str;
-            });
-            // Process Scripts        
-            for(var i = 0; i < arrScripts.length; i++){
-                arrScripts[i] = HighlightScript(arrScripts[i]);
-            }
-            // Remove Attributes
-            count = 0;        
-            txt = txt.replace( /<(\w+\s+)([^>]*)>/g, function (match, p1, p2, offset, string) {              
-                  if(p2 == '')
-                      return '';
-                  var stng = '<' + p1 + 'xml-attribute-' + count + '>';
-                  arrAttr.push(p2);
-                  count += 1;
-                  return stng;
-            });         
-            // Process attributes
-            for(var i = 0; i < arrAttr.length; i++){
-                arrAttr[i] = arrAttr[i].replace(/([\w-]+\s*)(=)*(\s*"[^"]*")*/g, "<span class='xml-attribute'>$1</span>$2<span class='xml-string'>$3</span>");
-            } 
-            // Process tags
-            // Use markers as substitutes for brackets
-            // aaaa = <
-            // bbbb = >
-            // cccc = </
-            // dddd * eeee = tag
-            // meta tag
-            txt = txt.replace(/<(\![\w-\s]*)>/g, "mmmm$1nnnn");
-            // Opening tag
-            txt = txt.replace(/<(\w+)(\s+)([\w-]*)>/g, "aaaadddd$1eeee$2$3bbbb");
-            txt = txt.replace(/<(\w+)>/g, "aaaadddd$1eeeebbbb");
-            // Closing tag
-            txt = txt.replace(/<\/(\w+)>/g, "ccccdddd$1eeeebbbb");
-            // Replace markers with span elements with class defining each color
-            txt = txt.replace(/mmmm(\![\w-\s]*)nnnn/g,  "<span class='xml-meta'>&lt;$1&gt;</span>");
-            txt = txt.replace(/aaaa/g, "<span class='xml-bracket'><</span>");
-            txt = txt.replace(/bbbb/g, "<span class='xml-bracket'>></span>");
-            txt = txt.replace(/cccc/g, "<span class='xml-bracket'><&#47;</span>");
-            txt = txt.replace(/dddd(\w+)eeee/g, "<span class='xml-tag'>$1</span>");
-            // Replace Attributes
-            for(var i = 0; i < arrAttr.length; i++){            
-                var re = new RegExp("xml-attribute-" + i,"g");
-                txt = txt.replace(re, arrAttr[i]);
-            }
-            // Replace Script
-            for(var i = 0; i < arrScripts.length; i++){            
-                var re = new RegExp("xml-javascript-" + i,"g");
-                txt = txt.replace(re, arrScripts[i]);
-            }
-            // add <pre> tags to  each line
-            var lines = txt.split(/\n/);
-           
+        //
+        function convert(txt, type) { // type can be 'js', 'html' or 'css'. default is 'html' 
+            txt = txt.replace(/</g, '&lt;');
+            txt = txt.replace(/>/g, '&gt;');  
+            var lines = txt.split(/\n/);   
             var x = ""; // html
             for(var i = 0; i < lines.length; i++){
-                x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
-            //    x = x + '<span>' + lines[i]  + "\n" + '</span>';
-            }
-            //x = '<pre><code>' + x + '</code></pre>';
-            return x // return html code with span elements for color and pre elements for spacing
+                x = x + '<pre>' + '<span>' + lines[i]  + '</span>' + '</pre>';
+            }            
+            return w3CodeColor(x, type); // output coloured text
         }
+        //
+        function w3CodeColor(txt, mode) {
+            var lang = (mode || "html");
+            //
+            var elmntTxt = txt;
+            if (!lang) {lang = "html"; }
+            if (lang == "html") {elmntTxt = htmlMode(elmntTxt);}
+            if (lang == "css") {elmntTxt = cssMode(elmntTxt);}
+            if (lang == "js") {elmntTxt = jsMode(elmntTxt);}
+            return elmntTxt;
+
+            function extract(str, start, end, func, repl) {
+                var s, e, d = "", a = [];
+                while (str.search(start) > -1) {
+                  s = str.search(start);
+                  e = str.indexOf(end, s);
+                  if (e == -1) {e = str.length;}
+                  if (repl) {
+                    a.push(func(str.substring(s, e + (end.length))));      
+                    str = str.substring(0, s) + repl + str.substr(e + (end.length));
+                  } else {
+                    d += str.substring(0, s);
+                    d += func(str.substring(s, e + (end.length)));
+                    str = str.substr(e + (end.length));
+                  }
+                }
+                this.rest = d + str;
+                this.arr = a;
+            }
+            function htmlMode(txt) {
+                var rest = txt, done = "", php, comment, angular, startpos, endpos, note, i;
+                comment = new extract(rest, "&lt;!--", "--&gt;", commentMode, "W3HTMLCOMMENTPOS");
+                rest = comment.rest;
+                while (rest.indexOf("&lt;") > -1) {
+                  note = "";
+                  startpos = rest.indexOf("&lt;");
+                  if (rest.substr(startpos, 9).toUpperCase() == "&LT;STYLE") {note = "css";}
+                  if (rest.substr(startpos, 10).toUpperCase() == "&LT;SCRIPT") {note = "javascript";}        
+                  endpos = rest.indexOf("&gt;", startpos);
+                  if (endpos == -1) {endpos = rest.length;}
+                  done += rest.substring(0, startpos);
+                  done += tagMode(rest.substring(startpos, endpos + 4));
+                  rest = rest.substr(endpos + 4);
+                  if (note == "css") {
+                    endpos = rest.indexOf("&lt;/style&gt;");
+                    if (endpos > -1) {
+                      done += cssMode(rest.substring(0, endpos));
+                      rest = rest.substr(endpos);
+                    }
+                  }
+                  if (note == "javascript") {
+                    endpos = rest.indexOf("&lt;/script&gt;");
+                    if (endpos > -1) {
+                      done += jsMode(rest.substring(0, endpos));
+                      rest = rest.substr(endpos);
+                    }
+                  }
+                }
+                rest = done + rest;
+                for (i = 0; i < comment.arr.length; i++) {
+                    rest = rest.replace("W3HTMLCOMMENTPOS", comment.arr[i]);
+                }
+                return rest;
+            }
+            function tagMode(txt) {
+                var rest = txt, done = "", startpos, endpos, result;
+                while (rest.search(/(\s|<br>)/) > -1) {    
+                  startpos = rest.search(/(\s|<br>)/);
+                  endpos = rest.indexOf("&gt;");
+                  if (endpos == -1) {endpos = rest.length;}
+                  done += rest.substring(0, startpos);
+                  done += attributeMode(rest.substring(startpos, endpos));
+                  rest = rest.substr(endpos);
+                }
+                result = done + rest;
+                result = "<span class='tagcolor'>&lt;</span>" + result.substring(4);
+                if (result.substr(result.length - 4, 4) == "&gt;") {
+                  result = result.substring(0, result.length - 4) + "<span class='tagcolor'>&gt;</span>";
+                }
+                return "<span class='tagnamecolor'>" + result + "</span>";
+            }
+            function attributeMode(txt) {
+                var rest = txt, done = "", startpos, endpos, singlefnuttpos, doublefnuttpos, spacepos;
+                while (rest.indexOf("=") > -1) {
+                  endpos = -1;
+                  startpos = rest.indexOf("=");
+                  singlefnuttpos = rest.indexOf("'", startpos);
+                  doublefnuttpos = rest.indexOf('"', startpos);
+                  spacepos = rest.indexOf(" ", startpos + 2);
+                  if (spacepos > -1 && (spacepos < singlefnuttpos || singlefnuttpos == -1) && (spacepos < doublefnuttpos || doublefnuttpos == -1)) {
+                    endpos = rest.indexOf(" ", startpos);      
+                  } else if (doublefnuttpos > -1 && (doublefnuttpos < singlefnuttpos || singlefnuttpos == -1) && (doublefnuttpos < spacepos || spacepos == -1)) {
+                    endpos = rest.indexOf('"', rest.indexOf('"', startpos) + 1);
+                  } else if (singlefnuttpos > -1 && (singlefnuttpos < doublefnuttpos || doublefnuttpos == -1) && (singlefnuttpos < spacepos || spacepos == -1)) {
+                    endpos = rest.indexOf("'", rest.indexOf("'", startpos) + 1);
+                  }
+                  if (!endpos || endpos == -1 || endpos < startpos) {endpos = rest.length;}
+                  done += rest.substring(0, startpos);
+                  done += attributeValueMode(rest.substring(startpos, endpos + 1));
+                  rest = rest.substr(endpos + 1);
+                }
+                return "<span class='attributecolor'>" + done + rest + "</span>";
+            }
+            function attributeValueMode(txt) {
+                return "<span class='attributevaluecolor'>" + txt + "</span>";
+            }
+            function commentMode(txt) {
+                return "<span class='commentcolor'>" + txt + "</span>";
+            }
+            function cssMode(txt) {
+                var rest = txt, done = "", s, e, comment, i, midz, c, cc;
+                comment = new extract(rest, /\/\*/, "*/", commentMode, "W3CSSCOMMENTPOS");
+                rest = comment.rest;
+                while (rest.search("{") > -1) {
+                  s = rest.search("{");
+                  midz = rest.substr(s + 1);
+                  cc = 1;
+                  c = 0;
+                  for (i = 0; i < midz.length; i++) {
+                    if (midz.substr(i, 1) == "{") {cc++; c++}
+                    if (midz.substr(i, 1) == "}") {cc--;}
+                    if (cc == 0) {break;}
+                  }
+                  if (cc != 0) {c = 0;}
+                  e = s;
+                  for (i = 0; i <= c; i++) {
+                    e = rest.indexOf("}", e + 1);
+                  }
+                  if (e == -1) {e = rest.length;}
+                  done += rest.substring(0, s + 1);
+                  done += cssPropertyMode(rest.substring(s + 1, e));
+                  rest = rest.substr(e);
+                }
+                rest = done + rest;
+                rest = rest.replace(/{/g, "<span class='cssdelimitercolor'>{</span>");
+                rest = rest.replace(/}/g, "<span class='cssdelimitercolor'>}</span>");
+                for (i = 0; i < comment.arr.length; i++) {
+                    rest = rest.replace("W3CSSCOMMENTPOS", comment.arr[i]);
+                }
+                return "<span class='cssselectorcolor'>" + rest + "</span>";
+            }
+            function cssPropertyMode(txt) {
+                var rest = txt, done = "", s, e, n, loop;
+                if (rest.indexOf("{") > -1 ) { return cssMode(rest); }
+                while (rest.search(":") > -1) {
+                  s = rest.search(":");
+                  loop = true;
+                  n = s;
+                  while (loop == true) {
+                    loop = false;
+                    e = rest.indexOf(";", n);
+                    if (rest.substring(e - 5, e + 1) == "&nbsp;") {
+                      loop = true;
+                      n = e + 1;
+                    }
+                  }
+                  if (e == -1) {e = rest.length;}
+                  done += rest.substring(0, s);
+                  done += cssPropertyValueMode(rest.substring(s, e + 1));
+                  rest = rest.substr(e + 1);
+                }
+                return "<span class='csspropertycolor'>" + done + rest + "</span>";
+            }
+            function cssPropertyValueMode(txt) {
+                var rest = txt, done = "", s;
+                rest = "<span class='cssdelimitercolor'>:</span>" + rest.substring(1);
+                while (rest.search(/!important/i) > -1) {
+                  s = rest.search(/!important/i);
+                  done += rest.substring(0, s);
+                  done += cssImportantMode(rest.substring(s, s + 10));
+                  rest = rest.substr(s + 10);
+                }
+                result = done + rest;    
+                if (result.substr(result.length - 1, 1) == ";" && result.substr(result.length - 6, 6) != "&nbsp;" && result.substr(result.length - 4, 4) != "&lt;" && result.substr(result.length - 4, 4) != "&gt;" && result.substr(result.length - 5, 5) != "&amp;") {
+                  result = result.substring(0, result.length - 1) + "<span class='cssdelimitercolor'>;</span>";
+                }
+                return "<span class='csspropertyvaluecolor'>" + result + "</span>";
+            }
+            function cssImportantMode(txt) {
+                return "<span class='cssimportantcolor'>" + txt + "</span>";
+            }
+            function jsMode(txt) {
+                var rest = txt, done = "", esc = [], i, cc, tt = "", sfnuttpos, dfnuttpos, compos, comlinepos, keywordpos, numpos, mypos, dotpos, y;
+                for (i = 0; i < rest.length; i++)  {
+                  cc = rest.substr(i, 1);
+                  if (cc == "\\") {
+                    esc.push(rest.substr(i, 2));
+                    cc = "W3JSESCAPE";
+                    i++;
+                  }
+                  tt += cc;
+                }
+                rest = tt;
+                y = 1;
+                while (y == 1) {
+                  sfnuttpos = getPos(rest, "'", "'", jsStringMode);
+                  dfnuttpos = getPos(rest, '"', '"', jsStringMode);
+                  compos = getPos(rest, /\/\*/, "*/", commentMode);
+                  comlinepos = getPos(rest, /\/\//, "<br>", commentMode);      
+                  numpos = getNumPos(rest, jsNumberMode);
+                  keywordpos = getKeywordPos("js", rest, jsKeywordMode);
+                  dotpos = getDotPos(rest, jsPropertyMode);
+                  if (Math.max(numpos[0], sfnuttpos[0], dfnuttpos[0], compos[0], comlinepos[0], keywordpos[0], dotpos[0]) == -1) {break;}
+                  mypos = getMinPos(numpos, sfnuttpos, dfnuttpos, compos, comlinepos, keywordpos, dotpos);
+                  if (mypos[0] == -1) {break;}
+                  if (mypos[0] > -1) {
+                    done += rest.substring(0, mypos[0]);
+                    done += mypos[2](rest.substring(mypos[0], mypos[1]));
+                    rest = rest.substr(mypos[1]);
+                  }
+                }
+                rest = done + rest;
+                for (i = 0; i < esc.length; i++) {
+                  rest = rest.replace("W3JSESCAPE", esc[i]);
+                }
+                return "<span class='jscolor'>" + rest + "</span>";
+            }
+            function jsStringMode(txt) {
+                return "<span class='jsstringcolor'>" + txt + "</span>";
+            }
+            function jsKeywordMode(txt) {
+                return "<span class='jskeywordcolor'>" + txt + "</span>";
+            }
+            function jsNumberMode(txt) {
+                return "<span class='jsnumbercolor'>" + txt + "</span>";
+            }
+            function jsPropertyMode(txt) {
+                return "<span class='jspropertycolor'>" + txt + "</span>";
+            }
+            function getDotPos(txt, func) {
+                var x, i, j, s, e, arr = [".","<", " ", ";", "(", "+", ")", "[", "]", ",", "&", ":", "{", "}", "/" ,"-", "*", "|", "%"];
+                s = txt.indexOf(".");
+                if (s > -1) {
+                  x = txt.substr(s + 1);
+                  for (j = 0; j < x.length; j++) {
+                    cc = x[j];
+                    for (i = 0; i < arr.length; i++) {
+                      if (cc.indexOf(arr[i]) > -1) {
+                        e = j;
+                        return [s + 1, e + s + 1, func];
+                      }
+                    }
+                  }
+                }
+                return [-1, -1, func];
+            }
+            function getMinPos() {
+                var i, arr = [];
+                for (i = 0; i < arguments.length; i++) {
+                  if (arguments[i][0] > -1) {
+                    if (arr.length == 0 || arguments[i][0] < arr[0]) {arr = arguments[i];}
+                  }
+                }
+                if (arr.length == 0) {arr = arguments[i];}
+                return arr;
+            }
+            function getKeywordPos(typ, txt, func) {
+                var words, i, pos, rpos = -1, rpos2 = -1, patt;
+                if (typ == "js") {
+                  words = ["abstract","arguments","boolean","break","byte","case","catch","char","class","const","continue","debugger","default","delete",
+                  "do","double","else","enum","eval","export","extends","false","final","finally","float","for","function","goto","if","implements","import",
+                  "in","instanceof","int","interface","let","long","NaN","native","new","null","package","private","protected","public","return","short","static",
+                  "super","switch","synchronized","this","throw","throws","transient","true","try","typeof","var","void","volatile","while","with","yield"];
+                }
+                for (i = 0; i < words.length; i++) {
+                  pos = txt.indexOf(words[i]);
+                  if (pos > -1) {
+                    patt = /\W/g;
+                    if (txt.substr(pos + words[i].length,1).match(patt) && txt.substr(pos - 1,1).match(patt)) {
+                      if (pos > -1 && (rpos == -1 || pos < rpos)) {
+                        rpos = pos;
+                        rpos2 = rpos + words[i].length;
+                      }
+                    }
+                  } 
+                }
+                return [rpos, rpos2, func];
+            }
+            function getPos(txt, start, end, func) {
+                var s, e;
+                s = txt.search(start);
+                e = txt.indexOf(end, s + (end.length));
+                if (e == -1) {e = txt.length;}
+                return [s, e + (end.length), func];
+            }
+            function getNumPos(txt, func) {
+                var arr = ["<br>", " ", ";", "(", "+", ")", "[", "]", ",", "&", ":", "{", "}", "/" ,"-", "*", "|", "%", "="], i, j, c, startpos = 0, endpos, word;
+                for (i = 0; i < txt.length; i++) {
+                  for (j = 0; j < arr.length; j++) {
+                    c = txt.substr(i, arr[j].length);
+                    if (c == arr[j]) {
+                      if (c == "-" && (txt.substr(i - 1, 1) == "e" || txt.substr(i - 1, 1) == "E")) {
+                        continue;
+                      }
+                      endpos = i;
+                      if (startpos < endpos) {
+                        word = txt.substring(startpos, endpos);
+                        if (!isNaN(word)) {return [startpos, endpos, func];}
+                      }
+                      i += arr[j].length;
+                      startpos = i;
+                      i -= 1;
+                      break;
+                    }
+                  }
+                }  
+                return [-1, -1, func];
+            }  
+        }
+        
         return {
-            AddColor: function(txt){
-                return HighlightHTMLCode(txt)
-            }                  
-        };
-    }
-);
-angular.module('highlightJS-services', [] ).factory('HighlightJSservice', 
-    function () {
-        function ReplaceBracketsWithANSII( mytxt ){
-            mytxt = mytxt.replace(/</g, "&lt;");
-            mytxt = mytxt.replace(/\&lt\;\//g, "&lt;&#47;");
-            mytxt = mytxt.replace(/>/g, "&gt;");
-            mytxt = mytxt.replace(/\\\//g, "&#92;&#47;") 
-            return mytxt;
-        }
-        function RemoveRegEx( mytxt, myArray ){
-            // Regular Expressions are processed per line.
-            var cnt = 0;
-            var lines = mytxt.split(/\r?\n/); 
-
-            var leadingSpace = "";
-            for(var k = 0; k < lines.length; k++){
-                // get space, including tabs, up to start of the first character and remove
-                leadingSpace = ""
-                lines[k] = lines[k].replace(/(\s*)(.*)/, function(match, p1, p2, offset, string){
-                    leadingSpace = p1;
-                    return p2;
-                }); 
-
-                var data = lines[k].split(/\s/); // split line based on spaces
-                //    var data = lines[k].split(/\b/); // - word break causes error in regexReplacer
-                function regexReplacer(match, p1, p2, offset, string) {
-                    p1 = ReplaceBracketsWithANSII(p1);
-                    p2 = ReplaceBracketsWithANSII(p2);
-                    var str = p1 + 'xml-javascript-regex' + cnt ;
-                    if( p2 == ""){
-                        str = p1 + "//";
-                    } else {
-                        myArray.push(p2);
-                          cnt += 1;
-                    } 
-                      return str; 
-                }
-                for(var j = 0; j < data.length; j++){
-                    data[j] =  data[j].replace(/([^\d^\s^\/^"]*\s*)\/(.*)\//g, regexReplacer);
-                }
-                lines[k] = leadingSpace; 
-              
-                var len = data.length -1;
-                for(var j = 0; j < len; j++){
-                    lines[k] = lines[k] + data[j] + " "; // re-insert space
-                }
-                if(len >= 0){
-                    lines[k] = lines[k] + data[len]; // drop space on end of line
-                }
-            }
-            var mytxt = "";
-            var len = lines.length;
-            for(var k = 0; k < len - 1; k++){
-                mytxt = mytxt + lines[k] + "\n";
-            }
-            mytxt = mytxt + lines[len-1]; 
-            return mytxt;
-        }
-        function RemoveComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;        
-            mytxt = mytxt.replace(/(\/\/.*)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                }
-                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                cnt += 1;
-                return str;
-            }); 
-           return mytxt;
-        }            
-        function RemoveLeftComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;   
-            mytxt = mytxt.replace(/(\/\*.*)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-left-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                } 
-                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                cnt += 1;
-                return str;
-            }); 
-            return mytxt;
-        }
-        function RemoveRightComments( mytxt, myArray, myArrayRegEx, arrString, arrSingleString){
-            var cnt = 0;
-            mytxt = mytxt.replace(/(.*\*\/)\n/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-right-comment' + cnt;
-                  // Replace regex in comments to prevent double tags
-                for(var i = myArrayRegEx.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-regex" + i,"g");
-                    p1 = p1.replace(re, myArrayRegEx[i]);
-                }
-                // Replace strings in comments to prevent double tags
-                for(var i = arrString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-string" + i,"g");
-                    p1 = p1.replace(re, arrString[i]);
-                }
-                // Replace single strings in comments to prevent double tags
-                for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                    var re = new RegExp("xml-javascript-single" + i,"g");
-                    p1 = p1.replace(re, arrSingleString[i]);
-                }
-                myArray.push("<span class='jscrpt-comment'>" + p1 + "</span>" + '\n');
-                cnt += 1;
-                return str;
-            }); 
-            return mytxt;
-        }
-        function RemoveStrings( mytxt, myArray1, myArray2){
-            var cnt = 0;    
-            mytxt = mytxt.replace(/("[^"]*")/g, function(match, p1, offset, string) {
-                  var str = 'xml-javascript-string' + cnt;
-                  myArray1.push(p1);
-                  cnt += 1;
-                  return str;
-            });
-            cnt = 0;        
-            mytxt = mytxt.replace(/('[^']*')/g, function (match, p1, offset, string) {
-                  var str = 'xml-javascript-single' + cnt;
-                  myArray2.push(p1);
-                  cnt += 1;
-                  return str;
-            });
-            return mytxt;
-        }
-        function RemoveNumbers( mytxt, myArray){
-            var cnt = 0;
-            mytxt = mytxt.replace(/([\s=\*\+-/:)/(])(\d+)/g, function (match, p1, p2, offset, string) {
-                  var str = p1 + 'xml-javascript-number' + cnt;
-                  myArray.push("<span class='jscrpt-number'>" + p2 + "</span>");
-                  cnt += 1;
-                  return str;
-            } );
-            return mytxt;
-        }
-        function HighlightScript(txt){
-            var arrRegex = [], arrComments = [], arrString = [], arrSingleString = [], arrNumbers = [], arrLeftComments = [], arrRightComments = [];
-            txt = RemoveRegEx(txt, arrRegex);
-            txt = ReplaceBracketsWithANSII(txt);
-            txt = RemoveStrings( txt, arrString, arrSingleString);        
-            txt = RemoveComments(txt, arrComments, arrRegex, arrString, arrSingleString);            
-            txt = RemoveRightComments(txt, arrRightComments, arrRegex, arrString, arrSingleString); /* order is important - right must come first */
-            txt = RemoveLeftComments(txt, arrLeftComments, arrRegex, arrString, arrSingleString);
-            txt = RemoveNumbers( txt, arrNumbers);        
-            // Keyword Replacer
-            txt = txt.replace(/(function\s|return\s|for\s|new\s|var\s|let\s|while\s|if\s|else\s|switch\s|case\s|break\s|default\s|with\s|\sin\s)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(function|if|return|while|else|switch|case|break|with|\sin)\(/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '(');           
-            txt = txt.replace(/\((function\s|if\s|return\s|while\s|else\s|new\s|switch\s|case\s|break\s|with\s|in\s)/g, '(' + '<span class="jscrpt-keyword">' + '$1' + '</span>');            
-            txt = txt.replace(/(break|default)(:|;)/g, '<span class="jscrpt-keyword">' + '$1' + '</span>' + '$2');          
-            // Insert Comment Tags
-            for(var i = arrComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-comment" + i,"g");
-                txt = txt.replace(re, arrComments[i]);
-            }
-            // Insert Left-Comment Tags
-            for(var i = arrLeftComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-left-comment" + i,"g");
-                txt = txt.replace(re, arrLeftComments[i]);
-            }
-            // Insert Right-Comment Tags
-           for(var i = arrRightComments.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-right-comment" + i,"g");
-                txt = txt.replace(re, arrRightComments[i]);
-            }          
-            // Insert String Tags
-            for(var i = arrString.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-string" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrString[i]  + "</span>");
-            }
-            for(var i = arrSingleString.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-single" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-string'>" + arrSingleString[i] + "</span>");
-            }
-            // Insert Number Tags
-            for(var i = arrNumbers.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-number" + i,"g");
-                txt = txt.replace(re, arrNumbers[i]);
-            }
-            // Insert Regex Tags
-            for(var i = arrRegex.length -1; i >= 0 ; i--){            
-                var re = new RegExp("xml-javascript-regex" + i,"g");
-                txt = txt.replace(re, "<span class='jscrpt-regex'>" + "/" +  arrRegex[i]  +  "/" + "</span>");
-            }
-            return txt;
-        }
-        function HighlightJSCode(txt){
-
-            txt = txt + '\n'; // to ensure correct termination of a comment
-
-            var myScript = HighlightScript(txt);
-
-            myScript = myScript.trim();
-
-            // add <pre> tags to  each line
-            var lines = myScript.split(/\n/);
-            var x = ""; // html
-            for(var i = 0; i < lines.length; i++){
-                x = x + '<pre>' + '<span>' + lines[i]  + "\n" + '</span>' + '</pre>';
-            }
-            //x = '<pre><code>' + x + '</code></pre>';
-            return x // return html code with span elements for color and pre elements for spacing
-        }
-        return {
-            AddColor: function(txt){
-                return HighlightJSCode(txt)
+            AddColor: function(txt, mode){
+                return convert(txt, mode)
             }                  
         };
     }

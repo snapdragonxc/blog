@@ -4,7 +4,6 @@ angular.module('app', [
     'months-number-services',
     'months-name-services',
     'highlight-services',
-    'highlightJS-services',
     'api-services',
     'calendar-service',
     'auth-service',

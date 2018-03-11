@@ -33,36 +33,22 @@ div.color-code,
 #bootstrap-overide-article pre {
     background-color: #f4f4f4;
 }
-.xml-meta {
-    color: #555; /* grey */
-}        
-.xml-bracket {
-    color: #0000cd; /* mediumblue */
-}
-.xml-tag {
-    color: #a52a2a; /* brown */
-}
-.xml-attribute {
-    color:  #ff0000; /* red */
-}
-.xml-string {
-    color: #0000cd; /* mediumblue */
-}
-.xml {
-    color: #000000; /* black */
-}
-.jscrpt-keyword {
-    color: #0000cd; /* mediumblue */
-}
-.jscrpt-number {
-    color:  #ff0000; /* red */
-}
-.jscrpt-string {
-    color:  #a52a2a; /* brown */
-}
-.jscrpt-comment {
-    color: #008000; /* green */
-}
-.jscrpt-regex {
-    color: #ffa500; /* orange */
-}            
+
+.tagcolor {color: mediumblue;}
+.tagnamecolor {color: brown;}
+.attributecolor {color: red;}
+.attributevaluecolor {color: mediumblue;}
+.commentcolor {color: green;}
+.cssselectorcolor {color: brown;}
+.csspropertycolor {color: red;}
+.csspropertyvaluecolor {color: mediumblue;}
+.cssdelimitercolor {color: black;}
+.cssimportantcolor {
+    color: red;
+    font-weight:bold;
+}  
+.jscolor {color: black;}
+.jskeywordcolor {color: mediumblue;}
+.jsstringcolor {color: brown;}
+.jsnumbercolor {color: red;}
+.jspropertycolor {color: black;}

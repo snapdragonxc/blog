@@ -4,8 +4,8 @@ angular.module('article', ['ui.router']).component('article', {
         abstract: '<',
     }, // one way binding with resolve
     templateUrl: '../partials/article-template.html',
-    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService', 'HighlightJSservice',
-        function($window, MonthsFullNameService, $timeout, HighlightService, HighlightJSservice){
+    controller:[ '$window', 'MonthsFullNameService', '$timeout','HighlightService',
+        function($window, MonthsFullNameService, $timeout, HighlightService){
             var that = this;
             this.goBack = function(){
                 $window.history.back();                    
@@ -27,7 +27,7 @@ angular.module('article', ['ui.router']).component('article', {
                 // Convert any javascript code to code with colour on the fly. 
                 // Javascript code is distiguished by '[codejs]' brackets. 
                 txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt, 'js') + '</div>';
                 });                      
                 return txt;
             }     

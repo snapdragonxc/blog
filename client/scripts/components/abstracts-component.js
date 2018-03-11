@@ -8,9 +8,9 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
     templateUrl: '../partials/abstracts-template.html',
 
     controller: [ '$state', '$window', '$location', 'MonthsFullNameService', '$timeout', '$stateParams',
-        'HighlightService', 'HighlightJSservice',
+        'HighlightService',
         function($state, $window, $location, MonthsFullNameService, $timeout, $stateParams, 
-                    HighlightService, HighlightJSservice){
+                    HighlightService){
             this.$onInit = function(){
                 if($stateParams.active){
                     document.getElementById('search-box').focus();
@@ -47,7 +47,7 @@ angular.module('abstracts', ['ui.router']).component('abstracts', {
                 // Convert any javascript code to code with colour on the fly. 
                 // Javascript code is distiguished by '[codejs]' brackets. 
                 txt = txt.replace(/\[codejs\]([\s\S]*?)\[\/codejs\]/g, function(match, txt, offset, string) {  
-                    return '<div class="color-code">'  +  HighlightJSservice.AddColor(txt) + '</div>';
+                    return '<div class="color-code">'  +  HighlightService.AddColor(txt, 'js') + '</div>';
                 });                      
                 return txt;
             }     
