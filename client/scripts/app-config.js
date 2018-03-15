@@ -36,11 +36,12 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
                                     pages.filteredAbstracts = pages.abstracts;
                                 }
                             } else {
-                                pages.year = 'all';
-                                pages.month = 'posts';
+                                pages.year = 'posts'; //'all'; /* correct re-direction to non-path
+                                pages.month = 'all'; //posts';
                                 pages.subTitle = $stateParams.month + ' ' + $stateParams.year;
                                 pages.filteredAbstracts = pages.abstracts;
                             }
+                            
                             return pages
                     });
                 }],           
