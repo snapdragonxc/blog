@@ -37,5 +37,19 @@ function AddUser(){
 	    });
 	});
 }
-// AddUser(); //disconnect after first call
+function userExists(name){  
+    User.findOne({
+            username: name.toLowerCase() 
+        }, function( err, user ){            
+            if(err){
+                return err;
+            }
+            if(user == null){
+                AddUser();
+            } else {
+                console.log('db contains a user with name:', name);
+            }
+        });
+}
+userExists(config.userName);
 module.exports = User;
