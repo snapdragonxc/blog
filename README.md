@@ -12,11 +12,11 @@
 - Bootstrap
 
 ### Design
-The website template is designed to be used by front-end software developers as an alternative to a static blog template. 
+The website template is an alternative to a static blog template. 
 
-PrismJS is used for the code highlighting of Javascript and HTML.
+PrismJS is used for the code highlighting of Javascript and HTML. Javascript code is distinguished from plain text by [codejs] ... [/codejs] blocks. HTML is distinguished by [code] ... [/code] blocks.
 
-Masonary is used for the optimal layout of the images on the front page, based on the available vertical space.
+Masonary is used for the layout of the images on the front page.
 
 ### Styling
 The front page styling, with an upside down navigation bar, was based on the [www.wix.com](https://www.wix.com), Graphic Design Portfolio template, previewed at:
