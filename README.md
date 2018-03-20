@@ -1,6 +1,6 @@
 # blog
 ### Description
-**blog** is a template for use as a personal blog website. It was built using the following technologies:
+**blog** is a content management template for use as a personal blog website as an alternative to a static blog template. It was built using the following technologies:
 - AngularJS
 - UI-Router
 - MongoDB
@@ -12,8 +12,6 @@
 - Bootstrap
 
 ### Design
-The website template is an alternative to a static blog template. 
-
 PrismJS is used for the code highlighting of Javascript and HTML. Javascript code is distinguished from plain text by [codejs] ... [/codejs] blocks. HTML is distinguished by [code] ... [/code] blocks.
 
 Masonary is used for the layout of the images on the front page.
