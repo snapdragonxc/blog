@@ -1,6 +1,6 @@
 # blog
 ### Description
-**blog** is a content management system template for use as a personal blog website as an alternative to a static blog template. It was built using the following technologies:
+**blog** is a content management system template for use as a personal blog website (an alternative to a static blog template). It was built using the following technologies:
 - AngularJS
 - UI-Router
 - MongoDB
