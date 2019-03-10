@@ -222,39 +222,6 @@ angular.module('app').config(['$stateProvider', '$urlRouterProvider', '$location
             clearTimeout(timer);
         });
 }]);
-angular.module('site-ctrl', []).
-    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
-        function($state, AuthService, $location) {
-            this.activeItem="home";
-            this.hide = false;
-            this.currentBtn = 'home';   
-            var that = this; 
-            this.showLogOut = function(value){
-                this.hide = value;
-            }
-            this.logOut = function(){
-                AuthService.logout().then(function(resp){}, function(err){
-                    $state.go('home');
-                    that.showLogOut(false);
-                    location.reload(true);
-                });
-            }
-            this.isActive = function(loc) {
-                return loc == $location.path().split('\/')[1];
-            }
-            this.home = function(){
-                $state.go('home');
-            }
-            this.checkStatus = function(){
-                AuthService.checkStatus().then(function(res) {
-                    that.showLogOut(true);
-                }, function(err) {
-                    that.showLogOut(false);
-                });
-            }
-            this.checkStatus(); // call before DOM loads
-        }]
-);
 angular.module('about', ['ui.router']).component('about', {
     bindings: { 
     }, 
@@ -442,7 +409,6 @@ angular.module('blog', ['ui.router']).component('blog', {
                 $state.go('blog.abstracts', { year: 'posts', month : 'all', page: '1', active: true });
             }        
             this.onClick = function(category ){
-                console.log('category', category);
                 this.pages.filter = category.filter;
                 this.pages.year = category.year;
                 this.pages.month = category.month;
@@ -676,6 +642,77 @@ angular.module('login', ['ui.router']).component('login', {
             this.init();            
         }]
 }); 
+angular.module('site-ctrl', []).
+    controller('SiteCtrl', ['$state', 'AuthService', '$location', 
+        function($state, AuthService, $location) {
+            this.activeItem="home";
+            this.hide = false;
+            this.currentBtn = 'home';   
+            var that = this; 
+            this.showLogOut = function(value){
+                this.hide = value;
+            }
+            this.logOut = function(){
+                AuthService.logout().then(function(resp){}, function(err){
+                    $state.go('home');
+                    that.showLogOut(false);
+                    location.reload(true);
+                });
+            }
+            this.isActive = function(loc) {
+                return loc == $location.path().split('\/')[1];
+            }
+            this.home = function(){
+                $state.go('home');
+            }
+            this.checkStatus = function(){
+                AuthService.checkStatus().then(function(res) {
+                    that.showLogOut(true);
+                }, function(err) {
+                    that.showLogOut(false);
+                });
+            }
+            this.checkStatus(); // call before DOM loads
+        }]
+);
+angular.module('custom-filters', [])
+.filter('startFrom', function() { 
+    return function(input, start) {
+        start = +start; 
+        return input.slice(start);
+    }
+})
+.filter('roundup', function () {
+    return function (value) {
+        if(value == 0){
+            value = 1;
+        }       
+        return Math.ceil(value);
+    };
+})
+.filter('extractMonth', function() {
+    return function(x) { 
+        return '' + /[a-zA-Z]+/.exec(x);
+    };
+})
+.filter('extractYear', function() {
+    return function(x) {
+        return '' + /^[0-9]+/.exec(x);
+    };
+})
+.filter('filterByMonth', function() {
+    return function(x, filter) {
+        if(filter == 'posts/all'){
+            return x;
+        } else {
+            return x.filter(function(abstract) { 
+                    return abstract.filter === filter;
+                });
+        }
+    }
+});
+
+
 angular.module('auth-service', [] ).factory('AuthService', [ '$q', '$http', 
     function($q, $http) {
         var currentUser = {
@@ -758,7 +795,7 @@ angular.module('calendar-service', [] ).factory('CalendarService',
                 return d.getFullYear().toString();
             },
             getYears: function(){
-                return [2018, 2017, 2016, 2015, 2014];
+                return [2019, 2018, 2017, 2016, 2015, 2014];
             },
             getDays: function(month, year){
                 if( month != "Feb" ){
@@ -941,40 +978,3 @@ angular.module('months-number-services', []).factory( 'MonthsToNumberService',
                 "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12 };
     }
 )
-angular.module('custom-filters', [])
-.filter('startFrom', function() { 
-    return function(input, start) {
-        start = +start; 
-        return input.slice(start);
-    }
-})
-.filter('roundup', function () {
-    return function (value) {
-        if(value == 0){
-            value = 1;
-        }       
-        return Math.ceil(value);
-    };
-})
-.filter('extractMonth', function() {
-    return function(x) { 
-        return '' + /[a-zA-Z]+/.exec(x);
-    };
-})
-.filter('extractYear', function() {
-    return function(x) {
-        return '' + /^[0-9]+/.exec(x);
-    };
-})
-.filter('filterByMonth', function() {
-    return function(x, filter) {
-        if(filter == 'posts/all'){
-            return x;
-        } else {
-            return x.filter(function(abstract) { 
-                    return abstract.filter === filter;
-                });
-        }
-    }
-});
-

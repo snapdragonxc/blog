@@ -35,7 +35,7 @@ angular.module('calendar-service', [] ).factory('CalendarService',
                 return d.getFullYear().toString();
             },
             getYears: function(){
-                return [2018, 2017, 2016, 2015, 2014];
+                return [2019, 2018, 2017, 2016, 2015, 2014];
             },
             getDays: function(month, year){
                 if( month != "Feb" ){
